@@ -4,6 +4,7 @@ import { toast } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import { CloudArrowUpIcon, XMarkIcon, DocumentIcon, PhotoIcon } from '@heroicons/react/24/outline';
 import { CheckCircleIcon } from '@heroicons/react/24/solid';
+import { API_URL } from '../config/api';
 
 const CustomEmbroideryRequest = () => {
   const { user } = useAuth();
@@ -269,7 +270,7 @@ const CustomEmbroideryRequest = () => {
         submitData.append(`imageDescription_${index}`, imageDescriptions[image.id] || '');
       });
 
-      const response = await fetch('https://shreegraphicsdesign-backend.onrender.com//api/custom-embroidery-requests', {
+      const response = await fetch(`${API_URL}/api/custom-embroidery-requests`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`

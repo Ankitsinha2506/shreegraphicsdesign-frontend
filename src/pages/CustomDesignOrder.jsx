@@ -5,6 +5,7 @@ import { useDropzone } from 'react-dropzone'
 import axios from 'axios'
 import toast from 'react-hot-toast'
 import { useAuth } from '../context/AuthContext'
+import { API_URL } from '../config/api'
 
 const CustomDesignOrder = () => {
   const { user } = useAuth()
@@ -60,7 +61,7 @@ const CustomDesignOrder = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get('https://shreegraphicsdesign-backend.onrender.com//api/products')
+      const response = await axios.get(`${API_URL}/api/products`)
       setProducts(response.data.products || [])
     } catch (error) {
       console.error('Error fetching products:', error)
@@ -179,7 +180,7 @@ const CustomDesignOrder = () => {
       })
 
       const response = await axios.post(
-        'https://shreegraphicsdesign-backend.onrender.com//api/custom-design-orders',
+        'http://localhost:5003/api/custom-design-orders',
         submitData,
         {
           headers: {

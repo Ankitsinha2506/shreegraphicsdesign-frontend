@@ -1,6 +1,7 @@
 import axios from 'axios';
+import { API_URL } from '../config/api';
 
-const API_BASE_URL = 'https://shreegraphicsdesign-backend.onrender.com//api';
+const API_BASE_URL = `${API_URL}/api`;
 
 // Create axios instance with default config
 const api = axios.create({

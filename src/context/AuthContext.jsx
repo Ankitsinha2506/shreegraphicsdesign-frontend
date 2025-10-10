@@ -1,9 +1,11 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import axios from 'axios'
 import toast from 'react-hot-toast'
+import { API_URL } from '../config/api';
 
 // Configure axios base URL
-axios.defaults.baseURL = 'https://shreegraphicsdesign-backend.onrender.com/'
+// axios.defaults.baseURL = 'http://localhost:5003'
+axios.defaults.baseURL = API_URL;
 
 const AuthContext = createContext()
 

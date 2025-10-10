@@ -5,6 +5,7 @@ import { useCart } from '../context/CartContext'
 import { useAuth } from '../context/AuthContext'
 import axios from 'axios'
 import toast from 'react-hot-toast'
+import { API_URL } from '../config/api'
 
 const Checkout = () => {
   const { cartItems, getCartTotal, clearCart } = useCart()
@@ -103,7 +104,7 @@ const Checkout = () => {
       }
       
       // Send order to backend
-      const response = await axios.post('https://shreegraphicsdesign-backend.onrender.com//api/orders', orderData, {
+      const response = await axios.post(`${API_URL}/api/orders`, orderData, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }

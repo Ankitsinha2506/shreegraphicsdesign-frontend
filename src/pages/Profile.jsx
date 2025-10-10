@@ -4,6 +4,7 @@ import { UserIcon, ShoppingBagIcon, CogIcon, HeartIcon, PaintBrushIcon, SwatchIc
 import { useAuth } from '../context/AuthContext'
 import axios from 'axios'
 import toast from 'react-hot-toast'
+import { API_URL } from '../config/api'
 
 const Profile = () => {
   const { user, updateProfile, logout } = useAuth()
@@ -92,7 +93,7 @@ const Profile = () => {
         sortOrder: ordersFilters.sortOrder
       })
       
-      const response = await axios.get(`https://shreegraphicsdesign-backend.onrender.com//api/orders?${params}`, {
+      const response = await axios.get(`${API_URL}/api/orders?${params}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -115,7 +116,7 @@ const Profile = () => {
   const fetchLogoRequests = async () => {
     setLogoRequestsLoading(true)
     try {
-      const response = await axios.get('https://shreegraphicsdesign-backend.onrender.com//api/custom-logo-requests/my-requests', {
+      const response = await axios.get('http://localhost:5003/api/custom-logo-requests/my-requests', {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -132,7 +133,7 @@ const Profile = () => {
   const fetchEmbroideryRequests = async () => {
     setEmbroideryRequestsLoading(true)
     try {
-      const response = await axios.get('https://shreegraphicsdesign-backend.onrender.com//api/custom-embroidery-requests/my-requests', {
+      const response = await axios.get('http://localhost:5003/api/custom-embroidery-requests/my-requests', {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -149,7 +150,7 @@ const Profile = () => {
   const fetchCustomDesignOrders = async () => {
     setCustomDesignOrdersLoading(true)
     try {
-      const response = await axios.get('https://shreegraphicsdesign-backend.onrender.com//api/custom-design-orders', {
+      const response = await axios.get('http://localhost:5003/api/custom-design-orders', {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -193,7 +194,7 @@ const Profile = () => {
     setLoading(true)
     
     try {
-      await axios.put('https://shreegraphicsdesign-backend.onrender.com//api/auth/change-password', {
+      await axios.put('http://localhost:5003/api/auth/change-password', {
         currentPassword: passwordData.currentPassword,
         newPassword: passwordData.newPassword
       }, {
@@ -588,7 +589,7 @@ const Profile = () => {
                               {request.referenceImages.slice(0, 3).map((image, index) => (
                                 <img
                                   key={index}
-                                  src={`https://shreegraphicsdesign-backend.onrender.com/${image}`}
+                                  src={`http://localhost:5003${image}`}
                                   alt={`Reference ${index + 1}`}
                                   className="h-16 w-16 rounded-lg object-cover"
                                 />
@@ -685,7 +686,7 @@ const Profile = () => {
                       {request.referenceImages.slice(0, 3).map((image, index) => (
                         <img
                           key={index}
-                          src={`https://shreegraphicsdesign-backend.onrender.com/${image}`}
+                          src={`http://localhost:5003${image}`}
                           alt={`Reference ${index + 1}`}
                           className="h-16 w-16 rounded-lg object-cover"
                         />
@@ -800,7 +801,7 @@ const Profile = () => {
                     <h4 className="text-sm font-medium text-gray-900 mb-2">Uploaded Design</h4>
                     <div className="flex items-center space-x-4">
                       <img
-                        src={`https://shreegraphicsdesign-backend.onrender.com/${order.uploadedDesign.url}`}
+                        src={`http://localhost:5003${order.uploadedDesign.url}`}
                         alt="Uploaded Design"
                         className="h-20 w-20 rounded-lg object-cover"
                       />

@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://shreegraphicsdesign-backend.onrender.com/',
+        target: 'http://localhost:5003',
         changeOrigin: true,
         secure: false
       }

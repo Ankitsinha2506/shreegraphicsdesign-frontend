@@ -15,6 +15,7 @@ import {
 import axios from 'axios'
 import toast from 'react-hot-toast'
 import { useAuth } from '../context/AuthContext'
+import { API_URL } from '../config/api'
 
 const Clients = () => {
   const [clients, setClients] = useState([])
@@ -91,7 +92,7 @@ const Clients = () => {
 
       const token = localStorage.getItem('token')
       const response = await axios.get(
-        `https://shreegraphicsdesign-backend.onrender.com//api/clients?${params.toString()}`,
+        `http://localhost:5003/api/clients?${params.toString()}`,
         {
           headers: { Authorization: `Bearer ${token}` }
         }
@@ -113,7 +114,7 @@ const Clients = () => {
 
     try {
       const token = localStorage.getItem('token')
-      await axios.delete(`https://shreegraphicsdesign-backend.onrender.com//api/clients/${clientId}`, {
+      await axios.delete(`${API_URL}/api/clients/${clientId}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       toast.success('Client deleted successfully')

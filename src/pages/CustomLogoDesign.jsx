@@ -5,6 +5,7 @@ import { HeartIcon } from '@heroicons/react/24/solid'
 import axios from 'axios'
 import toast from 'react-hot-toast'
 import { useCart } from '../context/CartContext'
+import { API_URL } from '../config/api'
 
 const CustomLogoDesign = () => {
   const [designs, setDesigns] = useState([])
@@ -96,7 +97,7 @@ const CustomLogoDesign = () => {
           if (max) params.append('maxPrice', max)
         }
 
-        const response = await axios.get(`https://shreegraphicsdesign-backend.onrender.com//api/custom-logo-designs?${params.toString()}`)
+        const response = await axios.get(`${API_URL}/api/custom-logo-designs?${params.toString()}`)
         setDesigns(response.data.data || [])
       } catch (error) {
         console.error('Error fetching custom logo designs:', error)
