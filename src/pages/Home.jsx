@@ -90,7 +90,7 @@ const Home = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await axios.get('/api/products?limit=1000')
+        const response = await axios.get(`${import.meta.env.VITE_API_URI}/api/products?limit=1000`);
         setProducts(response.data.products || response.data)
       } catch (error) {
         console.error('Error fetching products:', error)
