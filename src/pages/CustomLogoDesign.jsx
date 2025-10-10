@@ -96,7 +96,7 @@ const CustomLogoDesign = () => {
           if (max) params.append('maxPrice', max)
         }
 
-        const response = await axios.get(`http://localhost:5003/api/custom-logo-designs?${params.toString()}`)
+        const response = await axios.get(`https://shreegraphicsdesign-backend.onrender.com//api/custom-logo-designs?${params.toString()}`)
         setDesigns(response.data.data || [])
       } catch (error) {
         console.error('Error fetching custom logo designs:', error)

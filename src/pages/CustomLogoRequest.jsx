@@ -39,7 +39,7 @@ const CustomLogoRequest = () => {
 
   const fetchPackagePricing = async () => {
     try {
-      const response = await fetch('http://localhost:5003/api/custom-logo-requests/pricing/packages');
+      const response = await fetch('https://shreegraphicsdesign-backend.onrender.com//api/custom-logo-requests/pricing/packages');
       const data = await response.json();
       if (data.success) {
         setPackages(data.data);
@@ -246,7 +246,7 @@ const CustomLogoRequest = () => {
         submitFormData.append(`imageDescription${index}`, imageDescriptions[image.id] || '');
       });
 
-      const response = await fetch('http://localhost:5003/api/custom-logo-requests', {
+      const response = await fetch('https://shreegraphicsdesign-backend.onrender.com//api/custom-logo-requests', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`

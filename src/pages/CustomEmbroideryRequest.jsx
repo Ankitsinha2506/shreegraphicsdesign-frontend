@@ -269,7 +269,7 @@ const CustomEmbroideryRequest = () => {
         submitData.append(`imageDescription_${index}`, imageDescriptions[image.id] || '');
       });
 
-      const response = await fetch('http://localhost:5003/api/custom-embroidery-requests', {
+      const response = await fetch('https://shreegraphicsdesign-backend.onrender.com//api/custom-embroidery-requests', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`

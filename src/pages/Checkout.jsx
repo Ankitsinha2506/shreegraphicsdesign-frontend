@@ -103,7 +103,7 @@ const Checkout = () => {
       }
       
       // Send order to backend
-      const response = await axios.post('http://localhost:5003/api/orders', orderData, {
+      const response = await axios.post('https://shreegraphicsdesign-backend.onrender.com//api/orders', orderData, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }

@@ -3,7 +3,7 @@ import axios from 'axios'
 import toast from 'react-hot-toast'
 
 // Configure axios base URL
-axios.defaults.baseURL = 'http://localhost:5003'
+axios.defaults.baseURL = 'https://shreegraphicsdesign-backend.onrender.com/'
 
 const AuthContext = createContext()
 

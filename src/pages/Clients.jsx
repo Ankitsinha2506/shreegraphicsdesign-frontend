@@ -91,7 +91,7 @@ const Clients = () => {
 
       const token = localStorage.getItem('token')
       const response = await axios.get(
-        `http://localhost:5003/api/clients?${params.toString()}`,
+        `https://shreegraphicsdesign-backend.onrender.com//api/clients?${params.toString()}`,
         {
           headers: { Authorization: `Bearer ${token}` }
         }
@@ -113,7 +113,7 @@ const Clients = () => {
 
     try {
       const token = localStorage.getItem('token')
-      await axios.delete(`http://localhost:5003/api/clients/${clientId}`, {
+      await axios.delete(`https://shreegraphicsdesign-backend.onrender.com//api/clients/${clientId}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       toast.success('Client deleted successfully')

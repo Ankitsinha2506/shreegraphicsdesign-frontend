@@ -60,7 +60,7 @@ const CustomDesignOrder = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get('http://localhost:5003/api/products')
+      const response = await axios.get('https://shreegraphicsdesign-backend.onrender.com//api/products')
       setProducts(response.data.products || [])
     } catch (error) {
       console.error('Error fetching products:', error)
@@ -179,7 +179,7 @@ const CustomDesignOrder = () => {
       })
 
       const response = await axios.post(
-        'http://localhost:5003/api/custom-design-orders',
+        'https://shreegraphicsdesign-backend.onrender.com//api/custom-design-orders',
         submitData,
         {
           headers: {
