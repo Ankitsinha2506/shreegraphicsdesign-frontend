@@ -22,6 +22,7 @@ import CustomDesignOrder from './pages/CustomDesignOrder'
 import { AuthProvider } from './context/AuthContext'
 import { CartProvider } from './context/CartContext'
 import CartSidebar from './components/CartSidebar'
+import ScrollToTop from './ScrollToTop'
 
 
 
@@ -58,6 +59,7 @@ function App() {
     <AuthProvider>
       <CartProvider>
         <Router>
+          <ScrollToTop />
           <Layout>
             <Routes>
               <Route path="/" element={<Home />} />

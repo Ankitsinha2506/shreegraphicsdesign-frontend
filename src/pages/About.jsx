@@ -1,4 +1,8 @@
 import { CheckCircleIcon, UserGroupIcon, TrophyIcon } from '@heroicons/react/24/outline'
+import Shailesh from '../assets/images/Shailesh.png'
+import Sheela from '../assets/images/Sheela.png'
+import Shubham from '../assets/images/Shubham.png'
+
 
 const About = () => {
   const stats = [
@@ -28,21 +32,21 @@ const About = () => {
 
   const team = [
     {
-      name: 'Rajesh Sharma',
+      name: 'Shailesh Shahaji Lamkhade',
       role: 'Founder & Creative Director',
-      image: 'https://i.pinimg.com/736x/e9/c5/1a/e9c51a0a6819c3b0032b44c46fd199b0.jpg',
+      image: Shailesh,
       description: 'With over 10 years of experience in graphic design and branding.'
     },
     {
-      name: 'Priya Patel',
+      name: 'Sheela Hemant Lanke',
       role: 'Senior Designer',
-      image: 'https://i.pinimg.com/736x/ca/8b/bb/ca8bbb8771bdd2f60b6098b6e1497a39.jpg',
+      image: Sheela,
       description: 'Specializes in logo design and brand identity development.'
     },
     {
-      name: 'Amit Kumar',
+      name: 'Shubham Balaso Mane',
       role: 'Embroidery Specialist',
-      image: 'https://i.pinimg.com/736x/e9/c5/1a/e9c51a0a6819c3b0032b44c46fd199b0.jpg',
+      image: Shubham,
       description: 'Expert in custom embroidery and textile design solutions.'
     }
   ]
