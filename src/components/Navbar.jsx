@@ -61,9 +61,10 @@ const Navbar = () => {
             { name: 'All Apparels', href: '/products?category=apparels' },
             { name: 'Cap', href: '/products?category=apparels&subcategory=cap' },
             { name: 'Jackets', href: '/products?category=apparels&subcategory=jackets' },
-            { name: 'Sweatshirt', href: '/products?category=apparels&subcategory=sweatshirt' },
-            { name: 'Denim Shirt', href: '/products?category=apparels&subcategory=denim-shirt' },
-            { name: 'Windcheaters', href: '/products?category=apparels&subcategory=windcheaters' }
+            { name: 'Shirt', href: '/products?category=apparels&subcategory=Shirt' },
+            { name: 'T-Shirt', href: '/products?category=apparels&subcategory=denim-shirt' },
+            // { name: 'Windcheaters', href: '/products?category=apparels&subcategory=windcheaters' }
+            // Shirt
           ]
         },
         {

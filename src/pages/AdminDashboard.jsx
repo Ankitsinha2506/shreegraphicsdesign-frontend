@@ -111,8 +111,8 @@ const AdminDashboard = () => {
       subcategories: [
         { value: 'cap', label: 'Cap' },
         { value: 'jackets', label: 'Jackets' },
-        { value: 'sweatshirt', label: 'Sweatshirt' },
-        { value: 'denim-shirt', label: 'Denim Shirt' },
+        { value: 'Shirt', label: 'Shirt' },
+        { value: 'denim-shirt', label: 'T-Shirt' },
         { value: 'windcheaters', label: 'Windcheaters' }
       ]
     },

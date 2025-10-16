@@ -80,7 +80,7 @@ const ProductDetail = () => {
   // Check if product supports custom design
   const supportsCustomDesign = () => {
     return product?.category === 'apparels' || 
-           ['cap', 'sweatshirt', 'jackets', 'denim-shirt'].includes(product?.subcategory)
+           ['cap', 'Shirt', 'jackets', 'denim-shirt'].includes(product?.subcategory)
   }
 
   const handleBuyNow = () => {

@@ -41,7 +41,7 @@ const ProductCustomizer = ({ product, onCustomizationChange }) => {
       ];
     }
 
-    if (['sweatshirt', 'jackets', 'denim-shirt'].includes(product?.subcategory)) {
+    if (['Shirt', 'jackets', 'denim-shirt'].includes(product?.subcategory)) {
       return [
         ...baseOptions,
         { id: 'sleeve-left', label: 'Left Sleeve', icon: '💪' },
@@ -253,7 +253,7 @@ const ProductCustomizer = ({ product, onCustomizationChange }) => {
     // Default product images based on subcategory
     const defaultImages = {
       'cap': 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=400&h=400&fit=crop',
-      'sweatshirt': 'https://images.unsplash.com/photo-1556821840-3a9c6dcb0e78?w=400&h=500&fit=crop',
+      'Shirt': 'https://images.unsplash.com/photo-1556821840-3a9c6dcb0e78?w=400&h=500&fit=crop',
       'jackets': 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400&h=500&fit=crop',
       'denim-shirt': 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=400&h=500&fit=crop'
     };
