@@ -29,6 +29,7 @@ import toast from 'react-hot-toast'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 import DashboardCharts from '../components/charts/DashboardCharts'
+import imageCompression from 'browser-image-compression'; // ✅ New import
 
 const AdminDashboard = () => {
   const { user, logout } = useAuth()
@@ -193,8 +194,9 @@ const AdminDashboard = () => {
   const [selectedFile, setSelectedFile] = useState(null)
   const [isUploading, setIsUploading] = useState(false)
 
+
   const handleImageUpload = async (e) => {
-    const file = e.target.files[0];
+    let file = e.target.files[0]; // ✅ change 'const' to 'let' for compression
     if (!file) return;
 
     // Validate file type
@@ -203,9 +205,25 @@ const AdminDashboard = () => {
       return;
     }
 
-    // Validate file size (max 5MB)
+    // =========================
+    // ✅ NEW: Compress the image before upload
+    // =========================
+    try {
+      const options = {
+        maxSizeMB: 5,             // Max size after compression
+        maxWidthOrHeight: 1920,   // Max dimensions
+        useWebWorker: true
+      };
+      file = await imageCompression(file, options); // Compress file
+    } catch (err) {
+      console.error('Image compression error:', err);
+      toast.error('Failed to compress image');
+      return;
+    }
+
+    // Validate compressed file size (just in case)
     if (file.size > 5 * 1024 * 1024) {
-      toast.error('Image size should be less than 5MB');
+      toast.error('Compressed image is still larger than 5MB');
       return;
     }
 
@@ -253,6 +271,7 @@ const AdminDashboard = () => {
       setIsUploading(false);
     }
   };
+
 
   const clearImage = () => {
     setImagePreview('');
