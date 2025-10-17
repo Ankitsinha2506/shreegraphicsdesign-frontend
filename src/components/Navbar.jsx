@@ -295,22 +295,36 @@ const Navbar = () => {
                   <div className="ml-4 mt-1 space-y-1 border-l border-primary-100 pl-3">
                     {item.dropdown.map(subItem => (
                       <div key={subItem.name}>
-                        <button
-                          onClick={() => subItem.submenu ? toggleSubmenu(subItem.name) : handleMenuClose()}
-                          className="flex justify-between w-full px-3 py-2 text-sm font-medium text-gray-600 hover:bg-primary-50 rounded-lg"
-                        >
-                          {subItem.name}
-                          {subItem.submenu && <ChevronDownIcon className={`h-4 w-4 transform transition-transform ${openSubmenu === subItem.name ? 'rotate-180' : ''}`} />}
-                        </button>
-
-                        {subItem.submenu && openSubmenu === subItem.name && (
-                          <div className="ml-4 mt-1 space-y-1 border-l border-gray-200 pl-3">
-                            {subItem.submenu.map(subSubItem => (
-                              <Link key={subSubItem.name} to={subSubItem.href} onClick={handleMenuClose} className="block px-3 py-2 text-xs text-gray-500 hover:bg-primary-50 rounded-lg">
-                                {subSubItem.name}
-                              </Link>
-                            ))}
-                          </div>
+                        {!subItem.submenu ? (
+                          <Link
+                            to={subItem.href}
+                            onClick={handleMenuClose} // ✅ close menu when clicking
+                            className="block px-3 py-2 text-sm text-gray-600 hover:bg-primary-50 rounded-lg"
+                          >
+                            {subItem.name}
+                          </Link>
+                        ) : (
+                          <>
+                            <button
+                              onClick={() => toggleSubmenu(subItem.name)}
+                              className="flex justify-between w-full px-3 py-2 text-sm font-medium text-gray-600 hover:bg-primary-50 rounded-lg"
+                            >
+                              {subItem.name}
+                              <ChevronDownIcon className={`h-4 w-4 transform transition-transform ${openSubmenu === subItem.name ? 'rotate-180' : ''}`} />
+                            </button>
+                            <div className={`ml-4 mt-1 space-y-1 border-l border-gray-200 pl-3 ${openSubmenu === subItem.name ? 'block' : 'hidden'}`}>
+                              {subItem.submenu.map(subSubItem => (
+                                <Link
+                                  key={subSubItem.name}
+                                  to={subSubItem.href}
+                                  onClick={handleMenuClose} // ✅ close menu when clicking
+                                  className="block px-3 py-2 text-xs text-gray-500 hover:bg-primary-50 rounded-lg"
+                                >
+                                  {subSubItem.name}
+                                </Link>
+                              ))}
+                            </div>
+                          </>
                         )}
                       </div>
                     ))}
@@ -320,6 +334,7 @@ const Navbar = () => {
             ))}
           </div>
         )}
+
       </div>
     </nav>
   )
