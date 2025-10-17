@@ -10,6 +10,7 @@ import {
   ChevronDownIcon,
 } from '@heroicons/react/24/outline'
 import Logo from '../assets/shreegraphics.png'
+import Shreegraphicslogo from '../assets/shreegraphicsnavimage.png'
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -141,10 +142,9 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          {/* Logo */}
           <Link to="/" className="flex items-center space-x-3 group">
             <img
-              src={Logo}
+              src={Shreegraphicslogo}
               alt="Shree Graphics Logo"
               className="h-12 sm:h-14 w-auto object-contain transition-all duration-300 hover:scale-105" // 🟢 UPDATED
             />
