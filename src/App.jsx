@@ -7,6 +7,8 @@ import { CartProvider } from './context/CartContext'
 import CartSidebar from './components/CartSidebar'
 import ScrollToTop from './ScrollToTop'
 import { Suspense, lazy } from 'react' // ✅ Added for lazy loading
+import 'react-medium-image-zoom/dist/styles.css';
+
 
 // ✅ Lazy-loaded pages
 const Home = lazy(() => import('./pages/Home'))

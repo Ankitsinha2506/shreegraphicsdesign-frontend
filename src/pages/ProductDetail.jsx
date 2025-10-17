@@ -8,13 +8,15 @@ import ReviewSection from '../components/reviews/ReviewSection'
 import ProductCustomizer from '../components/ProductCustomizer'
 import axios from 'axios'
 import toast from 'react-hot-toast'
+import Zoom from 'react-medium-image-zoom';
+import ImageZoomAmazon from '../components/ImageZoomAmazon'
 
 const ProductDetail = () => {
   const { id } = useParams()
   const navigate = useNavigate()
   const { addToCart } = useCart()
   const { isAuthenticated } = useAuth()
-  
+
   const [product, setProduct] = useState(null)
   const [loading, setLoading] = useState(true)
   const [selectedImage, setSelectedImage] = useState(0)
@@ -39,13 +41,13 @@ const ProductDetail = () => {
     try {
       const response = await axios.get(`/api/products/${id}`)
       const productData = response.data.product || response.data
-      
+
       if (!productData) {
         toast.error('Product not found')
         navigate('/products')
         return
       }
-      
+
       setProduct(productData)
       setLoading(false)
     } catch (error) {
@@ -68,7 +70,7 @@ const ProductDetail = () => {
       customDesign: customDesign,
       quantity: quantity
     }
-    
+
     addToCart(product, cartItem)
     toast.success('Product added to cart!')
   }
@@ -79,8 +81,8 @@ const ProductDetail = () => {
 
   // Check if product supports custom design
   const supportsCustomDesign = () => {
-    return product?.category === 'apparels' || 
-           ['cap', 'Shirt', 'jackets', 'denim-shirt'].includes(product?.subcategory)
+    return product?.category === 'apparels' ||
+      ['cap', 'Shirt', 'jackets', 'denim-shirt'].includes(product?.subcategory)
   }
 
   const handleBuyNow = () => {
@@ -125,10 +127,13 @@ const ProductDetail = () => {
           {/* Product Images */}
           <div className="space-y-4">
             <div className="aspect-square bg-white rounded-lg overflow-hidden">
-              <img
-                src={product.images[selectedImage]?.url || product.images[selectedImage]}
-                alt={product.images[selectedImage]?.alt || product.name}
-                className="w-full h-full object-cover"
+              <ImageZoomAmazon
+                src={product.images[selectedImage]?.url}
+                width={400}       // main image size
+                height={400}
+                zoom={3}
+                zoomWidth={600}   // zoom overlay size
+                zoomHeight={600}
               />
             </div>
             <div className="grid grid-cols-3 gap-2">
@@ -136,9 +141,8 @@ const ProductDetail = () => {
                 <button
                   key={index}
                   onClick={() => setSelectedImage(index)}
-                  className={`aspect-square bg-white rounded-lg overflow-hidden border-2 ${
-                    selectedImage === index ? 'border-primary-600' : 'border-gray-200'
-                  }`}
+                  className={`aspect-square bg-white rounded-lg overflow-hidden border-2 ${selectedImage === index ? 'border-primary-600' : 'border-gray-200'
+                    }`}
                 >
                   <img
                     src={image?.url || image}
@@ -159,9 +163,8 @@ const ProductDetail = () => {
                   {[...Array(5)].map((_, i) => (
                     <StarIconSolid
                       key={i}
-                      className={`h-5 w-5 ${
-                        i < Math.floor(product.rating?.average || 0) ? 'text-yellow-400' : 'text-gray-300'
-                      }`}
+                      className={`h-5 w-5 ${i < Math.floor(product.rating?.average || 0) ? 'text-yellow-400' : 'text-gray-300'
+                        }`}
                     />
                   ))}
                   <span className="ml-2 text-sm text-gray-600">
@@ -191,7 +194,7 @@ const ProductDetail = () => {
             {/* Customization Options */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-gray-900">Customization Options</h3>
-              
+
               {product.customizationOptions && product.customizationOptions.length > 0 ? (
                 product.customizationOptions.map((option, index) => (
                   <div key={index}>
@@ -387,8 +390,8 @@ const ProductDetail = () => {
         {/* Product Customizer */}
         {supportsCustomDesign() && showCustomizer && (
           <div className="mt-8">
-            <ProductCustomizer 
-              product={product} 
+            <ProductCustomizer
+              product={product}
               onCustomizationChange={handleCustomizationChange}
             />
           </div>
