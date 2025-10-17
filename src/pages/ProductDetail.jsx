@@ -126,11 +126,11 @@ const ProductDetail = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Product Images */}
           <div className="space-y-4">
-            <div className="aspect-square bg-white rounded-lg overflow-hidden">
+            <div className="aspect-square rounded-lg overflow-hidden">
               <ImageZoomAmazon
                 src={product.images[selectedImage]?.url}
-                width={400}       // main image size
-                height={400}
+                width={500}       // main image size
+                height={500}
                 zoom={3}
                 zoomWidth={600}   // zoom overlay size
                 zoomHeight={600}
