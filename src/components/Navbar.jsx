@@ -75,10 +75,11 @@ const Navbar = () => {
             { name: 'All Embroidery', href: '/products?category=embroidery' },
             { name: 'Logo Embroidery', href: '/products?category=embroidery&subcategory=logo-embroidery' },
             { name: 'Text Embroidery', href: '/products?category=embroidery&subcategory=text-embroidery' },
-            { name: 'Patches', href: '/products?category=embroidery&subcategory=patches' },
-            { name: 'Custom Embroidery', href: '/products?category=embroidery&subcategory=custom-embroidery' },
+            { name: 'Patches', href: '/products?category=embroidery&subcategory=custom-patches' },
             { name: 'Monogramming', href: '/products?category=embroidery&subcategory=monogramming' },
-            { name: 'Badge Embroidery', href: '/products?category=embroidery&subcategory=badge-embroidery' }
+            { name: 'Badge Embroidery', href: '/products?category=embroidery&subcategory=badge-embroidery' },
+            { name: 'Custom Embroidery', href: '/products?category=embroidery&subcategory=custom-embroidery' },
+            { name: 'Hand Embroidery', href: '/products?category=embroidery&subcategory=hand-embroidery' }
           ]
         },
         {

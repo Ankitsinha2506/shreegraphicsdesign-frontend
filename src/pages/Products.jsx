@@ -58,13 +58,10 @@ const Products = () => {
       { value: 'all', label: 'All Embroidery' },
       { value: 'logo-embroidery', label: 'Logo Embroidery' },
       { value: 'text-embroidery', label: 'Text Embroidery' },
-      { value: 'custom-patches', label: 'Custom Patches' },
+      { value: 'custom-patches', label: 'Patches' },
       { value: 'monogramming', label: 'Monogramming' },
-      { value: 'badge-embroidery', label: 'Appliqué Work' },
-      { value: 'thread-work', label: 'Thread Work' },
-      { value: 'beadwork', label: 'Beadwork' },
-      { value: 'sequin-work', label: 'Sequin Work' },
-      { value: 'machine-embroidery', label: 'Machine Embroidery' },
+      { value: 'badge-embroidery', label: 'Badge Embroidery' }, // ✅ Updated
+      { value: 'custom-embroidery', label: 'Custom Embroidery' },
       { value: 'hand-embroidery', label: 'Hand Embroidery' }
     ],
     'design-services': [

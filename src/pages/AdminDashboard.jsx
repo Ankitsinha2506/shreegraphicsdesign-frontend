@@ -158,15 +158,11 @@ const AdminDashboard = () => {
       subcategories: [
         { value: 'logo-embroidery', label: 'Logo Embroidery' },
         { value: 'text-embroidery', label: 'Text Embroidery' },
-        { value: 'custom-patches', label: 'Custom Patches' },
+        { value: 'custom-patches', label: 'Patches' },
         { value: 'monogramming', label: 'Monogramming' },
-        { value: 'badge-embroidery', label: 'badge-embroidery' },
-        // { value: 'badge-embroidery', label: 'badge-embroidery' },
-        // { value: 'thread-work', label: 'Thread Work' },
-        // { value: 'beadwork', label: 'Beadwork' },
-        // { value: 'sequin-work', label: 'Sequin Work' },
-        // { value: 'machine-embroidery', label: 'Machine Embroidery' },
-        // { value: 'hand-embroidery', label: 'Hand Embroidery' }
+        { value: 'badge-embroidery', label: 'Badge Embroidery' },
+        { value: 'custom-embroidery', label: 'Custom Embroidery' },
+        { value: 'hand-embroidery', label: 'Hand Embroidery' }
       ]
     },
     'other': {
@@ -1699,181 +1695,181 @@ const AdminDashboard = () => {
                 </div>
 
                 {/* Enhanced Product Filters */}
-<div className="mb-6 bg-gray-50 p-4 rounded-lg">
-  <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-    {/* Search Filter */}
-    <div className="w-full">
-      <label className="block text-sm font-medium text-gray-700 mb-1">Search Products</label>
-      <div className="relative">
-        <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-        <input
-          type="text"
-          value={productSearchTerm}
-          onChange={(e) => setProductSearchTerm(e.target.value)}
-          placeholder="Search by name..."
-          className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-        />
-      </div>
-    </div>
+                <div className="mb-6 bg-gray-50 p-4 rounded-lg">
+                  <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {/* Search Filter */}
+                    <div className="w-full">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Search Products</label>
+                      <div className="relative">
+                        <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                        <input
+                          type="text"
+                          value={productSearchTerm}
+                          onChange={(e) => setProductSearchTerm(e.target.value)}
+                          placeholder="Search by name..."
+                          className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                        />
+                      </div>
+                    </div>
 
-    {/* Category Filter */}
-    <div className="w-full">
-      <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-      <select
-        value={productFilterCategory}
-        onChange={(e) => setProductFilterCategory(e.target.value)}
-        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-      >
-        <option value="">All Categories</option>
-        {productCategories.map(category => (
-          <option key={category} value={category}>
-            {categories[category]?.label || category}
-          </option>
-        ))}
-      </select>
-    </div>
+                    {/* Category Filter */}
+                    <div className="w-full">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                      <select
+                        value={productFilterCategory}
+                        onChange={(e) => setProductFilterCategory(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                      >
+                        <option value="">All Categories</option>
+                        {productCategories.map(category => (
+                          <option key={category} value={category}>
+                            {categories[category]?.label || category}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
 
-    {/* Status Filter */}
-    <div className="w-full">
-      <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-      <select
-        value={productFilterStatus}
-        onChange={(e) => setProductFilterStatus(e.target.value)}
-        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-      >
-        <option value="">All Products</option>
-        <option value="active">Active Only</option>
-        <option value="inactive">Inactive Only</option>
-      </select>
-    </div>
+                    {/* Status Filter */}
+                    <div className="w-full">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                      <select
+                        value={productFilterStatus}
+                        onChange={(e) => setProductFilterStatus(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                      >
+                        <option value="">All Products</option>
+                        <option value="active">Active Only</option>
+                        <option value="inactive">Inactive Only</option>
+                      </select>
+                    </div>
 
-    {/* Sort Options */}
-    <div className="w-full">
-      <label className="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
-      <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
-        <select
-          value={productSortBy}
-          onChange={(e) => setProductSortBy(e.target.value)}
-          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-        >
-          <option value="name">Name</option>
-          <option value="price">Price</option>
-          <option value="category">Category</option>
-          <option value="status">Status</option>
-        </select>
-        <button
-          onClick={() => setProductSortOrder(productSortOrder === 'asc' ? 'desc' : 'asc')}
-          className="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-          title={`Sort ${productSortOrder === 'asc' ? 'Descending' : 'Ascending'}`}
-        >
-          {productSortOrder === 'asc' ? (
-            <ChevronUpIcon className="h-4 w-4" />
-          ) : (
-            <ChevronDownIcon className="h-4 w-4" />
-          )}
-        </button>
-      </div>
-    </div>
-  </div>
+                    {/* Sort Options */}
+                    <div className="w-full">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
+                      <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+                        <select
+                          value={productSortBy}
+                          onChange={(e) => setProductSortBy(e.target.value)}
+                          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                        >
+                          <option value="name">Name</option>
+                          <option value="price">Price</option>
+                          <option value="category">Category</option>
+                          <option value="status">Status</option>
+                        </select>
+                        <button
+                          onClick={() => setProductSortOrder(productSortOrder === 'asc' ? 'desc' : 'asc')}
+                          className="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                          title={`Sort ${productSortOrder === 'asc' ? 'Descending' : 'Ascending'}`}
+                        >
+                          {productSortOrder === 'asc' ? (
+                            <ChevronUpIcon className="h-4 w-4" />
+                          ) : (
+                            <ChevronDownIcon className="h-4 w-4" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
 
-  {/* Price Range Filter */}
-  <div className="mt-4 w-full">
-    <label className="block text-sm font-medium text-gray-700 mb-2">Price Range (₹)</label>
+                  {/* Price Range Filter */}
+                  <div className="mt-4 w-full">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Price Range (₹)</label>
 
-    {/* Predefined Price Range Buttons */}
-    <div className="flex flex-wrap gap-2 mb-3">
-      <button
-        onClick={() => setProductPriceRange({ min: '', max: '' })}
-        className={`px-3 py-1 text-xs rounded-full border ${!productPriceRange.min && !productPriceRange.max
-          ? 'bg-blue-100 text-blue-800 border-blue-300'
-          : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200'
-          }`}
-      >
-        All Prices
-      </button>
-      <button
-        onClick={() => setProductPriceRange({ min: '', max: '500' })}
-        className={`px-3 py-1 text-xs rounded-full border ${!productPriceRange.min && productPriceRange.max === '500'
-          ? 'bg-blue-100 text-blue-800 border-blue-300'
-          : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200'
-          }`}
-      >
-        Below ₹500
-      </button>
-      <button
-        onClick={() => setProductPriceRange({ min: '501', max: '1000' })}
-        className={`px-3 py-1 text-xs rounded-full border ${productPriceRange.min === '501' && productPriceRange.max === '1000'
-          ? 'bg-blue-100 text-blue-800 border-blue-300'
-          : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200'
-          }`}
-      >
-        ₹501 - ₹1,000
-      </button>
-      <button
-        onClick={() => setProductPriceRange({ min: '1001', max: '5000' })}
-        className={`px-3 py-1 text-xs rounded-full border ${productPriceRange.min === '1001' && productPriceRange.max === '5000'
-          ? 'bg-blue-100 text-blue-800 border-blue-300'
-          : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200'
-          }`}
-      >
-        ₹1,001 - ₹5,000
-      </button>
-      <button
-        onClick={() => setProductPriceRange({ min: '5000', max: '' })}
-        className={`px-3 py-1 text-xs rounded-full border ${productPriceRange.min === '5000' && !productPriceRange.max
-          ? 'bg-blue-100 text-blue-800 border-blue-300'
-          : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200'
-          }`}
-      >
-        Above ₹5,000
-      </button>
-    </div>
+                    {/* Predefined Price Range Buttons */}
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      <button
+                        onClick={() => setProductPriceRange({ min: '', max: '' })}
+                        className={`px-3 py-1 text-xs rounded-full border ${!productPriceRange.min && !productPriceRange.max
+                          ? 'bg-blue-100 text-blue-800 border-blue-300'
+                          : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200'
+                          }`}
+                      >
+                        All Prices
+                      </button>
+                      <button
+                        onClick={() => setProductPriceRange({ min: '', max: '500' })}
+                        className={`px-3 py-1 text-xs rounded-full border ${!productPriceRange.min && productPriceRange.max === '500'
+                          ? 'bg-blue-100 text-blue-800 border-blue-300'
+                          : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200'
+                          }`}
+                      >
+                        Below ₹500
+                      </button>
+                      <button
+                        onClick={() => setProductPriceRange({ min: '501', max: '1000' })}
+                        className={`px-3 py-1 text-xs rounded-full border ${productPriceRange.min === '501' && productPriceRange.max === '1000'
+                          ? 'bg-blue-100 text-blue-800 border-blue-300'
+                          : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200'
+                          }`}
+                      >
+                        ₹501 - ₹1,000
+                      </button>
+                      <button
+                        onClick={() => setProductPriceRange({ min: '1001', max: '5000' })}
+                        className={`px-3 py-1 text-xs rounded-full border ${productPriceRange.min === '1001' && productPriceRange.max === '5000'
+                          ? 'bg-blue-100 text-blue-800 border-blue-300'
+                          : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200'
+                          }`}
+                      >
+                        ₹1,001 - ₹5,000
+                      </button>
+                      <button
+                        onClick={() => setProductPriceRange({ min: '5000', max: '' })}
+                        className={`px-3 py-1 text-xs rounded-full border ${productPriceRange.min === '5000' && !productPriceRange.max
+                          ? 'bg-blue-100 text-blue-800 border-blue-300'
+                          : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200'
+                          }`}
+                      >
+                        Above ₹5,000
+                      </button>
+                    </div>
 
-    {/* Custom Price Range Inputs */}
-    <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-3 w-full">
-      <input
-        type="number"
-        value={productPriceRange.min}
-        onChange={(e) => setProductPriceRange({ ...productPriceRange, min: e.target.value })}
-        placeholder="Min price"
-        className="w-full sm:w-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-      />
-      <span className="text-gray-500">to</span>
-      <input
-        type="number"
-        value={productPriceRange.max}
-        onChange={(e) => setProductPriceRange({ ...productPriceRange, max: e.target.value })}
-        placeholder="Max price"
-        className="w-full sm:w-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-      />
-      <button
-        onClick={() => setProductPriceRange({ min: '', max: '' })}
-        className="px-3 py-2 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded-lg hover:bg-gray-50"
-      >
-        Clear
-      </button>
-    </div>
-  </div>
+                    {/* Custom Price Range Inputs */}
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-3 w-full">
+                      <input
+                        type="number"
+                        value={productPriceRange.min}
+                        onChange={(e) => setProductPriceRange({ ...productPriceRange, min: e.target.value })}
+                        placeholder="Min price"
+                        className="w-full sm:w-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                      />
+                      <span className="text-gray-500">to</span>
+                      <input
+                        type="number"
+                        value={productPriceRange.max}
+                        onChange={(e) => setProductPriceRange({ ...productPriceRange, max: e.target.value })}
+                        placeholder="Max price"
+                        className="w-full sm:w-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                      />
+                      <button
+                        onClick={() => setProductPriceRange({ min: '', max: '' })}
+                        className="px-3 py-2 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded-lg hover:bg-gray-50"
+                      >
+                        Clear
+                      </button>
+                    </div>
+                  </div>
 
-  {/* Clear All Filters */}
-  {(productSearchTerm || productFilterCategory || productFilterStatus || productPriceRange.min || productPriceRange.max) && (
-    <div className="mt-4 pt-4 border-t border-gray-200 w-full">
-      <button
-        onClick={() => {
-          setProductSearchTerm('')
-          setProductFilterCategory('')
-          setProductFilterStatus('')
-          setProductPriceRange({ min: '', max: '' })
-          setProductSortBy('name')
-          setProductSortOrder('asc')
-        }}
-        className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded-lg hover:bg-gray-50 w-full sm:w-auto"
-      >
-        Clear All Filters
-      </button>
-    </div>
-  )}
-</div>
+                  {/* Clear All Filters */}
+                  {(productSearchTerm || productFilterCategory || productFilterStatus || productPriceRange.min || productPriceRange.max) && (
+                    <div className="mt-4 pt-4 border-t border-gray-200 w-full">
+                      <button
+                        onClick={() => {
+                          setProductSearchTerm('')
+                          setProductFilterCategory('')
+                          setProductFilterStatus('')
+                          setProductPriceRange({ min: '', max: '' })
+                          setProductSortBy('name')
+                          setProductSortOrder('asc')
+                        }}
+                        className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded-lg hover:bg-gray-50 w-full sm:w-auto"
+                      >
+                        Clear All Filters
+                      </button>
+                    </div>
+                  )}
+                </div>
 
 
                 {productsLoading ? (
