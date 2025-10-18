@@ -150,7 +150,7 @@ const Navbar = () => {
             />
             <div className="hidden sm:flex flex-col">
               <span className="text-lg sm:text-xl font-bold text-gray-900">
-                Graphics Design
+                Shree Graphics Design
               </span>
               <span className="text-[10px] sm:text-xs text-gray-500 font-medium tracking-wide">
                 Your Imagination, Our Embroidery Stitches.
