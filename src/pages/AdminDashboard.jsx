@@ -503,6 +503,7 @@ const AdminDashboard = () => {
       setUsersLoading(false)
     }
   }
+  
 
   const fetchProducts = async () => {
     setProductsLoading(true)
@@ -766,7 +767,9 @@ const AdminDashboard = () => {
 
 
   const handleDeleteUser = async (userId) => {
-    if (!userId) return; // Safety check
+    console.log('Deleting user ID:', userId);
+
+    if (!userId) return;
 
     const confirmDelete = window.confirm('Are you sure you want to delete this user?');
     if (!confirmDelete) return;
@@ -778,32 +781,27 @@ const AdminDashboard = () => {
     }
 
     try {
-      // Call API to delete the user
       const response = await axios.delete(`/api/users/${userId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      // Check backend response
       if (response.status === 200) {
         toast.success(response.data.message || 'User deleted successfully');
 
-        // Optimistically remove user from state
+        // Optimistic UI update
         setUsers(prevUsers => prevUsers.filter(user => user._id !== userId));
 
-        // Refetch users from backend to ensure UI is synced
+        // Optional: fetch latest users to ensure sync
         await fetchUsers();
       } else {
         toast.error('Failed to delete user');
       }
-
     } catch (error) {
       console.error('Error deleting user:', error.response || error.message);
-
-      // Show backend error if exists
-      const message = error.response?.data?.message || 'Failed to delete user';
-      toast.error(message);
+      toast.error(error.response?.data?.message || 'Failed to delete user');
     }
   };
+
 
 
 
@@ -1599,6 +1597,7 @@ const AdminDashboard = () => {
                                 >
                                   <TrashIcon className="h-4 w-4" />
                                 </button>
+
                               </td>
                             </tr>
                           ))}
