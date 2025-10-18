@@ -160,12 +160,13 @@ const AdminDashboard = () => {
         { value: 'text-embroidery', label: 'Text Embroidery' },
         { value: 'custom-patches', label: 'Custom Patches' },
         { value: 'monogramming', label: 'Monogramming' },
-        { value: 'applique', label: 'Applique' },
-        { value: 'thread-work', label: 'Thread Work' },
-        { value: 'beadwork', label: 'Beadwork' },
-        { value: 'sequin-work', label: 'Sequin Work' },
-        { value: 'machine-embroidery', label: 'Machine Embroidery' },
-        { value: 'hand-embroidery', label: 'Hand Embroidery' }
+        { value: 'badge-embroidery', label: 'badge-embroidery' },
+        // { value: 'badge-embroidery', label: 'badge-embroidery' },
+        // { value: 'thread-work', label: 'Thread Work' },
+        // { value: 'beadwork', label: 'Beadwork' },
+        // { value: 'sequin-work', label: 'Sequin Work' },
+        // { value: 'machine-embroidery', label: 'Machine Embroidery' },
+        // { value: 'hand-embroidery', label: 'Hand Embroidery' }
       ]
     },
     'other': {

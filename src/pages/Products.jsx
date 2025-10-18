@@ -60,7 +60,7 @@ const Products = () => {
       { value: 'text-embroidery', label: 'Text Embroidery' },
       { value: 'custom-patches', label: 'Custom Patches' },
       { value: 'monogramming', label: 'Monogramming' },
-      { value: 'applique', label: 'Appliqué Work' },
+      { value: 'badge-embroidery', label: 'Appliqué Work' },
       { value: 'thread-work', label: 'Thread Work' },
       { value: 'beadwork', label: 'Beadwork' },
       { value: 'sequin-work', label: 'Sequin Work' },
