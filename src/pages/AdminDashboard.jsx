@@ -2133,9 +2133,9 @@ const AdminDashboard = () => {
                                 >
                                   <EyeIcon className="h-4 w-4" />
                                 </button>
-                                <button className="text-green-600 hover:text-green-900">
+                                {/* <button className="text-green-600 hover:text-green-900">
                                   <PencilIcon className="h-4 w-4" />
-                                </button>
+                                </button> */}
                               </td>
                             </tr>
                           ))}
