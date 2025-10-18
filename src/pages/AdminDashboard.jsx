@@ -739,20 +739,31 @@ const AdminDashboard = () => {
   }
 
   const handleEditUser = async () => {
-    try {
-      const response = await axios.put(`/api/users/${selectedUser._id}`, userFormData, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      })
-      toast.success('User updated successfully')
-      setShowEditUserModal(false)
-      setSelectedUser(null)
-      setUserFormData({ name: '', email: '', role: 'user' })
-      fetchUsers()
-    } catch (error) {
-      console.error('Error updating user:', error)
-      toast.error(error.response?.data?.message || 'Failed to update user')
+    // Check if email is changed
+    if (userFormData.email !== selectedUser.email) {
+      toast.error("Email cannot be edited");
+      setUserFormData(prev => ({ ...prev, email: selectedUser.email })); // reset email
+      return;
     }
-  }
+
+    try {
+      const response = await axios.put(
+        `/api/users/${selectedUser._id}`,
+        userFormData,
+        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+      );
+
+      toast.success('User updated successfully');
+      setShowEditUserModal(false);
+      setSelectedUser(null);
+      setUserFormData({ name: '', email: '', role: 'user' });
+      fetchUsers();
+    } catch (error) {
+      console.error('Error updating user:', error);
+      toast.error(error.response?.data?.message || 'Failed to update user');
+    }
+  };
+
 
   const handleDeleteUser = async (userId) => {
     if (!userId) return; // Safety check
@@ -772,11 +783,18 @@ const AdminDashboard = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      // Success feedback
-      toast.success(response.data.message || 'User deleted successfully');
+      // Check backend response
+      if (response.status === 200) {
+        toast.success(response.data.message || 'User deleted successfully');
 
-      // Optimistically update UI without refetching
-      setUsers(prevUsers => prevUsers.filter(user => user._id !== userId));
+        // Optimistically remove user from state
+        setUsers(prevUsers => prevUsers.filter(user => user._id !== userId));
+
+        // Refetch users from backend to ensure UI is synced
+        await fetchUsers();
+      } else {
+        toast.error('Failed to delete user');
+      }
 
     } catch (error) {
       console.error('Error deleting user:', error.response || error.message);
@@ -786,6 +804,7 @@ const AdminDashboard = () => {
       toast.error(message);
     }
   };
+
 
 
   // CRUD Handlers for Products
