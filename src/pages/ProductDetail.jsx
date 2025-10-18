@@ -236,7 +236,7 @@ const ProductDetail = () => {
                       className="input-field"
                     >
                       <option value="">Select Color</option>
-                      {(product.customizationOptions?.colors || ['Blue', 'Red', 'Green', 'Black', 'Purple']).map(color => (
+                      {(product.customizationOptions?.colors || ['Black', 'White', 'Gray', 'Navy Blue', 'Red', 'Green', 'Blue', 'Yellow']).map(color => (
                         <option key={color} value={color}>{color}</option>
                       ))}
                     </select>

@@ -755,19 +755,38 @@ const AdminDashboard = () => {
   }
 
   const handleDeleteUser = async (userId) => {
-    if (window.confirm('Are you sure you want to delete this user?')) {
-      try {
-        await axios.delete(`/api/users/${userId}`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-        })
-        toast.success('User deleted successfully')
-        fetchUsers()
-      } catch (error) {
-        console.error('Error deleting user:', error)
-        toast.error(error.response?.data?.message || 'Failed to delete user')
-      }
+    if (!userId) return; // Safety check
+
+    const confirmDelete = window.confirm('Are you sure you want to delete this user?');
+    if (!confirmDelete) return;
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      toast.error('You are not authorized');
+      return;
     }
-  }
+
+    try {
+      // Call API to delete the user
+      const response = await axios.delete(`/api/users/${userId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      // Success feedback
+      toast.success(response.data.message || 'User deleted successfully');
+
+      // Optimistically update UI without refetching
+      setUsers(prevUsers => prevUsers.filter(user => user._id !== userId));
+
+    } catch (error) {
+      console.error('Error deleting user:', error.response || error.message);
+
+      // Show backend error if exists
+      const message = error.response?.data?.message || 'Failed to delete user';
+      toast.error(message);
+    }
+  };
+
 
   // CRUD Handlers for Products
   const handleAddProduct = async () => {
@@ -1894,8 +1913,10 @@ const AdminDashboard = () => {
                           <img
                             src={product.images?.[0]?.url || 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=300&h=200&fit=crop'}
                             alt={product.name}
-                            className={`w-full h-40 object-cover rounded-lg ${!product.isActive ? 'opacity-50' : ''}`}
+                            className={`w-full rounded-lg ${!product.isActive ? 'opacity-50' : ''}`}
+                            style={{ height: 'auto' }} // ✅ ensure height adjusts automatically
                           />
+
                           <div className="absolute top-2 right-2">
                             <span className={`text-xs font-semibold px-2 py-1 rounded-full ${product.isActive
                               ? 'bg-green-100 text-green-800'
