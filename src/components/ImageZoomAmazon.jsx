@@ -33,32 +33,29 @@ const ImageZoomAmazon = ({
       />
 
       {/* Zoom Overlay */}
-      {/* Zoom Overlay */}
-{showZoom && (
-  <div
-    className="fixed z-50 flex items-center justify-center pointer-events-none"
-    style={{
-      top: "50%",
-      left: "70%", // move slightly right from center (50% → 55%)
-      transform: "translate(-50%, -50%)", // keep vertical centering
-      backgroundColor: "rgba(0,0,0,0.5)",
-      backdropFilter: "blur(4px)",
-      padding: "10px", // optional: add some spacing
-    }}
-  >
-    <div
-      className="rounded-lg overflow-hidden border-2 border-gray-200"
-      style={{
-        width: zoomWidth,
-        height: zoomHeight,
-        backgroundImage: `url(${src})`,
-        backgroundRepeat: "no-repeat",
-        backgroundSize: `${width * zoom}px ${height * zoom}px`,
-        backgroundPosition: `-${(coords.x / 100) * width * (zoom - 1)}px -${(coords.y / 100) * height * (zoom - 1)}px`,
-      }}
-    />
-  </div>
-)}
+      {showZoom && (
+        <div
+          className="fixed z-50 pointer-events-none"
+          style={{
+            top: "50%",
+            left: "70%", // slightly right
+            transform: "translate(-50%, -50%)",
+          }}
+        >
+          <div
+            className="rounded-lg border border-gray-300" // only thin border
+            style={{
+              width: zoomWidth,
+              height: zoomHeight,
+              backgroundImage: `url(${src})`,
+              backgroundRepeat: "no-repeat",
+              backgroundSize: `${width * zoom}px ${height * zoom}px`,
+              backgroundPosition: `-${(coords.x / 100) * width * (zoom - 1)}px -${(coords.y / 100) * height * (zoom - 1)}px`,
+            }}
+          />
+        </div>
+      )}
+
 
     </div>
   );
