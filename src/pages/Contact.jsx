@@ -21,28 +21,31 @@ const Contact = () => {
   }
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setIsSubmitting(true)
+    e.preventDefault();
+    setIsSubmitting(true);
 
     try {
-      // Simulate form submission
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      toast.success('Message sent successfully! We\'ll get back to you soon.')
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        subject: '',
-        message: '',
-        projectType: ''
-      })
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+
+      const result = await res.json();
+
+      if (result.success) {
+        toast.success('Message sent successfully!');
+        setFormData({ name: '', email: '', phone: '', subject: '', message: '', projectType: '' });
+      } else {
+        toast.error(result.message || 'Failed to send message');
+      }
     } catch (error) {
-      toast.error('Failed to send message. Please try again.')
+      toast.error('Server error. Please try again.');
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
+
 
   const contactInfo = [
     {
@@ -92,7 +95,7 @@ const Contact = () => {
             Get In Touch
           </h1>
           <p className="text-xl text-primary-100 max-w-3xl mx-auto">
-            Ready to start your next design project? We'd love to hear from you. 
+            Ready to start your next design project? We'd love to hear from you.
             Let's discuss how we can bring your vision to life.
           </p>
         </div>

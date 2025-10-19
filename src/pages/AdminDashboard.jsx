@@ -30,6 +30,7 @@ import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 import DashboardCharts from '../components/charts/DashboardCharts'
 import imageCompression from 'browser-image-compression'; // ✅ New import
+import AdminContactMessages from '../components/AdminContactMessages'
 
 const AdminDashboard = () => {
   const { user, logout } = useAuth()
@@ -311,7 +312,8 @@ const AdminDashboard = () => {
     { id: 'reviews', name: 'Reviews', icon: ChatBubbleLeftRightIcon },
     { id: 'logo-requests', name: 'Logo Requests', icon: SparklesIcon },
     { id: 'embroidery-requests', name: 'Embroidery Requests', icon: SwatchIcon },
-    { id: 'custom-design-orders', name: 'Custom Design Orders', icon: CogIcon }
+    { id: 'custom-design-orders', name: 'Custom Design Orders', icon: CogIcon },
+    { id: 'view-contact-messages', name: 'Contact Messages', icon: UserGroupIcon }
   ]
 
   // Enhanced product filtering
@@ -503,7 +505,7 @@ const AdminDashboard = () => {
       setUsersLoading(false)
     }
   }
-  
+
 
   const fetchProducts = async () => {
     setProductsLoading(true)
@@ -2472,6 +2474,8 @@ const AdminDashboard = () => {
               </div>
             )}
 
+
+
             {/* Reviews Tab */}
             {activeTab === 'reviews' && (
               <div className="bg-white rounded-2xl shadow-lg p-6">
@@ -2652,6 +2656,10 @@ const AdminDashboard = () => {
                   </>
                 )}
               </div>
+            )}
+
+            {activeTab === 'view-contact-messages' && (
+              <AdminContactMessages />
             )}
 
           </div>
