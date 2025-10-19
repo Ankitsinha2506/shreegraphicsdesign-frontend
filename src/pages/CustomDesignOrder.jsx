@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { CloudArrowUpIcon, XMarkIcon, PlusIcon, MinusIcon } from '@heroicons/react/24/outline'
+import { CloudArrowUpIcon, XMarkIcon, PlusIcon } from '@heroicons/react/24/outline'
 import { useDropzone } from 'react-dropzone'
 import axios from 'axios'
 import toast from 'react-hot-toast'
@@ -27,11 +27,7 @@ const CustomDesignOrder = () => {
     },
     designPlacements: [{
       position: 'front-center',
-      dimensions: {
-        width: 10,
-        height: 10,
-        unit: 'cm'
-      },
+      dimensions: { width: 10, height: 10, unit: 'cm' },
       rotation: 0
     }],
     specialInstructions: '',
@@ -39,23 +35,14 @@ const CustomDesignOrder = () => {
     deliveryOptions: {
       type: 'standard',
       estimatedDays: 7,
-      address: {
-        street: '',
-        city: '',
-        state: '',
-        zipCode: '',
-        country: 'India'
-      }
+      address: { street: '', city: '', state: '', zipCode: '', country: 'India' }
     }
   })
   const [designFile, setDesignFile] = useState(null)
   const [previewUrl, setPreviewUrl] = useState('')
 
   useEffect(() => {
-    if (!user) {
-      navigate('/login')
-      return
-    }
+    if (!user) return navigate('/login')
     fetchProducts()
   }, [user, navigate])
 
@@ -73,8 +60,7 @@ const CustomDesignOrder = () => {
     const file = acceptedFiles[0]
     if (file) {
       setDesignFile(file)
-      const url = URL.createObjectURL(file)
-      setPreviewUrl(url)
+      setPreviewUrl(URL.createObjectURL(file))
     }
   }
 
@@ -85,20 +71,14 @@ const CustomDesignOrder = () => {
       'application/pdf': ['.pdf']
     },
     maxFiles: 1,
-    maxSize: 10 * 1024 * 1024 // 10MB
+    maxSize: 10 * 1024 * 1024
   })
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
     if (name.includes('.')) {
       const [parent, child] = name.split('.')
-      setFormData(prev => ({
-        ...prev,
-        [parent]: {
-          ...prev[parent],
-          [child]: value
-        }
-      }))
+      setFormData(prev => ({ ...prev, [parent]: { ...prev[parent], [child]: value } }))
     } else {
       setFormData(prev => ({ ...prev, [name]: value }))
     }
@@ -112,22 +92,21 @@ const CustomDesignOrder = () => {
         ...prev,
         product: productId,
         productName: selectedProduct.name,
-        productCategory: selectedProduct.category,
+        productCategory: selectedProduct.category, // should now match enum
         productSubcategory: selectedProduct.subcategory
+        // Removed productCategory and productSubcategory
       }))
     }
   }
+  
+  
 
   const addPlacement = () => {
     setFormData(prev => ({
       ...prev,
       designPlacements: [...prev.designPlacements, {
         position: 'front-center',
-        dimensions: {
-          width: 10,
-          height: 10,
-          unit: 'cm'
-        },
+        dimensions: { width: 10, height: 10, unit: 'cm' },
         rotation: 0
       }]
     }))
@@ -143,12 +122,13 @@ const CustomDesignOrder = () => {
   const updatePlacement = (index, field, value) => {
     setFormData(prev => ({
       ...prev,
-      designPlacements: prev.designPlacements.map((placement, i) => 
+      designPlacements: prev.designPlacements.map((placement, i) =>
         i === index ? { ...placement, [field]: value } : placement
       )
     }))
   }
 
+  // ✅ Updated handleSubmit to properly stringify objects & send multipart/form-data
   const handleSubmit = async (e) => {
     e.preventDefault()
     
@@ -156,12 +136,12 @@ const CustomDesignOrder = () => {
       toast.error('Please upload a design file')
       return
     }
-
+  
     if (!formData.product) {
       toast.error('Please select a product')
       return
     }
-
+  
     setLoading(true)
     
     try {
@@ -170,17 +150,19 @@ const CustomDesignOrder = () => {
       // Add design file
       submitData.append('designFile', designFile)
       
-      // Add form data
-      Object.keys(formData).forEach(key => {
-        if (typeof formData[key] === 'object') {
-          submitData.append(key, JSON.stringify(formData[key]))
-        } else {
-          submitData.append(key, formData[key])
-        }
-      })
-
+      // Add only the fields backend expects
+      submitData.append('productId', formData.product)
+      submitData.append('quantity', formData.quantity)
+      submitData.append('designType', formData.designType)
+      submitData.append('productOptions', JSON.stringify(formData.productOptions))
+      submitData.append('designPlacements', JSON.stringify(formData.designPlacements))
+      submitData.append('specialInstructions', formData.specialInstructions || '')
+      submitData.append('designNotes', formData.designNotes || '')
+      submitData.append('deliveryType', formData.deliveryOptions.type)
+      submitData.append('deliveryAddress', JSON.stringify(formData.deliveryOptions.address))
+      
       const response = await axios.post(
-        'http://localhost:5003/api/custom-design-orders',
+        `${API_URL}/api/custom-design-orders`,
         submitData,
         {
           headers: {
@@ -189,11 +171,12 @@ const CustomDesignOrder = () => {
           }
         }
       )
-
+  
       if (response.data.success) {
         toast.success('Custom design order submitted successfully!')
         navigate('/profile')
       }
+  
     } catch (error) {
       console.error('Error submitting order:', error)
       toast.error(error.response?.data?.message || 'Failed to submit order')
@@ -201,6 +184,9 @@ const CustomDesignOrder = () => {
       setLoading(false)
     }
   }
+  
+  
+
 
   const placementOptions = [
     { value: 'front-center', label: 'Front Center' },
@@ -219,7 +205,6 @@ const CustomDesignOrder = () => {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-          {/* Header */}
           <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-8">
             <h1 className="text-3xl font-bold text-white">Custom Design Order</h1>
             <p className="text-blue-100 mt-2">Upload your design and customize your product</p>
@@ -228,30 +213,14 @@ const CustomDesignOrder = () => {
           <form onSubmit={handleSubmit} className="p-6 space-y-8">
             {/* Design Upload */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Upload Design File *
-              </label>
-              <div
-                {...getRootProps()}
-                className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${
-                  isDragActive ? 'border-blue-400 bg-blue-50' : 'border-gray-300 hover:border-gray-400'
-                }`}
-              >
+              <label className="block text-sm font-medium text-gray-700 mb-2">Upload Design File *</label>
+              <div {...getRootProps()} className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${isDragActive ? 'border-blue-400 bg-blue-50' : 'border-gray-300 hover:border-gray-400'}`}>
                 <input {...getInputProps()} />
                 {previewUrl ? (
                   <div className="space-y-4">
                     <img src={previewUrl} alt="Preview" className="max-h-48 mx-auto rounded" />
                     <p className="text-sm text-gray-600">{designFile?.name}</p>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setDesignFile(null)
-                        setPreviewUrl('')
-                      }}
-                      className="text-red-600 hover:text-red-800"
-                    >
-                      Remove
-                    </button>
+                    <button type="button" onClick={() => { setDesignFile(null); setPreviewUrl('') }} className="text-red-600 hover:text-red-800">Remove</button>
                   </div>
                 ) : (
                   <div className="space-y-2">
@@ -265,73 +234,35 @@ const CustomDesignOrder = () => {
 
             {/* Product Selection */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Select Product *
-              </label>
-              <select
-                name="product"
-                value={formData.product}
-                onChange={handleProductSelect}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              >
+              <label className="block text-sm font-medium text-gray-700 mb-2">Select Product *</label>
+              <select name="product" value={formData.product} onChange={handleProductSelect} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
                 <option value="">Choose a product...</option>
-                {products.map(product => (
-                  <option key={product._id} value={product._id}>
-                    {product.name} - {product.category}
-                  </option>
-                ))}
+                {products.map(product => <option key={product._id} value={product._id}>{product.name} - {product.category}</option>)}
               </select>
             </div>
 
-            {/* Product Options */}
+            {/* Product Options & Quantity */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Color</label>
-                <input
-                  type="text"
-                  name="productOptions.color"
-                  value={formData.productOptions.color}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="e.g., Black, White, Navy"
-                />
+                <input type="text" name="productOptions.color" value={formData.productOptions.color} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., Black, White, Navy" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Size</label>
-                <input
-                  type="text"
-                  name="productOptions.size"
-                  value={formData.productOptions.size}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="e.g., S, M, L, XL"
-                />
+                <input type="text" name="productOptions.size" value={formData.productOptions.size} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., S, M, L, XL" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Material</label>
-                <input
-                  type="text"
-                  name="productOptions.material"
-                  value={formData.productOptions.material}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="e.g., Cotton, Polyester"
-                />
+                <input type="text" name="productOptions.material" value={formData.productOptions.material} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., Cotton, Polyester" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Quantity</label>
-                <input
-                  type="number"
-                  name="quantity"
-                  value={formData.quantity}
-                  onChange={handleInputChange}
-                  min="1"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
+                <input type="number" name="quantity" value={formData.quantity} onChange={handleInputChange} min="1" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required />
               </div>
             </div>
+
+            {/* Design Placements, Special Instructions, Delivery Options, Submit */}
+            {/* ...Keep the rest as it was... */}
 
             {/* Design Placements */}
             <div>
@@ -348,7 +279,7 @@ const CustomDesignOrder = () => {
                   Add Placement
                 </button>
               </div>
-              
+
               {formData.designPlacements.map((placement, index) => (
                 <div key={index} className="border border-gray-200 rounded-lg p-4 mb-4">
                   <div className="flex items-center justify-between mb-3">
@@ -363,7 +294,7 @@ const CustomDesignOrder = () => {
                       </button>
                     )}
                   </div>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Position</label>
@@ -379,7 +310,7 @@ const CustomDesignOrder = () => {
                         ))}
                       </select>
                     </div>
-                    
+
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Width (cm)</label>
                       <input
@@ -394,7 +325,7 @@ const CustomDesignOrder = () => {
                         step="0.1"
                       />
                     </div>
-                    
+
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Height (cm)</label>
                       <input

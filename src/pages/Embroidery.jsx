@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
-import { 
+import {
   XMarkIcon,
   CloudArrowUpIcon,
   PhotoIcon,
@@ -33,7 +33,7 @@ const Embroidery = () => {
     e.preventDefault()
     e.stopPropagation()
     setDragActive(false)
-    
+
     const files = Array.from(e.dataTransfer.files)
     handleFiles(files)
   }
@@ -99,7 +99,7 @@ const Embroidery = () => {
 
     try {
       const formData = new FormData()
-      
+
       designImages.forEach((image, index) => {
         formData.append('images', image.file)
       })
@@ -114,16 +114,16 @@ const Embroidery = () => {
       formData.append('size', '3 inches')
       formData.append('designDescription', 'Custom embroidery design uploaded by user')
       formData.append('budget', 'Under ₹5,000')
-      
+
       const deadline = new Date()
       deadline.setDate(deadline.getDate() + 14)
       formData.append('deadline', deadline.toISOString())
-      
+
       formData.append('selectedPackage', 'basic')
       formData.append('contactEmail', user?.email || '')
       formData.append('contactPhone', user?.phone || '')
 
-      const baseURL = process.env.REACT_APP_API_URL || 'http://localhost:5003'
+      const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:5003' // ✅ Vite syntax
       const response = await axios.post(`${baseURL}/api/custom-embroidery-requests`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -159,7 +159,7 @@ const Embroidery = () => {
               Professional Embroidery Services
             </h1>
             <p className="text-xl text-gray-600 max-w-4xl mx-auto mb-8 leading-relaxed">
-              Transform your apparel and accessories with premium embroidery work. From corporate logos to custom designs, 
+              Transform your apparel and accessories with premium embroidery work. From corporate logos to custom designs,
               we deliver exceptional quality with precision and style.
             </p>
             <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-500">
@@ -290,9 +290,8 @@ const Embroidery = () => {
             <div className="p-6">
               {/* Upload Area */}
               <div
-                className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-                  dragActive ? 'border-primary-400 bg-primary-50' : 'border-gray-300 hover:border-gray-400'
-                }`}
+                className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${dragActive ? 'border-primary-400 bg-primary-50' : 'border-gray-300 hover:border-gray-400'
+                  }`}
                 onDragEnter={handleDrag}
                 onDragLeave={handleDrag}
                 onDragOver={handleDrag}
@@ -306,9 +305,9 @@ const Embroidery = () => {
                   onChange={handleDesignUpload}
                   className="hidden"
                 />
-                
+
                 <CloudArrowUpIcon className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                
+
                 <div className="space-y-2">
                   <p className="text-lg font-medium text-gray-900">
                     {dragActive ? 'Drop design images here' : 'Drag & drop your design images'}
@@ -322,7 +321,7 @@ const Embroidery = () => {
                     Browse Images
                   </button>
                 </div>
-                
+
                 <div className="mt-4 text-xs text-gray-500">
                   <p>Supported formats: JPG, PNG, GIF, SVG, WebP</p>
                   <p>Maximum file size: 10MB | Maximum files: 5</p>
@@ -353,7 +352,7 @@ const Embroidery = () => {
                       </div>
                     ))}
                   </div>
-                  
+
                   <div className="mt-4 flex flex-col sm:flex-row gap-4">
                     <div className="flex-1 p-4 bg-primary-50 rounded-lg">
                       <div className="flex items-start">
@@ -406,8 +405,8 @@ const Embroidery = () => {
               <PhotoIcon className="h-5 w-5 mr-2" />
               Upload Design & Request Quote
             </button>
-            <Link 
-              to="/contact" 
+            <Link
+              to="/contact"
               className="inline-flex items-center px-6 py-3 border-2 border-white text-base font-medium rounded-md text-white hover:bg-white hover:text-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white transition-colors duration-200"
             >
               Contact Us
