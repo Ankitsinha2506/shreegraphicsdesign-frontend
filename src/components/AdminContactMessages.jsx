@@ -71,70 +71,73 @@ const AdminContactMessages = () => {
   }
 
   return (
-    <div className="bg-white shadow-md rounded-lg p-6 mt-6">
+    <div className="bg-white shadow-md rounded-lg p-4 sm:p-6 mt-4 sm:mt-6">
       {/* Header + Search */}
-      <div className="flex flex-col sm:flex-row justify-between items-center mb-4">
-        <h2 className="text-2xl font-semibold text-gray-800">📬 Contact Messages</h2>
-        <form onSubmit={handleSearch} className="flex mt-4 sm:mt-0">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
+        <h2 className="text-xl sm:text-2xl font-semibold text-gray-800 text-center sm:text-left">
+          📬 Contact Messages
+        </h2>
+
+        <form onSubmit={handleSearch} className="flex flex-col sm:flex-row w-full sm:w-auto gap-2">
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search..."
-            className="border border-gray-300 rounded-l-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+            placeholder="Search messages..."
+            className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 text-sm sm:text-base w-full sm:w-64"
           />
           <button
             type="submit"
-            className="bg-blue-600 text-white px-4 rounded-r-lg hover:bg-blue-700"
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm sm:text-base"
           >
             Search
           </button>
         </form>
       </div>
 
-      {/* Loading State */}
+      {/* Loading / Empty States */}
       {loading ? (
         <p className="text-center text-gray-500 py-6">Loading messages...</p>
       ) : messages.length === 0 ? (
         <p className="text-center text-gray-500 py-6">No messages found.</p>
       ) : (
         <>
-          {/* Table */}
+          {/* Responsive Table */}
           <div className="overflow-x-auto">
-            <table className="min-w-full border border-gray-200 text-sm">
+            <table className="min-w-full border border-gray-200 text-xs sm:text-sm">
               <thead className="bg-gray-100 text-gray-700">
                 <tr>
-                  <th className="px-4 py-2 border">Name</th>
-                  <th className="px-4 py-2 border">Email</th>
-                  <th className="px-4 py-2 border">Project</th>
-                  <th className="px-4 py-2 border">Subject</th>
-                  <th className="px-4 py-2 border">Date</th>
-                  <th className="px-4 py-2 border">Status</th>
-                  <th className="px-4 py-2 border">Actions</th>
+                  <th className="px-3 sm:px-4 py-2 border">Name</th>
+                  <th className="px-3 sm:px-4 py-2 border hidden md:table-cell">Email</th>
+                  <th className="px-3 sm:px-4 py-2 border hidden sm:table-cell">Project</th>
+                  <th className="px-3 sm:px-4 py-2 border">Subject</th>
+                  <th className="px-3 sm:px-4 py-2 border hidden sm:table-cell">Date</th>
+                  <th className="px-3 sm:px-4 py-2 border">Status</th>
+                  <th className="px-3 sm:px-4 py-2 border">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {messages.map((msg) => (
                   <tr key={msg._id} className="border-t hover:bg-gray-50">
-                    <td className="px-4 py-2 border font-medium">{msg.name}</td>
-                    <td className="px-4 py-2 border">{msg.email}</td>
-                    <td className="px-4 py-2 border">{msg.projectType || '-'}</td>
-                    <td className="px-4 py-2 border">{msg.subject}</td>
-                    <td className="px-4 py-2 border">
+                    <td className="px-3 sm:px-4 py-2 border font-medium">{msg.name}</td>
+                    <td className="px-3 sm:px-4 py-2 border hidden md:table-cell break-all">{msg.email}</td>
+                    <td className="px-3 sm:px-4 py-2 border hidden sm:table-cell">{msg.projectType || '-'}</td>
+                    <td className="px-3 sm:px-4 py-2 border max-w-[120px] truncate">{msg.subject}</td>
+                    <td className="px-3 sm:px-4 py-2 border hidden sm:table-cell">
                       {new Date(msg.createdAt).toLocaleDateString()}
                     </td>
-                    <td className="px-4 py-2 border text-center">
+                    <td className="px-3 sm:px-4 py-2 border text-center">
                       {msg.isRead ? (
                         <span className="text-green-600 font-medium">Read</span>
                       ) : (
                         <span className="text-yellow-600 font-medium">Unread</span>
                       )}
                     </td>
-                    <td className="px-4 py-2 border text-center space-x-3">
+                    <td className="px-3 sm:px-4 py-2 border text-center space-x-2">
                       <button
                         onClick={() => setSelectedMessage(msg)}
                         className="text-blue-600 hover:text-blue-800"
-                        title="View Full Message"
+                        title="View"
                       >
                         <EyeIcon className="h-5 w-5 inline" />
                       </button>
@@ -153,28 +156,28 @@ const AdminContactMessages = () => {
           </div>
 
           {/* Pagination */}
-          <div className="flex justify-center mt-4 space-x-4">
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-3 mt-4">
             <button
               disabled={page <= 1}
               onClick={() => setPage((p) => p - 1)}
-              className={`px-4 py-2 rounded-lg border ${
+              className={`px-4 py-2 rounded-lg border text-sm sm:text-base ${
                 page <= 1
-                  ? 'text-gray-400 cursor-not-allowed'
-                  : 'hover:bg-blue-600 hover:text-white'
+                  ? 'text-gray-400 border-gray-300 cursor-not-allowed'
+                  : 'hover:bg-blue-600 hover:text-white border-blue-500'
               }`}
             >
               Prev
             </button>
-            <span className="text-gray-600 text-sm pt-2">
+            <span className="text-gray-600 text-sm">
               Page {page} of {totalPages}
             </span>
             <button
               disabled={page >= totalPages}
               onClick={() => setPage((p) => p + 1)}
-              className={`px-4 py-2 rounded-lg border ${
+              className={`px-4 py-2 rounded-lg border text-sm sm:text-base ${
                 page >= totalPages
-                  ? 'text-gray-400 cursor-not-allowed'
-                  : 'hover:bg-blue-600 hover:text-white'
+                  ? 'text-gray-400 border-gray-300 cursor-not-allowed'
+                  : 'hover:bg-blue-600 hover:text-white border-blue-500'
               }`}
             >
               Next
@@ -185,37 +188,37 @@ const AdminContactMessages = () => {
 
       {/* Modal */}
       {selectedMessage && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-lg w-full shadow-xl relative">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
+          <div className="bg-white rounded-lg p-5 sm:p-6 w-full max-w-lg shadow-xl relative">
             <button
               className="absolute top-3 right-3 text-gray-500 hover:text-gray-800"
               onClick={() => setSelectedMessage(null)}
             >
               <XMarkIcon className="h-6 w-6" />
             </button>
-            <h3 className="text-xl font-semibold mb-2 text-gray-800">
+            <h3 className="text-lg sm:text-xl font-semibold mb-2 text-gray-800">
               {selectedMessage.subject}
             </h3>
             <p className="text-sm text-gray-600 mb-1">
               From: <strong>{selectedMessage.name}</strong> ({selectedMessage.email})
             </p>
             {selectedMessage.phone && (
-              <p className="text-sm text-gray-600 mb-1">
-                Phone: {selectedMessage.phone}
-              </p>
+              <p className="text-sm text-gray-600 mb-1">Phone: {selectedMessage.phone}</p>
             )}
             <p className="text-sm text-gray-600 mb-3">
               Project: {selectedMessage.projectType || 'N/A'}
             </p>
             <hr className="my-3" />
-            <p className="text-gray-700 whitespace-pre-wrap">{selectedMessage.message}</p>
+            <p className="text-gray-700 whitespace-pre-wrap text-sm sm:text-base">
+              {selectedMessage.message}
+            </p>
             {!selectedMessage.isRead && (
               <button
                 onClick={() => {
                   markAsRead(selectedMessage._id)
                   setSelectedMessage(null)
                 }}
-                className="mt-4 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                className="mt-4 bg-green-600 text-white px-4 py-2 rounded-lg w-full sm:w-auto hover:bg-green-700"
               >
                 Mark as Read
               </button>
