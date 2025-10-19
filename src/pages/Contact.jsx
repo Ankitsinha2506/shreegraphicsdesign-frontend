@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { PhoneIcon, EnvelopeIcon, MapPinIcon, ClockIcon } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
+import { API_URL } from '../config/api'
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -20,31 +21,33 @@ const Contact = () => {
     })
   }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
 
-    try {
-      const res = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setIsSubmitting(true);
 
-      const result = await res.json();
+  try {
+    const res = await fetch(`${API_URL}/api/contact`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData)
+    });
 
-      if (result.success) {
-        toast.success('Message sent successfully!');
-        setFormData({ name: '', email: '', phone: '', subject: '', message: '', projectType: '' });
-      } else {
-        toast.error(result.message || 'Failed to send message');
-      }
-    } catch (error) {
-      toast.error('Server error. Please try again.');
-    } finally {
-      setIsSubmitting(false);
+    const result = await res.json();
+
+    if (result.success) {
+      toast.success('Message sent successfully!');
+      setFormData({ name: '', email: '', phone: '', subject: '', message: '', projectType: '' });
+    } else {
+      toast.error(result.message || 'Failed to send message');
     }
-  };
+  } catch (error) {
+    toast.error('Server error. Please try again.');
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
 
 
   const contactInfo = [
