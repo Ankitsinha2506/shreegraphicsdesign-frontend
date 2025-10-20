@@ -53,32 +53,20 @@ const ImageZoomAmazon = ({
           style={{
             top: "50%",
             left: overlayLeft,
-            transform: "translate(-50%, -50%)",
+            transform: "translate(-50%, -50%)"
           }}
         >
           <div
-            className="relative rounded-lg border border-gray-300 pointer-events-auto" // enable pointer events inside overlay for close button
+            className="rounded-lg border border-gray-300"
             style={{
               width: overlayWidth,
               height: overlayHeight,
               backgroundImage: `url(${src})`,
               backgroundRepeat: "no-repeat",
               backgroundSize: `${width * zoom}px ${height * zoom}px`,
-              backgroundPosition: `-${(coords.x / 100) * width * (zoom - 1)}px -${(coords.y / 100) * height * (zoom - 1)}px`,
+              backgroundPosition: `-${(coords.x / 100) * width * (zoom - 1)}px -${(coords.y / 100) * height * (zoom - 1)}px`
             }}
-          >
-            {/* Mobile-only Close Button */}
-            {isMobile && (
-              <button
-                onClick={() => setShowZoom(false)}
-                className="absolute top-2 right-2 text-white bg-black bg-opacity-50 rounded-full w-8 h-8 flex items-center justify-center font-bold text-lg z-60"
-                style={{ pointerEvents: "auto" }}
-                aria-label="Close zoom"
-              >
-                &times;
-              </button>
-            )}
-          </div>
+          />
         </div>
       )}
     </div>
