@@ -31,6 +31,7 @@ import { useNavigate } from 'react-router-dom'
 import DashboardCharts from '../components/charts/DashboardCharts'
 import imageCompression from 'browser-image-compression'; // ✅ New import
 import AdminContactMessages from '../components/AdminContactMessages'
+import { API_URL } from '../config/api'
 
 const AdminDashboard = () => {
   const { user, logout } = useAuth()
@@ -713,17 +714,31 @@ const AdminDashboard = () => {
   const handleDeleteReview = async (reviewId) => {
     if (window.confirm('Are you sure you want to delete this review?')) {
       try {
-        await axios.delete(`/api/admin/reviews/${reviewId}`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-        })
-        toast.success('Review deleted successfully')
-        fetchReviews()
+        // Get admin token
+        const token = localStorage.getItem('token');
+
+        // Call the delete API route
+        const response = await axios.delete(`${API_URL}/reviews/${reviewId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (response.data.success) {
+          toast.success('Review deleted successfully');
+          fetchReviews(); // refresh the list
+        } else {
+          toast.error(response.data.message || 'Failed to delete review');
+        }
+
       } catch (error) {
-        console.error('Error deleting review:', error)
-        toast.error('Failed to delete review')
+        console.error('Error deleting review:', error);
+        // Check if backend sent a message
+        const msg = error.response?.data?.message || 'Failed to delete review';
+        toast.error(msg);
       }
     }
-  }
+  };
+
+
 
   // CRUD Handlers for Users
   const handleAddUser = async () => {
@@ -2555,12 +2570,12 @@ const AdminDashboard = () => {
                                 <option value="approved">Approved</option>
                                 <option value="rejected">Rejected</option>
                               </select>
-                              <button
+                              {/* <button
                                 onClick={() => handleDeleteReview(review._id)}
                                 className="text-red-600 hover:text-red-800 text-sm px-2 py-1 border border-red-300 rounded hover:bg-red-50 transition-colors"
                               >
                                 Delete
-                              </button>
+                              </button> */}
                             </div>
                           </div>
                           {review.images && review.images.length > 0 && (
