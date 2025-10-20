@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams, useLocation } from 'react-router-dom' // 🟢 UPDATED: added useLocation
 import { UserIcon, ShoppingBagIcon, CogIcon, HeartIcon, PaintBrushIcon, SwatchIcon, PhotoIcon, MagnifyingGlassIcon, FunnelIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
 import { useAuth } from '../context/AuthContext'
 import axios from 'axios'
@@ -9,9 +9,12 @@ import { API_URL } from '../config/api'
 const Profile = () => {
   const { user, updateProfile, logout } = useAuth()
   const [searchParams] = useSearchParams()
-  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'profile')
+  const location = useLocation() // 🟢 NEW
+  const [activeTab, setActiveTab] = useState(
+    location.state?.activeTab || searchParams.get('tab') || 'profile'
+  )
   const [loading, setLoading] = useState(false)
-  
+
   const [profileData, setProfileData] = useState({
     name: user?.name || '',
     phone: user?.phone || '',
@@ -22,7 +25,7 @@ const Profile = () => {
       pincode: user?.address?.pincode || ''
     }
   })
-  
+
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
     newPassword: '',
@@ -53,6 +56,12 @@ const Profile = () => {
     { id: 'settings', name: 'Settings', icon: CogIcon }
   ]
 
+  useEffect(() => {
+    if (location.state?.activeTab) {
+      setActiveTab(location.state.activeTab)
+    }
+  }, [location.state])
+  
   // Fetch data when tabs are active
   useEffect(() => {
     if (activeTab === 'orders') {
@@ -65,6 +74,7 @@ const Profile = () => {
       fetchCustomDesignOrders()
     }
   }, [activeTab])
+
 
   // Refetch orders when filters change
   useEffect(() => {
@@ -92,13 +102,13 @@ const Profile = () => {
         sortBy: ordersFilters.sortBy,
         sortOrder: ordersFilters.sortOrder
       })
-      
+
       const response = await axios.get(`${API_URL}/api/orders?${params}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
       })
-      
+
       setOrders(response.data.orders || [])
       setOrdersPagination({
         page: response.data.page || 1,
@@ -167,7 +177,7 @@ const Profile = () => {
   const handleProfileUpdate = async (e) => {
     e.preventDefault()
     setLoading(true)
-    
+
     try {
       await updateProfile(profileData)
       toast.success('Profile updated successfully')
@@ -180,19 +190,19 @@ const Profile = () => {
 
   const handlePasswordChange = async (e) => {
     e.preventDefault()
-    
+
     if (passwordData.newPassword !== passwordData.confirmPassword) {
       toast.error('New passwords do not match')
       return
     }
-    
+
     if (passwordData.newPassword.length < 6) {
       toast.error('Password must be at least 6 characters')
       return
     }
-    
+
     setLoading(true)
-    
+
     try {
       await axios.put('http://localhost:5003/api/auth/change-password', {
         currentPassword: passwordData.currentPassword,
@@ -239,11 +249,10 @@ const Profile = () => {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center py-4 px-1 border-b-2 font-medium text-sm ${
-                      activeTab === tab.id
+                    className={`flex items-center py-4 px-1 border-b-2 font-medium text-sm ${activeTab === tab.id
                         ? 'border-primary-500 text-primary-600'
                         : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                    }`}
+                      }`}
                   >
                     <Icon className="h-5 w-5 mr-2" />
                     {tab.name}
@@ -281,7 +290,7 @@ const Profile = () => {
                       />
                     </div>
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
                     <input
@@ -291,7 +300,7 @@ const Profile = () => {
                       className="input-field"
                     />
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Street Address</label>
                     <textarea
@@ -302,7 +311,7 @@ const Profile = () => {
                       placeholder="Enter your street address"
                     />
                   </div>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
@@ -335,7 +344,7 @@ const Profile = () => {
                       />
                     </div>
                   </div>
-                  
+
                   <button
                     type="submit"
                     disabled={loading}
@@ -356,7 +365,7 @@ const Profile = () => {
                     {ordersPagination.total > 0 && `${ordersPagination.total} total orders`}
                   </div>
                 </div>
-                
+
                 {/* Filters and Search */}
                 <div className="bg-gray-50 p-4 rounded-lg mb-6">
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -371,7 +380,7 @@ const Profile = () => {
                       />
                       <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
                     </div>
-                    
+
                     {/* Status Filter */}
                     <select
                       value={ordersFilters.status}
@@ -385,7 +394,7 @@ const Profile = () => {
                       <option value="completed">Completed</option>
                       <option value="cancelled">Cancelled</option>
                     </select>
-                    
+
                     {/* Sort By */}
                     <select
                       value={ordersFilters.sortBy}
@@ -396,7 +405,7 @@ const Profile = () => {
                       <option value="totalAmount">Amount</option>
                       <option value="status">Status</option>
                     </select>
-                    
+
                     {/* Sort Order */}
                     <select
                       value={ordersFilters.sortOrder}
@@ -408,7 +417,7 @@ const Profile = () => {
                     </select>
                   </div>
                 </div>
-                
+
                 {ordersLoading ? (
                   <div className="text-center py-12">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
@@ -428,52 +437,52 @@ const Profile = () => {
                       {orders.map((order) => (
                         <div key={order._id} className="border border-gray-200 rounded-lg p-6">
                           <div className="flex items-center justify-between mb-4">
-                          <div>
-                            <h3 className="text-lg font-medium text-gray-900">Order #{order.orderNumber}</h3>
-                            <p className="text-sm text-gray-500">Placed on {new Date(order.createdAt).toLocaleDateString()}</p>
-                          </div>
-                          <div className="text-right">
-                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(order.status)}`}>
-                              {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                            </span>
-                            <p className="text-lg font-bold text-gray-900 mt-1">₹{order.totalAmount?.toLocaleString()}</p>
-                          </div>
-                        </div>
-                        
-                        <div className="space-y-3">
-                          {order.items?.map((item, index) => (
-                            <div key={index} className="flex items-center space-x-4">
-                              <img
-                                src={item.product?.images?.[0]?.url || 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=80&h=80&fit=crop'}
-                                alt={item.product?.name || 'Product'}
-                                className="h-16 w-16 rounded-lg object-cover"
-                              />
-                              <div className="flex-1">
-                                <h4 className="text-sm font-medium text-gray-900">{item.product?.name || 'Product'}</h4>
-                                <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
-                                <p className="text-sm text-gray-500 capitalize">Tier: {item.tier}</p>
-                              </div>
-                              <span className="text-sm font-medium text-gray-900">
-                                ₹{(item.price * item.quantity).toLocaleString()}
-                              </span>
+                            <div>
+                              <h3 className="text-lg font-medium text-gray-900">Order #{order.orderNumber}</h3>
+                              <p className="text-sm text-gray-500">Placed on {new Date(order.createdAt).toLocaleDateString()}</p>
                             </div>
-                          ))}
-                        </div>
-                        
-                        <div className="mt-4 flex space-x-3">
-                          <button className="btn-secondary text-sm">
-                            View Details
-                          </button>
-                          {order.status === 'delivered' && (
+                            <div className="text-right">
+                              <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(order.status)}`}>
+                                {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                              </span>
+                              <p className="text-lg font-bold text-gray-900 mt-1">₹{order.totalAmount?.toLocaleString()}</p>
+                            </div>
+                          </div>
+
+                          <div className="space-y-3">
+                            {order.items?.map((item, index) => (
+                              <div key={index} className="flex items-center space-x-4">
+                                <img
+                                  src={item.product?.images?.[0]?.url || 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=80&h=80&fit=crop'}
+                                  alt={item.product?.name || 'Product'}
+                                  className="h-16 w-16 rounded-lg object-cover"
+                                />
+                                <div className="flex-1">
+                                  <h4 className="text-sm font-medium text-gray-900">{item.product?.name || 'Product'}</h4>
+                                  <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
+                                  <p className="text-sm text-gray-500 capitalize">Tier: {item.tier}</p>
+                                </div>
+                                <span className="text-sm font-medium text-gray-900">
+                                  ₹{(item.price * item.quantity).toLocaleString()}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+
+                          <div className="mt-4 flex space-x-3">
                             <button className="btn-secondary text-sm">
-                              Reorder
+                              View Details
                             </button>
-                          )}
-                        </div>
+                            {order.status === 'delivered' && (
+                              <button className="btn-secondary text-sm">
+                                Reorder
+                              </button>
+                            )}
+                          </div>
                         </div>
                       ))}
                     </div>
-                    
+
                     {/* Pagination */}
                     {ordersPagination.totalPages > 1 && (
                       <div className="mt-6 flex items-center justify-between">
@@ -488,21 +497,20 @@ const Profile = () => {
                           >
                             <ChevronLeftIcon className="h-4 w-4" />
                           </button>
-                          
+
                           {Array.from({ length: ordersPagination.totalPages }, (_, i) => i + 1).map((page) => (
                             <button
                               key={page}
                               onClick={() => handleOrdersPageChange(page)}
-                              className={`px-3 py-2 text-sm font-medium rounded-md ${
-                                page === ordersPagination.currentPage
+                              className={`px-3 py-2 text-sm font-medium rounded-md ${page === ordersPagination.currentPage
                                   ? 'bg-primary-600 text-white'
                                   : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
-                              }`}
+                                }`}
                             >
                               {page}
                             </button>
                           ))}
-                          
+
                           <button
                             onClick={() => handleOrdersPageChange(ordersPagination.currentPage + 1)}
                             disabled={ordersPagination.currentPage === ordersPagination.totalPages}
@@ -548,18 +556,17 @@ const Profile = () => {
                             <p className="text-sm text-gray-500">Submitted on {new Date(request.createdAt).toLocaleDateString()}</p>
                           </div>
                           <div className="text-right">
-                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                              request.status === 'completed' ? 'text-green-600 bg-green-100' :
-                              request.status === 'in-progress' ? 'text-blue-600 bg-blue-100' :
-                              request.status === 'under-review' ? 'text-yellow-600 bg-yellow-100' :
-                              'text-gray-600 bg-gray-100'
-                            }`}>
+                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${request.status === 'completed' ? 'text-green-600 bg-green-100' :
+                                request.status === 'in-progress' ? 'text-blue-600 bg-blue-100' :
+                                  request.status === 'under-review' ? 'text-yellow-600 bg-yellow-100' :
+                                    'text-gray-600 bg-gray-100'
+                              }`}>
                               {request.status.charAt(0).toUpperCase() + request.status.slice(1).replace('-', ' ')}
                             </span>
                             <p className="text-lg font-bold text-gray-900 mt-1">₹{request.estimatedPrice?.toLocaleString()}</p>
                           </div>
                         </div>
-                        
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                           <div>
                             <h4 className="text-sm font-medium text-gray-900 mb-2">Business Details</h4>
@@ -574,14 +581,14 @@ const Profile = () => {
                             {request.targetAudience && <p className="text-sm text-gray-600">Target: {request.targetAudience}</p>}
                           </div>
                         </div>
-                        
+
                         {request.description && (
                           <div className="mb-4">
                             <h4 className="text-sm font-medium text-gray-900 mb-2">Description</h4>
                             <p className="text-sm text-gray-600">{request.description}</p>
                           </div>
                         )}
-                        
+
                         {request.referenceImages && request.referenceImages.length > 0 && (
                           <div className="mb-4">
                             <h4 className="text-sm font-medium text-gray-900 mb-2">Reference Images</h4>
@@ -602,7 +609,7 @@ const Profile = () => {
                             </div>
                           </div>
                         )}
-                        
+
                         <div className="flex space-x-3">
                           <button className="btn-secondary text-sm">
                             View Details
@@ -626,218 +633,216 @@ const Profile = () => {
             )}
 
             {/* Embroidery Requests Tab */}
-    {activeTab === 'embroidery-requests' && (
-      <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Custom Embroidery Requests</h2>
-        {embroideryRequestsLoading ? (
-          <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="mt-4 text-gray-500">Loading embroidery requests...</p>
-          </div>
-        ) : embroideryRequests.length === 0 ? (
-          <div className="text-center py-12">
-            <SwatchIcon className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">No embroidery requests yet</h3>
-            <p className="mt-1 text-sm text-gray-500">Submit your first custom embroidery request to see it here.</p>
-          </div>
-        ) : (
-          <div className="space-y-6">
-            {embroideryRequests.map((request) => (
-              <div key={request._id} className="card p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <h3 className="text-lg font-medium text-gray-900">{request.businessName}</h3>
-                    <p className="text-sm text-gray-500">Submitted on {new Date(request.createdAt).toLocaleDateString()}</p>
+            {activeTab === 'embroidery-requests' && (
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Custom Embroidery Requests</h2>
+                {embroideryRequestsLoading ? (
+                  <div className="text-center py-12">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+                    <p className="mt-4 text-gray-500">Loading embroidery requests...</p>
                   </div>
-                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                    request.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                    request.status === 'in-progress' ? 'bg-blue-100 text-blue-800' :
-                    request.status === 'completed' ? 'bg-green-100 text-green-800' :
-                    'bg-red-100 text-red-800'
-                  }`}>
-                    {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
-                  </span>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                  <div>
-                    <p className="text-sm text-gray-600"><span className="font-medium">Embroidery Type:</span> {request.embroideryType}</p>
-                    <p className="text-sm text-gray-600"><span className="font-medium">Garment:</span> {request.garmentType}</p>
-                    <p className="text-sm text-gray-600"><span className="font-medium">Placement:</span> {request.placement}</p>
+                ) : embroideryRequests.length === 0 ? (
+                  <div className="text-center py-12">
+                    <SwatchIcon className="mx-auto h-12 w-12 text-gray-400" />
+                    <h3 className="mt-2 text-sm font-medium text-gray-900">No embroidery requests yet</h3>
+                    <p className="mt-1 text-sm text-gray-500">Submit your first custom embroidery request to see it here.</p>
                   </div>
-                  <div>
-                    <p className="text-sm text-gray-600"><span className="font-medium">Quantity:</span> {request.quantity}</p>
-                    <p className="text-sm text-gray-600"><span className="font-medium">Package:</span> {request.packageType}</p>
-                    <p className="text-sm text-gray-600"><span className="font-medium">Price:</span> ₹{request.totalPrice}</p>
-                  </div>
-                </div>
-                
-                {request.description && (
-                  <div className="mb-4">
-                    <p className="text-sm text-gray-600"><span className="font-medium">Description:</span></p>
-                    <p className="text-sm text-gray-700 mt-1">{request.description}</p>
-                  </div>
-                )}
-                
-                {request.referenceImages && request.referenceImages.length > 0 && (
-                  <div className="mb-4">
-                    <p className="text-sm text-gray-600 font-medium mb-2">Reference Images:</p>
-                    <div className="flex space-x-2">
-                      {request.referenceImages.slice(0, 3).map((image, index) => (
-                        <img
-                          key={index}
-                          src={`http://localhost:5003${image}`}
-                          alt={`Reference ${index + 1}`}
-                          className="h-16 w-16 rounded-lg object-cover"
-                        />
-                      ))}
-                      {request.referenceImages.length > 3 && (
-                        <div className="h-16 w-16 rounded-lg bg-gray-100 flex items-center justify-center">
-                          <span className="text-xs text-gray-500">+{request.referenceImages.length - 3}</span>
+                ) : (
+                  <div className="space-y-6">
+                    {embroideryRequests.map((request) => (
+                      <div key={request._id} className="card p-6">
+                        <div className="flex items-start justify-between mb-4">
+                          <div>
+                            <h3 className="text-lg font-medium text-gray-900">{request.businessName}</h3>
+                            <p className="text-sm text-gray-500">Submitted on {new Date(request.createdAt).toLocaleDateString()}</p>
+                          </div>
+                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${request.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                              request.status === 'in-progress' ? 'bg-blue-100 text-blue-800' :
+                                request.status === 'completed' ? 'bg-green-100 text-green-800' :
+                                  'bg-red-100 text-red-800'
+                            }`}>
+                            {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+                          </span>
                         </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-                
-                <div className="flex space-x-3">
-                  <button className="btn-secondary text-sm">
-                    View Details
-                  </button>
-                  {request.status === 'completed' && request.finalDesigns && (
-                    <button className="btn-primary text-sm">
-                      Download Designs
-                    </button>
-                  )}
-                  {request.status === 'in-progress' && (
-                    <button className="btn-secondary text-sm">
-                      Add Revision
-                    </button>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    )}
 
-    {/* Custom Design Orders Tab */}
-    {activeTab === 'custom-design-orders' && (
-      <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Custom Design Orders</h2>
-        {customDesignOrdersLoading ? (
-          <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-            <p className="mt-4 text-sm text-gray-500">Loading custom design orders...</p>
-          </div>
-        ) : customDesignOrders.length === 0 ? (
-          <div className="text-center py-12">
-            <PhotoIcon className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">No custom design orders yet</h3>
-            <p className="mt-1 text-sm text-gray-500">Upload your designs to create custom orders.</p>
-            <div className="mt-6">
-              <a href="/embroidery" className="btn-primary">
-                Create Custom Order
-              </a>
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-6">
-            {customDesignOrders.map((order) => (
-              <div key={order._id} className="border border-gray-200 rounded-lg p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <h3 className="text-lg font-medium text-gray-900">
-                      {order.product?.name || 'Custom Design Order'}
-                    </h3>
-                    <p className="text-sm text-gray-500">
-                      Ordered on {new Date(order.createdAt).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                      order.status === 'completed' ? 'text-green-600 bg-green-100' :
-                      order.status === 'in-progress' ? 'text-blue-600 bg-blue-100' :
-                      order.status === 'pending' ? 'text-yellow-600 bg-yellow-100' :
-                      'text-gray-600 bg-gray-100'
-                    }`}>
-                      {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                    </span>
-                    <p className="text-lg font-bold text-gray-900 mt-1">₹{order.totalCost?.toLocaleString()}</p>
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                  <div>
-                    <h4 className="text-sm font-medium text-gray-900 mb-2">Order Details</h4>
-                    <p className="text-sm text-gray-600">Design Type: {order.designType}</p>
-                    <p className="text-sm text-gray-600">Quantity: {order.quantity}</p>
-                    {order.deliveryType && <p className="text-sm text-gray-600">Delivery: {order.deliveryType}</p>}
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-medium text-gray-900 mb-2">Design Placements</h4>
-                    {order.designPlacements && order.designPlacements.length > 0 ? (
-                      order.designPlacements.map((placement, index) => (
-                        <p key={index} className="text-sm text-gray-600">
-                          {placement.position}: {placement.width}x{placement.height}
-                        </p>
-                      ))
-                    ) : (
-                      <p className="text-sm text-gray-600">No placements specified</p>
-                    )}
-                  </div>
-                </div>
-                
-                {order.specialInstructions && (
-                  <div className="mb-4">
-                    <h4 className="text-sm font-medium text-gray-900 mb-2">Special Instructions</h4>
-                    <p className="text-sm text-gray-600">{order.specialInstructions}</p>
-                  </div>
-                )}
-                
-                {order.uploadedDesign && (
-                  <div className="mb-4">
-                    <h4 className="text-sm font-medium text-gray-900 mb-2">Uploaded Design</h4>
-                    <div className="flex items-center space-x-4">
-                      <img
-                        src={`http://localhost:5003${order.uploadedDesign.url}`}
-                        alt="Uploaded Design"
-                        className="h-20 w-20 rounded-lg object-cover"
-                      />
-                      <div>
-                        <p className="text-sm font-medium text-gray-900">{order.uploadedDesign.originalName}</p>
-                        <p className="text-xs text-gray-500">
-                          {order.uploadedDesign.fileType} • {(order.uploadedDesign.size / 1024 / 1024).toFixed(2)} MB
-                        </p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                          <div>
+                            <p className="text-sm text-gray-600"><span className="font-medium">Embroidery Type:</span> {request.embroideryType}</p>
+                            <p className="text-sm text-gray-600"><span className="font-medium">Garment:</span> {request.garmentType}</p>
+                            <p className="text-sm text-gray-600"><span className="font-medium">Placement:</span> {request.placement}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-600"><span className="font-medium">Quantity:</span> {request.quantity}</p>
+                            <p className="text-sm text-gray-600"><span className="font-medium">Package:</span> {request.packageType}</p>
+                            <p className="text-sm text-gray-600"><span className="font-medium">Price:</span> ₹{request.totalPrice}</p>
+                          </div>
+                        </div>
+
+                        {request.description && (
+                          <div className="mb-4">
+                            <p className="text-sm text-gray-600"><span className="font-medium">Description:</span></p>
+                            <p className="text-sm text-gray-700 mt-1">{request.description}</p>
+                          </div>
+                        )}
+
+                        {request.referenceImages && request.referenceImages.length > 0 && (
+                          <div className="mb-4">
+                            <p className="text-sm text-gray-600 font-medium mb-2">Reference Images:</p>
+                            <div className="flex space-x-2">
+                              {request.referenceImages.slice(0, 3).map((image, index) => (
+                                <img
+                                  key={index}
+                                  src={`http://localhost:5003${image}`}
+                                  alt={`Reference ${index + 1}`}
+                                  className="h-16 w-16 rounded-lg object-cover"
+                                />
+                              ))}
+                              {request.referenceImages.length > 3 && (
+                                <div className="h-16 w-16 rounded-lg bg-gray-100 flex items-center justify-center">
+                                  <span className="text-xs text-gray-500">+{request.referenceImages.length - 3}</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="flex space-x-3">
+                          <button className="btn-secondary text-sm">
+                            View Details
+                          </button>
+                          {request.status === 'completed' && request.finalDesigns && (
+                            <button className="btn-primary text-sm">
+                              Download Designs
+                            </button>
+                          )}
+                          {request.status === 'in-progress' && (
+                            <button className="btn-secondary text-sm">
+                              Add Revision
+                            </button>
+                          )}
+                        </div>
                       </div>
-                    </div>
+                    ))}
                   </div>
                 )}
-                
-                <div className="flex space-x-3">
-                  <button className="btn-secondary text-sm">
-                    View Details
-                  </button>
-                  {order.status === 'completed' && order.finalDesigns && (
-                    <button className="btn-primary text-sm">
-                      Download Final Design
-                    </button>
-                  )}
-                  {order.status === 'pending' && (
-                    <button className="btn-secondary text-sm">
-                      Cancel Order
-                    </button>
-                  )}
-                </div>
               </div>
-            ))}
-          </div>
-        )}
-      </div>
-    )}
+            )}
 
-    {/* Favorites Tab */}
+            {/* Custom Design Orders Tab */}
+            {activeTab === 'custom-design-orders' && (
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Custom Design Orders</h2>
+                {customDesignOrdersLoading ? (
+                  <div className="text-center py-12">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+                    <p className="mt-4 text-sm text-gray-500">Loading custom design orders...</p>
+                  </div>
+                ) : customDesignOrders.length === 0 ? (
+                  <div className="text-center py-12">
+                    <PhotoIcon className="mx-auto h-12 w-12 text-gray-400" />
+                    <h3 className="mt-2 text-sm font-medium text-gray-900">No custom design orders yet</h3>
+                    <p className="mt-1 text-sm text-gray-500">Upload your designs to create custom orders.</p>
+                    <div className="mt-6">
+                      <a href="/embroidery" className="btn-primary">
+                        Create Custom Order
+                      </a>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    {customDesignOrders.map((order) => (
+                      <div key={order._id} className="border border-gray-200 rounded-lg p-6">
+                        <div className="flex items-center justify-between mb-4">
+                          <div>
+                            <h3 className="text-lg font-medium text-gray-900">
+                              {order.product?.name || 'Custom Design Order'}
+                            </h3>
+                            <p className="text-sm text-gray-500">
+                              Ordered on {new Date(order.createdAt).toLocaleDateString()}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${order.status === 'completed' ? 'text-green-600 bg-green-100' :
+                                order.status === 'in-progress' ? 'text-blue-600 bg-blue-100' :
+                                  order.status === 'pending' ? 'text-yellow-600 bg-yellow-100' :
+                                    'text-gray-600 bg-gray-100'
+                              }`}>
+                              {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                            </span>
+                            <p className="text-lg font-bold text-gray-900 mt-1">₹{order.totalCost?.toLocaleString()}</p>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                          <div>
+                            <h4 className="text-sm font-medium text-gray-900 mb-2">Order Details</h4>
+                            <p className="text-sm text-gray-600">Design Type: {order.designType}</p>
+                            <p className="text-sm text-gray-600">Quantity: {order.quantity}</p>
+                            {order.deliveryType && <p className="text-sm text-gray-600">Delivery: {order.deliveryType}</p>}
+                          </div>
+                          <div>
+                            <h4 className="text-sm font-medium text-gray-900 mb-2">Design Placements</h4>
+                            {order.designPlacements && order.designPlacements.length > 0 ? (
+                              order.designPlacements.map((placement, index) => (
+                                <p key={index} className="text-sm text-gray-600">
+                                  {placement.position}: {placement.width}x{placement.height}
+                                </p>
+                              ))
+                            ) : (
+                              <p className="text-sm text-gray-600">No placements specified</p>
+                            )}
+                          </div>
+                        </div>
+
+                        {order.specialInstructions && (
+                          <div className="mb-4">
+                            <h4 className="text-sm font-medium text-gray-900 mb-2">Special Instructions</h4>
+                            <p className="text-sm text-gray-600">{order.specialInstructions}</p>
+                          </div>
+                        )}
+
+                        {order.uploadedDesign && (
+                          <div className="mb-4">
+                            <h4 className="text-sm font-medium text-gray-900 mb-2">Uploaded Design</h4>
+                            <div className="flex items-center space-x-4">
+                              <img
+                                src={`http://localhost:5003${order.uploadedDesign.url}`}
+                                alt="Uploaded Design"
+                                className="h-20 w-20 rounded-lg object-cover"
+                              />
+                              <div>
+                                <p className="text-sm font-medium text-gray-900">{order.uploadedDesign.originalName}</p>
+                                <p className="text-xs text-gray-500">
+                                  {order.uploadedDesign.fileType} • {(order.uploadedDesign.size / 1024 / 1024).toFixed(2)} MB
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="flex space-x-3">
+                          <button className="btn-secondary text-sm">
+                            View Details
+                          </button>
+                          {order.status === 'completed' && order.finalDesigns && (
+                            <button className="btn-primary text-sm">
+                              Download Final Design
+                            </button>
+                          )}
+                          {order.status === 'pending' && (
+                            <button className="btn-secondary text-sm">
+                              Cancel Order
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Favorites Tab */}
             {activeTab === 'favorites' && (
               <div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">Favorite Items</h2>
@@ -877,7 +882,7 @@ const Profile = () => {
             {activeTab === 'settings' && (
               <div className="max-w-2xl">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">Account Settings</h2>
-                
+
                 {/* Change Password */}
                 <div className="mb-8">
                   <h3 className="text-lg font-medium text-gray-900 mb-4">Change Password</h3>
@@ -921,7 +926,7 @@ const Profile = () => {
                     </button>
                   </form>
                 </div>
-                
+
                 {/* Account Actions */}
                 <div className="border-t pt-6">
                   <h3 className="text-lg font-medium text-gray-900 mb-4">Account Actions</h3>

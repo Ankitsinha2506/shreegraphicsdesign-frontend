@@ -12,6 +12,8 @@ import {
 import Logo from '../assets/shreegraphics.png'
 import Shreegraphicslogo from '../assets/shreegraphicsnavimage.png'
 
+// inside your component
+
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [openDropdown, setOpenDropdown] = useState(null)
@@ -250,8 +252,20 @@ const Navbar = () => {
                 </button>
                 <div className="absolute right-0 mt-3 w-56 bg-white rounded-xl shadow-2xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 z-50">
                   <div className="py-2">
-                    <Link to="/profile" className="block px-4 py-3 text-sm text-gray-700 hover:bg-primary-50 rounded-lg">Profile</Link>
-                    <Link to="/orders" className="block px-4 py-3 text-sm text-gray-700 hover:bg-primary-50 rounded-lg">Orders</Link>
+                    <Link
+                      to="/profile"
+                      state={{ activeTab: 'profile' }}  // 🟢 NEW: explicitly open profile tab
+                      className="block px-4 py-3 text-sm text-gray-700 hover:bg-primary-50 rounded-lg"
+                    >
+                      Profile
+                    </Link>
+
+                    <button
+                      onClick={() => navigate("/profile", { state: { activeTab: "orders" } })}
+                      className="block w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-primary-50 rounded-lg"  
+                    >
+                      Orders
+                    </button>
                     {user?.role === 'admin' && (
                       <>
                         <div className="border-t border-gray-100 my-2"></div>
