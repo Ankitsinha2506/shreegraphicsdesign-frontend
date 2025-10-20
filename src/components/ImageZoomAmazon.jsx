@@ -49,13 +49,29 @@ const ImageZoomAmazon = ({
       {/* Zoom Overlay */}
       {showZoom && (
         <div
-          className="fixed z-50 pointer-events-none"
+          className="fixed z-50 flex items-start justify-center"
           style={{
-            top: "50%",
-            left: overlayLeft,
-            transform: "translate(-50%, -50%)"
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: isMobile ? "rgba(0,0,0,0.4)" : "transparent",
+            pointerEvents: "auto",
+            paddingTop: isMobile ? "3rem" : 0, // give space for close button
+            boxSizing: "border-box"
           }}
         >
+          {/* Close button for mobile */}
+          {isMobile && (
+            <button
+              onClick={() => setShowZoom(false)}
+              className="absolute top-4 right-4 z-50 w-8 h-8 flex items-center justify-center rounded-full bg-white shadow-md text-gray-700 hover:bg-gray-100"
+            >
+              &#10005; {/* × character */}
+            </button>
+          )}
+
+          {/* Zoom overlay */}
           <div
             className="rounded-lg border border-gray-300"
             style={{
@@ -64,11 +80,13 @@ const ImageZoomAmazon = ({
               backgroundImage: `url(${src})`,
               backgroundRepeat: "no-repeat",
               backgroundSize: `${width * zoom}px ${height * zoom}px`,
-              backgroundPosition: `-${(coords.x / 100) * width * (zoom - 1)}px -${(coords.y / 100) * height * (zoom - 1)}px`
+              backgroundPosition: `-${(coords.x / 100) * width * (zoom - 1)}px -${(coords.y / 100) * height * (zoom - 1)}px`,
+              zIndex: 40
             }}
           />
         </div>
       )}
+
     </div>
   );
 };
