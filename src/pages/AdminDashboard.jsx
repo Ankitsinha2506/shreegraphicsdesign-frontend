@@ -743,18 +743,40 @@ const AdminDashboard = () => {
   // CRUD Handlers for Users
   const handleAddUser = async () => {
     try {
+      const { name, email, role, password } = userFormData;
+
+      // ✅ Frontend validation
+      if (!name || !email || !role || !password) {
+        toast.error('All fields are required'); // Highlighted: password included
+        return;
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        toast.error('Invalid email format');
+        return;
+      }
+
+      // ✅ Password length validation
+      if (password.length < 6) {
+        toast.error('Password must be at least 6 characters');
+        return;
+      }
+
       const response = await axios.post('/api/users', userFormData, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      })
-      toast.success('User added successfully')
-      setShowAddUserModal(false)
-      setUserFormData({ name: '', email: '', role: 'user' })
-      fetchUsers()
+      });
+
+      toast.success('User added successfully');
+      setShowAddUserModal(false);
+      setUserFormData({ name: '', email: '', role: 'user', password: '' }); // Reset form
+      fetchUsers();
     } catch (error) {
-      console.error('Error adding user:', error)
-      toast.error(error.response?.data?.message || 'Failed to add user')
+      console.error('Error adding user:', error.response || error);
+      toast.error(error.response?.data?.message || 'Failed to add user');
     }
-  }
+  };
+
 
   const handleEditUser = async () => {
     // Check if email is changed
@@ -2818,6 +2840,7 @@ const AdminDashboard = () => {
                   placeholder="Enter user name"
                 />
               </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
                 <input
@@ -2828,6 +2851,18 @@ const AdminDashboard = () => {
                   placeholder="Enter user email"
                 />
               </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                <input
+                  type="password"
+                  value={userFormData.password}
+                  onChange={(e) => setUserFormData({ ...userFormData, password: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Enter user password"
+                />
+              </div>
+              
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
                 <select
