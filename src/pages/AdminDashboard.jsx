@@ -1673,13 +1673,13 @@ const AdminDashboard = () => {
                 <div className="flex flex-wrap justify-between items-center mb-6">
                   <h3 className="text-xl font-bold text-gray-900">Product Management</h3>
                   <div className="flex space-x-3 mt-2 sm:mt-0">
-                    <button
+                    {/* <button
                       onClick={handleActivateAllProducts}
                       className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
                     >
                       <SparklesIcon className="h-5 w-5 inline mr-2" />
                       Activate All
-                    </button>
+                    </button> */}
                     <button
                       onClick={() => setShowAddProductModal(true)}
                       className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
