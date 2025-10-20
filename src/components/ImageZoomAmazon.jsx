@@ -13,8 +13,10 @@ const ImageZoomAmazon = ({
   const [showZoom, setShowZoom] = useState(false);
   const [coords, setCoords] = useState({ x: 50, y: 50 }); // center by default
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-  const [touchStart, setTouchStart] = useState(null);
   const imgRef = useRef(null);
+  const touchStartRef = useRef(null);
+  const velocityRef = useRef({ vx: 0, vy: 0 });
+  const animationRef = useRef(null);
 
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
@@ -47,31 +49,64 @@ const ImageZoomAmazon = ({
     setCoords({ x, y });
   };
 
-  // Mobile: handle touch start
+  // Mobile: touch handlers with inertia
   const handleTouchStart = (e) => {
     if (!isMobile) return;
+    cancelAnimationFrame(animationRef.current);
     const touch = e.touches[0];
-    setTouchStart({ x: touch.clientX, y: touch.clientY, ...coords });
+    touchStartRef.current = {
+      x: touch.clientX,
+      y: touch.clientY,
+      lastX: coords.x,
+      lastY: coords.y,
+      time: Date.now(),
+    };
   };
 
-  // Mobile: handle touch move (drag)
   const handleTouchMove = (e) => {
-    if (!isMobile || !touchStart) return;
+    if (!isMobile || !touchStartRef.current) return;
     const touch = e.touches[0];
-    const deltaX = ((touchStart.x - touch.clientX) / overlayWidthFinal) * 100;
-    const deltaY = ((touchStart.y - touch.clientY) / overlayHeightFinal) * 100;
-    let newX = touchStart.x - deltaX;
-    let newY = touchStart.y - deltaY;
+    const dx = ((touchStartRef.current.x - touch.clientX) / overlayWidthFinal) * 100;
+    const dy = ((touchStartRef.current.y - touch.clientY) / overlayHeightFinal) * 100;
+    const newX = Math.min(Math.max(touchStartRef.current.lastX + dx, 0), 100);
+    const newY = Math.min(Math.max(touchStartRef.current.lastY + dy, 0), 100);
 
-    // Clamp between 0-100
-    newX = Math.min(Math.max(touchStart.x + deltaX, 0), 100);
-    newY = Math.min(Math.max(touchStart.y + deltaY, 0), 100);
+    // calculate velocity
+    const now = Date.now();
+    const dt = now - touchStartRef.current.time;
+    if (dt > 0) {
+      velocityRef.current.vx = (newX - coords.x) / dt;
+      velocityRef.current.vy = (newY - coords.y) / dt;
+    }
+    touchStartRef.current.time = now;
+
     setCoords({ x: newX, y: newY });
   };
 
-  // Reset touch start on touch end
   const handleTouchEnd = () => {
-    setTouchStart(null);
+    if (!isMobile) return;
+    const decay = 0.95; // inertia friction
+    const step = () => {
+      let { x, y } = coords;
+      let { vx, vy } = velocityRef.current;
+
+      vx *= decay;
+      vy *= decay;
+
+      x += vx * 16; // approx 60fps
+      y += vy * 16;
+
+      x = Math.min(Math.max(x, 0), 100);
+      y = Math.min(Math.max(y, 0), 100);
+
+      setCoords({ x, y });
+      velocityRef.current = { vx, vy };
+
+      if (Math.abs(vx) > 0.01 || Math.abs(vy) > 0.01) {
+        animationRef.current = requestAnimationFrame(step);
+      }
+    };
+    animationRef.current = requestAnimationFrame(step);
   };
 
   return (
@@ -101,7 +136,7 @@ const ImageZoomAmazon = ({
             borderRadius: "0.5rem",
             border: isMobile ? "none" : "1px solid #d1d5db",
             boxSizing: "border-box",
-            touchAction: "none", // important for drag
+            touchAction: "none",
           }}
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
@@ -122,11 +157,9 @@ const ImageZoomAmazon = ({
             style={{
               backgroundImage: `url(${src})`,
               backgroundSize: `${width * zoom}px ${height * zoom}px`,
-              backgroundPosition: isMobile
-                ? `${-coords.x}% ${-coords.y}%`
-                : `-${(coords.x / 100) * width * (zoom - 1)}px -${
-                    (coords.y / 100) * height * (zoom - 1)
-                  }px`,
+              backgroundPosition: `-${(coords.x / 100) * width * (zoom - 1)}px -${
+                (coords.y / 100) * height * (zoom - 1)
+              }px`,
               pointerEvents: "none",
             }}
           />
