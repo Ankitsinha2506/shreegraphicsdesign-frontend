@@ -4,6 +4,7 @@ import Sheela from '../assets/images/Sheela.png'
 import Shubham from '../assets/images/Shubham.png'
 
 
+
 const About = () => {
   const stats = [
     { label: 'Happy Clients', value: '500+' },
@@ -32,24 +33,37 @@ const About = () => {
 
   const team = [
     {
-      name: 'Shailesh Shahaji Lamkhade',
-      role: 'Founder & Creative Director',
+      name: 'Shailesh L',
+      role: 'Founder & CEO',
       image: Shailesh,
-      description: 'With over 10 years of experience in graphic design and branding.'
+      description: 'Visionary leader and founder, driving innovation and strategic growth across all business operations.'
     },
     {
-      name: 'Sheela Hemant Lanke',
-      role: 'Senior Designer',
-      image: Sheela,
-      description: 'Specializes in logo design and brand identity development.'
+      name: 'Sunil Gopale',
+      role: 'CEO – Marketing (India Region)',
+      image: Sunil,
+      description: 'Heads marketing initiatives across India, building strong brand presence and customer engagement strategies.'
     },
     {
-      name: 'Shubham Balaso Mane',
-      role: 'Embroidery Specialist',
+      name: 'Shubham Mane',
+      role: 'Co-Founder & Managing Director',
       image: Shubham,
-      description: 'Expert in custom embroidery and textile design solutions.'
+      description: 'Co-founder overseeing business management, partnerships, and day-to-day company operations.'
+    },
+    {
+      name: 'Kavita Gopale',
+      role: 'Delivery Head (India)',
+      image: Kavita,
+      description: 'Leads project delivery and execution, ensuring timely and quality outcomes for all client engagements.'
+    },
+    {
+      name: 'Sheela Lanke',
+      role: 'Operations Head (India)',
+      image: Sheela,
+      description: 'Manages internal operations and resource planning, ensuring smooth coordination across departments.'
     }
   ]
+
 
   return (
     <div className="min-h-screen">
@@ -60,7 +74,7 @@ const About = () => {
             About Shree Graphics Design
           </h1>
           <p className="text-xl text-primary-100 max-w-3xl mx-auto">
-            We are passionate designers dedicated to creating exceptional visual identities 
+            We are passionate designers dedicated to creating exceptional visual identities
             that help businesses stand out and succeed in today's competitive market.
           </p>
         </div>
@@ -91,16 +105,16 @@ const About = () => {
                 Our Story
               </h2>
               <p className="text-lg text-gray-600 mb-6">
-                Founded in 2014, Shree Graphics Design started as a small studio with a big vision: 
+                Founded in 2014, Shree Graphics Design started as a small studio with a big vision:
                 to help businesses create powerful visual identities that resonate with their audience.
               </p>
               <p className="text-lg text-gray-600 mb-6">
-                Over the years, we've grown into a full-service design agency, serving clients 
-                across various industries. From startups to established enterprises, we've helped 
+                Over the years, we've grown into a full-service design agency, serving clients
+                across various industries. From startups to established enterprises, we've helped
                 hundreds of businesses tell their story through compelling design.
               </p>
               <p className="text-lg text-gray-600">
-                Today, we continue to push creative boundaries while staying true to our core values 
+                Today, we continue to push creative boundaries while staying true to our core values
                 of quality, creativity, and customer satisfaction.
               </p>
             </div>
