@@ -1,144 +1,141 @@
-import { useState, useCallback, memo } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
-import { useCart } from '../context/CartContext'
+import { useState, useCallback, memo } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { useCart } from "../context/CartContext";
 import {
   ShoppingCartIcon,
   UserIcon,
   Bars3Icon,
   XMarkIcon,
   ChevronDownIcon,
-} from '@heroicons/react/24/outline'
-import Logo from '../assets/shreegraphics.png'
-import Shreegraphicslogo from '../assets/shreegraphicsnavimage.png'
-
-// inside your component
+} from "@heroicons/react/24/outline";
+import Logo from "../assets/shreegraphics.png";
+import Shreegraphicslogo from "../assets/shreegraphicsnavimage.png";
 
 const Navbar = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [openDropdown, setOpenDropdown] = useState(null)
-  const [openSubmenu, setOpenSubmenu] = useState(null)
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState(null);
+  const [openSubmenu, setOpenSubmenu] = useState(null);
 
-  const { user, logout, isAuthenticated } = useAuth()
-  const { getCartItemsCount, toggleCart } = useCart()
-  const navigate = useNavigate()
+  const { user, logout, isAuthenticated } = useAuth();
+  const { getCartItemsCount, toggleCart } = useCart();
+  const navigate = useNavigate();
 
   const handleLogout = useCallback(async () => {
     try {
-      await logout()
-      navigate('/')
+      await logout();
+      navigate("/");
     } catch (error) {
-      console.error('Logout failed:', error)
+      console.error("Logout failed:", error);
     }
-  }, [logout, navigate])
+  }, [logout, navigate]);
 
   const handleMenuToggle = useCallback(() => {
-    setIsMenuOpen(prev => !prev)
-  }, [])
+    setIsMenuOpen((prev) => !prev);
+  }, []);
 
   const handleMenuClose = useCallback(() => {
-    setIsMenuOpen(false)
-    setOpenDropdown(null)
-    setOpenSubmenu(null)
-  }, [])
+    setIsMenuOpen(false);
+    setOpenDropdown(null);
+    setOpenSubmenu(null);
+  }, []);
 
-  const toggleDropdown = name => {
-    setOpenDropdown(openDropdown === name ? null : name)
-    setOpenSubmenu(null)
-  }
+  const toggleDropdown = (name) => {
+    setOpenDropdown(openDropdown === name ? null : name);
+    setOpenSubmenu(null);
+  };
 
-  const toggleSubmenu = name => {
-    setOpenSubmenu(openSubmenu === name ? null : name)
-  }
+  const toggleSubmenu = (name) => {
+    setOpenSubmenu(openSubmenu === name ? null : name);
+  };
 
+  // ✅ Updated navigation with "All" subcategory for every dropdown
   const navigation = [
-    { name: 'Home', href: '/' },
+    { name: "Home", href: "/" },
     {
-      name: 'Products',
-      href: '/products',
+      name: "Products",
+      href: "/products",
       dropdown: [
         {
-          name: 'Apparels',
-          href: '/products?category=apparels',
+          name: "Apparels",
+          href: "/products?category=apparels",
           submenu: [
-            { name: 'All Apparels', href: '/products?category=apparels' },
-            { name: 'Cap', href: '/products?category=apparels&subcategory=cap' },
-            { name: 'Jackets', href: '/products?category=apparels&subcategory=jackets' },
-            { name: 'Shirt', href: '/products?category=apparels&subcategory=Shirt' },
-            { name: 'T-Shirt', href: '/products?category=apparels&subcategory=denim-shirt' },
-            // { name: 'Windcheaters', href: '/products?category=apparels&subcategory=windcheaters' }
-            // Shirt
-          ]
+            { name: "All Apparels", href: "/products?category=apparels" },
+            { name: "Cap", href: "/products?category=apparels&subcategory=cap" },
+            { name: "Jackets", href: "/products?category=apparels&subcategory=jackets" },
+            { name: "Shirt", href: "/products?category=apparels&subcategory=Shirt" },
+            { name: "T-Shirt", href: "products?category=apparels&subcategory=denim-shirt" },
+          ],
         },
         {
-          name: 'Embroidery',
-          href: '/products?category=embroidery',
+          name: "Embroidery",
+          href: "/products?category=embroidery",
           submenu: [
-            { name: 'All Embroidery', href: '/products?category=embroidery' },
-            { name: 'Logo Embroidery', href: '/products?category=embroidery&subcategory=logo-embroidery' },
-            { name: 'Text Embroidery', href: '/products?category=embroidery&subcategory=text-embroidery' },
-            { name: 'Patches', href: '/products?category=embroidery&subcategory=custom-patches' },
-            { name: 'Monogramming', href: '/products?category=embroidery&subcategory=monogramming' },
-            { name: 'Badge Embroidery', href: '/products?category=embroidery&subcategory=badge-embroidery' },
-            { name: 'Custom Embroidery', href: '/products?category=embroidery&subcategory=custom-embroidery' },
-            { name: 'Hand Embroidery', href: '/products?category=embroidery&subcategory=hand-embroidery' }
-          ]
+            { name: "All Embroidery", href: "/products?category=embroidery" },
+            { name: "Logo Embroidery", href: "/products?category=embroidery&subcategory=logo-embroidery" },
+            { name: "Text Embroidery", href: "/products?category=embroidery&subcategory=text-embroidery" },
+            { name: "Patches", href: "/products?category=embroidery&subcategory=custom-patches" },
+            { name: "Monogramming", href: "/products?category=embroidery&subcategory=monogramming" },
+            { name: "Badge Embroidery", href: "/products?category=embroidery&subcategory=badge-embroidery" },
+            { name: "Custom Embroidery", href: "/products?category=embroidery&subcategory=custom-embroidery" },
+            { name: "Hand Embroidery", href: "/products?category=embroidery&subcategory=hand-embroidery" },
+          ],
         },
         {
-          name: 'Travels',
-          href: '/products?category=travels',
+          name: "Travels",
+          href: "/products?category=travels",
           submenu: [
-            { name: 'All Travel Items', href: '/products?category=travels' },
-            { name: 'Hand Bag', href: '/products?category=travels&subcategory=hand-bag' },
-            { name: 'Strolley Bags', href: '/products?category=travels&subcategory=strolley-bags' },
-            { name: 'Travel Bags', href: '/products?category=travels&subcategory=travel-bags' },
-            { name: 'Back Packs', href: '/products?category=travels&subcategory=back-packs' },
-            { name: 'Laptop Bags', href: '/products?category=travels&subcategory=laptop-bags' }
-          ]
+            { name: "All Travel Items", href: "/products?category=travels" },
+            { name: "Hand Bag", href: "/products?category=travels&subcategory=hand-bag" },
+            { name: "Strolley Bags", href: "/products?category=travels&subcategory=strolley-bags" },
+            { name: "Travel Bags", href: "/products?category=travels&subcategory=travel-bags" },
+            { name: "Back Packs", href: "/products?category=travels&subcategory=back-packs" },
+            { name: "Laptop Bags", href: "/products?category=travels&subcategory=laptop-bags" },
+          ],
         },
         {
-          name: 'Leather',
-          href: '/products?category=leather',
+          name: "Leather",
+          href: "/products?category=leather",
           submenu: [
-            { name: 'All Leather Items', href: '/products?category=leather' },
-            { name: 'Office Bags', href: '/products?category=leather&subcategory=office-bags' },
-            { name: 'Wallets', href: '/products?category=leather&subcategory=wallets' }
-          ]
+            { name: "All Leather Items", href: "/products?category=leather" },
+            { name: "Office Bags", href: "/products?category=leather&subcategory=office-bags" },
+            { name: "Wallets", href: "/products?category=leather&subcategory=wallets" },
+          ],
         },
         {
-          name: 'Uniforms',
-          href: '/products?category=uniforms',
+          name: "Uniforms",
+          href: "/products?category=uniforms",
           submenu: [
-            { name: 'All Uniforms', href: '/products?category=uniforms' },
-            { name: 'School Uniforms', href: '/products?category=uniforms&subcategory=school-uniforms' },
-            { name: 'Corporate', href: '/products?category=uniforms&subcategory=corporate' }
-          ]
+            { name: "All Uniforms", href: "/products?category=uniforms" },
+            { name: "School Uniforms", href: "/products?category=uniforms&subcategory=school-uniforms" },
+            { name: "Corporate", href: "/products?category=uniforms&subcategory=corporate" },
+          ],
         },
         {
-          name: 'Design Services',
-          href: '/products?category=design-services',
+          name: "Design Services",
+          href: "/products?category=design-services",
           submenu: [
-            { name: 'All Design Services', href: '/products?category=design-services' },
-            { name: 'Logo Design', href: '/products?category=design-services&subcategory=logo-design' },
-            { name: 'Branding', href: '/products?category=design-services&subcategory=branding' },
-            { name: 'Print Design', href: '/products?category=design-services&subcategory=print-design' }
-          ]
-        }
-      ]
+            { name: "All Design Services", href: "/products?category=design-services" },
+            { name: "Logo Design", href: "/products?category=design-services&subcategory=logo-design" },
+            { name: "Branding", href: "/products?category=design-services&subcategory=branding" },
+            { name: "Print Design", href: "/products?category=design-services&subcategory=print-design" },
+          ],
+        },
+      ],
     },
     {
-      name: 'Services',
-      href: '#',
+      name: "Services",
+      href: "#",
       dropdown: [
-        { name: 'Embroidery Services', href: '/embroidery' },
-        { name: 'Custom Logo Design', href: '/custom-logo-design' },
-        { name: 'Custom Design Orders', href: '/custom-design-order' },
-        { name: 'Custom Embroidery Request', href: '/custom-embroidery-request' }
-      ]
+        { name: "Embroidery Services", href: "/embroidery" },
+        { name: "Custom Logo Design", href: "/custom-logo-design" },
+        { name: "Custom Design Orders", href: "/custom-design-order" },
+        { name: "Custom Embroidery Request", href: "/custom-embroidery-request" },
+      ],
     },
-    { name: 'About', href: '/about' },
-    { name: 'Contact', href: '/contact' }
-  ]
+    { name: "About", href: "/about" },
+    { name: "Contact", href: "/contact" },
+  ];
 
   return (
     <nav className="bg-white/95 backdrop-blur-md shadow-lg border-b border-gray-100 sticky top-0 z-50">
@@ -149,7 +146,7 @@ const Navbar = () => {
             <img
               src={Shreegraphicslogo}
               alt="Shree Graphics Logo"
-              className="h-12 sm:h-14 w-auto object-contain transition-all duration-300 hover:scale-105" // 🟢 UPDATED
+              className="h-12 sm:h-14 w-auto object-contain transition-all duration-300 hover:scale-105"
             />
             <div className="hidden sm:flex flex-col">
               <span className="text-lg sm:text-xl font-bold text-gray-900">
@@ -161,10 +158,9 @@ const Navbar = () => {
             </div>
           </Link>
 
-
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-8">
-            {navigation.map(item =>
+            {navigation.map((item) =>
               item.dropdown ? (
                 <div key={item.name} className="relative group">
                   <Link
@@ -178,7 +174,7 @@ const Navbar = () => {
                   {/* Dropdown */}
                   <div className="absolute left-0 mt-3 w-56 bg-white rounded-xl shadow-2xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 z-50">
                     <div className="py-2">
-                      {item.dropdown.map(subItem =>
+                      {item.dropdown.map((subItem) =>
                         subItem.submenu ? (
                           <div key={subItem.name} className="relative group/submenu">
                             <Link
@@ -189,9 +185,10 @@ const Navbar = () => {
                               <ChevronDownIcon className="ml-2 h-4 w-4 rotate-[-90deg] group-hover/submenu:rotate-[-180deg] transition-transform" />
                             </Link>
 
+                            {/* Submenu */}
                             <div className="absolute left-full top-0 ml-2 w-52 bg-white rounded-xl shadow-2xl border border-gray-100 opacity-0 invisible group-hover/submenu:opacity-100 group-hover/submenu:visible transition-all duration-300 transform translate-x-2 group-hover/submenu:translate-x-0 z-50">
                               <div className="py-2">
-                                {subItem.submenu.map(subSubItem => (
+                                {subItem.submenu.map((subSubItem) => (
                                   <Link
                                     key={subSubItem.name}
                                     to={subSubItem.href}
@@ -228,9 +225,8 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* Right side icons */}
+          {/* Right Side */}
           <div className="flex items-center space-x-3">
-            {/* Cart */}
             <button
               onClick={toggleCart}
               className="relative p-3 text-gray-700 hover:text-primary-600 rounded-xl"
@@ -243,7 +239,7 @@ const Navbar = () => {
               )}
             </button>
 
-            {/* User Menu */}
+            {/* User */}
             {isAuthenticated ? (
               <div className="relative group">
                 <button className="flex items-center space-x-2 p-2 rounded-xl hover:bg-primary-50">
@@ -254,66 +250,105 @@ const Navbar = () => {
                   <div className="py-2">
                     <Link
                       to="/profile"
-                      state={{ activeTab: 'profile' }}  // 🟢 NEW: explicitly open profile tab
+                      state={{ activeTab: "profile" }}
                       className="block px-4 py-3 text-sm text-gray-700 hover:bg-primary-50 rounded-lg"
                     >
                       Profile
                     </Link>
-
                     <button
                       onClick={() => navigate("/profile", { state: { activeTab: "orders" } })}
-                      className="block w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-primary-50 rounded-lg"  
+                      className="block w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-primary-50 rounded-lg"
                     >
                       Orders
                     </button>
-                    {user?.role === 'admin' && (
+                    {user?.role === "admin" && (
                       <>
                         <div className="border-t border-gray-100 my-2"></div>
-                        <Link to="/admin" className="block px-4 py-3 text-sm text-gray-700 hover:bg-primary-50 rounded-lg">Admin Dashboard</Link>
-                        <Link to="/clients" className="block px-4 py-3 text-sm text-gray-700 hover:bg-primary-50 rounded-lg">Clients</Link>
+                        <Link
+                          to="/admin"
+                          className="block px-4 py-3 text-sm text-gray-700 hover:bg-primary-50 rounded-lg"
+                        >
+                          Admin Dashboard
+                        </Link>
+                        <Link
+                          to="/clients"
+                          className="block px-4 py-3 text-sm text-gray-700 hover:bg-primary-50 rounded-lg"
+                        >
+                          Clients
+                        </Link>
                       </>
                     )}
                     <div className="border-t border-gray-100 my-2"></div>
-                    <button onClick={handleLogout} className="block w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 rounded-lg">Logout</button>
+                    <button
+                      onClick={handleLogout}
+                      className="block w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 rounded-lg"
+                    >
+                      Logout
+                    </button>
                   </div>
                 </div>
               </div>
             ) : (
               <>
-                <Link to="/login" className="text-gray-700 hover:text-primary-600 px-4 py-2 text-sm rounded-lg">Login</Link>
-                <Link to="/register" className="bg-primary-600 text-white px-4 py-2 text-sm rounded-lg">Sign Up</Link>
+                <Link
+                  to="/login"
+                  className="text-gray-700 hover:text-primary-600 px-4 py-2 text-sm rounded-lg"
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/register"
+                  className="bg-primary-600 text-white px-4 py-2 text-sm rounded-lg"
+                >
+                  Sign Up
+                </Link>
               </>
             )}
 
-            {/* Mobile menu button */}
-            <button onClick={handleMenuToggle} className="md:hidden p-3 text-gray-700 hover:bg-primary-50 rounded-xl">
-              {isMenuOpen ? <XMarkIcon className="h-6 w-6" /> : <Bars3Icon className="h-6 w-6" />}
+            {/* Mobile Button */}
+            <button
+              onClick={handleMenuToggle}
+              className="md:hidden p-3 text-gray-700 hover:bg-primary-50 rounded-xl"
+            >
+              {isMenuOpen ? (
+                <XMarkIcon className="h-6 w-6" />
+              ) : (
+                <Bars3Icon className="h-6 w-6" />
+              )}
             </button>
           </div>
         </div>
 
-        {/* Mobile Menu */}
+        {/* ✅ Mobile Menu */}
         {isMenuOpen && (
           <div className="md:hidden bg-white border-t border-gray-100 py-4 px-4">
-            {navigation.map(item => (
+            {navigation.map((item) => (
               <div key={item.name}>
                 <button
-                  onClick={() => item.dropdown ? toggleDropdown(item.name) : handleMenuClose()}
+                  onClick={() =>
+                    item.dropdown ? toggleDropdown(item.name) : handleMenuClose()
+                  }
                   className="flex justify-between w-full px-4 py-2 text-base font-semibold text-gray-700 hover:bg-primary-50 rounded-lg"
                 >
                   {item.name}
-                  {item.dropdown && <ChevronDownIcon className={`h-5 w-5 transform transition-transform ${openDropdown === item.name ? 'rotate-180' : ''}`} />}
+                  {item.dropdown && (
+                    <ChevronDownIcon
+                      className={`h-5 w-5 transform transition-transform ${
+                        openDropdown === item.name ? "rotate-180" : ""
+                      }`}
+                    />
+                  )}
                 </button>
 
                 {/* Dropdown */}
                 {item.dropdown && openDropdown === item.name && (
                   <div className="ml-4 mt-1 space-y-1 border-l border-primary-100 pl-3">
-                    {item.dropdown.map(subItem => (
+                    {item.dropdown.map((subItem) => (
                       <div key={subItem.name}>
                         {!subItem.submenu ? (
                           <Link
                             to={subItem.href}
-                            onClick={handleMenuClose} // ✅ close menu when clicking
+                            onClick={handleMenuClose}
                             className="block px-3 py-2 text-sm text-gray-600 hover:bg-primary-50 rounded-lg"
                           >
                             {subItem.name}
@@ -325,14 +360,22 @@ const Navbar = () => {
                               className="flex justify-between w-full px-3 py-2 text-sm font-medium text-gray-600 hover:bg-primary-50 rounded-lg"
                             >
                               {subItem.name}
-                              <ChevronDownIcon className={`h-4 w-4 transform transition-transform ${openSubmenu === subItem.name ? 'rotate-180' : ''}`} />
+                              <ChevronDownIcon
+                                className={`h-4 w-4 transform transition-transform ${
+                                  openSubmenu === subItem.name ? "rotate-180" : ""
+                                }`}
+                              />
                             </button>
-                            <div className={`ml-4 mt-1 space-y-1 border-l border-gray-200 pl-3 ${openSubmenu === subItem.name ? 'block' : 'hidden'}`}>
-                              {subItem.submenu.map(subSubItem => (
+                            <div
+                              className={`ml-4 mt-1 space-y-1 border-l border-gray-200 pl-3 ${
+                                openSubmenu === subItem.name ? "block" : "hidden"
+                              }`}
+                            >
+                              {subItem.submenu.map((subSubItem) => (
                                 <Link
                                   key={subSubItem.name}
                                   to={subSubItem.href}
-                                  onClick={handleMenuClose} // ✅ close menu when clicking
+                                  onClick={handleMenuClose}
                                   className="block px-3 py-2 text-xs text-gray-500 hover:bg-primary-50 rounded-lg"
                                 >
                                   {subSubItem.name}
@@ -349,10 +392,9 @@ const Navbar = () => {
             ))}
           </div>
         )}
-
       </div>
     </nav>
-  )
-}
+  );
+};
 
-export default memo(Navbar)
+export default memo(Navbar);
