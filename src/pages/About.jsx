@@ -2,6 +2,9 @@ import { CheckCircleIcon, UserGroupIcon, TrophyIcon } from '@heroicons/react/24/
 import Shailesh from '../assets/images/Shailesh.png'
 import Sheela from '../assets/images/Sheela.png'
 import Shubham from '../assets/images/Shubham.png'
+import Sunil from '../assets/images/Sunil.png'
+import Kavita from '../assets/images/Kavita.png'
+
 
 
 const About = () => {
@@ -32,24 +35,36 @@ const About = () => {
 
   const team = [
     {
-      name: 'Shailesh Shahaji Lamkhade',
-      role: 'Founder & Creative Director',
+      name: 'Sunil Gopale',
+      role: 'CEO - Marketing (India Region)',
+      image: Sunil,
+      description: 'Oversees marketing strategies and operations in India.'
+    },
+    {
+      name: 'Shailesh L',
+      role: 'CEO & Founder',
       image: Shailesh,
-      description: 'With over 10 years of experience in graphic design and branding.'
+      description: 'Founder of the company, driving vision and growth.'
     },
     {
-      name: 'Sheela Hemant Lanke',
-      role: 'Senior Designer',
-      image: Sheela,
-      description: 'Specializes in logo design and brand identity development.'
-    },
-    {
-      name: 'Shubham Balaso Mane',
-      role: 'Embroidery Specialist',
+      name: 'Shubham Mane',
+      role: 'Co-Founder & MD',
       image: Shubham,
-      description: 'Expert in custom embroidery and textile design solutions.'
+      description: 'Manages overall operations and strategic decisions.'
+    },
+    {
+      name: 'Kavita Gopale',
+      role: 'Delivery Head (India)',
+      image: Kavita,
+      description: 'Responsible for timely delivery and project execution in India.'
+    },
+    {
+      name: 'Sheela Lanke',
+      role: 'Operation Head (India)',
+      image: Sheela,
+      description: 'Oversees daily operations and team management in India.'
     }
-  ]
+  ];
 
   return (
     <div className="min-h-screen">
@@ -60,7 +75,7 @@ const About = () => {
             About Shree Graphics Design
           </h1>
           <p className="text-xl text-primary-100 max-w-3xl mx-auto">
-            We are passionate designers dedicated to creating exceptional visual identities 
+            We are passionate designers dedicated to creating exceptional visual identities
             that help businesses stand out and succeed in today's competitive market.
           </p>
         </div>
@@ -91,16 +106,16 @@ const About = () => {
                 Our Story
               </h2>
               <p className="text-lg text-gray-600 mb-6">
-                Founded in 2014, Shree Graphics Design started as a small studio with a big vision: 
+                Founded in 2014, Shree Graphics Design started as a small studio with a big vision:
                 to help businesses create powerful visual identities that resonate with their audience.
               </p>
               <p className="text-lg text-gray-600 mb-6">
-                Over the years, we've grown into a full-service design agency, serving clients 
-                across various industries. From startups to established enterprises, we've helped 
+                Over the years, we've grown into a full-service design agency, serving clients
+                across various industries. From startups to established enterprises, we've helped
                 hundreds of businesses tell their story through compelling design.
               </p>
               <p className="text-lg text-gray-600">
-                Today, we continue to push creative boundaries while staying true to our core values 
+                Today, we continue to push creative boundaries while staying true to our core values
                 of quality, creativity, and customer satisfaction.
               </p>
             </div>
@@ -144,6 +159,7 @@ const About = () => {
         </div>
       </section>
 
+
       {/* Team Section */}
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -155,22 +171,26 @@ const About = () => {
               Our talented team of designers and specialists work together to bring your vision to life.
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
             {team.map((member, index) => (
-              <div key={index} className="bg-white rounded-lg shadow-lg overflow-hidden">
+              <div
+                key={index}
+                className="bg-white rounded-lg shadow-lg overflow-hidden"
+              >
                 <img
                   src={member.image}
                   alt={member.name}
-                  className="w-full h-100 object-cover"
+                  className="w-full h-64 object-cover"
                 />
-                <div className="p-6">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                <div className="p-4">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-1">
                     {member.name}
                   </h3>
-                  <p className="text-primary-600 font-medium mb-3">
+                  <p className="text-primary-600 font-medium mb-2">
                     {member.role}
                   </p>
-                  <p className="text-gray-600">
+                  <p className="text-gray-600 text-sm">
                     {member.description}
                   </p>
                 </div>
@@ -179,6 +199,8 @@ const About = () => {
           </div>
         </div>
       </section>
+
+
 
       {/* CTA Section */}
       <section className="py-20 bg-primary-600">
