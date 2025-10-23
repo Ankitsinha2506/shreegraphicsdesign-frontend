@@ -49,7 +49,14 @@ const Navbar = () => {
     setOpenSubmenu(openSubmenu === name ? null : name);
   };
 
-  // ✅ Updated navigation with "All" subcategory for every dropdown
+  // ✅ Auto close all dropdowns when navigation happens
+  const handleNavClick = useCallback(() => {
+    setIsMenuOpen(false);
+    setOpenDropdown(null);
+    setOpenSubmenu(null);
+  }, []);
+
+  // ✅ Navigation items
   const navigation = [
     { name: "Home", href: "/" },
     {
@@ -64,7 +71,7 @@ const Navbar = () => {
             { name: "Cap", href: "/products?category=apparels&subcategory=cap" },
             { name: "Jackets", href: "/products?category=apparels&subcategory=jackets" },
             { name: "Shirt", href: "/products?category=apparels&subcategory=Shirt" },
-            { name: "T-Shirt", href: "products?category=apparels&subcategory=denim-shirt" },
+            { name: "T-Shirt", href: "/products?category=apparels&subcategory=denim-shirt" },
           ],
         },
         {
@@ -141,83 +148,92 @@ const Navbar = () => {
     <nav className="bg-white/95 backdrop-blur-md shadow-lg border-b border-gray-100 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Logo */}
-          <Link to="/" className="flex items-center space-x-3 group">
+          {/* ✅ Logo */}
+          <Link to="/" className="flex items-center space-x-3 group" onClick={handleNavClick}>
             <img
               src={Shreegraphicslogo}
               alt="Shree Graphics Logo"
               className="h-12 sm:h-14 w-auto object-contain transition-all duration-300 hover:scale-105"
             />
             <div className="hidden sm:flex flex-col items-center text-center">
-              <span className="text-lg sm:text-xl font-bold text-gray-900">
+              <span className="text-[1.35rem] sm:text-2xl font-extrabold text-gray-900 leading-snug">
                 Shree Graphics Design
               </span>
-              <span className="text-[10px] sm:text-xs text-gray-500 font-medium tracking-wide">
+              <span className="text-[10px] sm:text-[12px] text-gray-500 font-medium tracking-wide leading-snug w-max">
                 Your Imagination, Our Embroidery Stitches.
               </span>
             </div>
 
+
+
+
+
+
           </Link>
 
-          {/* Desktop Menu */}
+          {/* ✅ Desktop Menu */}
           <div className="hidden md:flex items-center space-x-8">
             {navigation.map((item) =>
               item.dropdown ? (
                 <div key={item.name} className="relative group">
-                  <Link
-                    to={item.href}
+                  <button
+                    onClick={() => toggleDropdown(item.name)}
                     className="flex items-center text-gray-700 hover:text-primary-600 px-4 py-2 text-sm font-semibold transition-all duration-300 rounded-lg hover:bg-primary-50"
                   >
                     {item.name}
-                    <ChevronDownIcon className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:rotate-180" />
-                  </Link>
+                    <ChevronDownIcon className={`ml-2 h-4 w-4 transition-transform duration-300 ${openDropdown === item.name ? "rotate-180" : ""}`} />
+                  </button>
 
                   {/* Dropdown */}
-                  <div className="absolute left-0 mt-3 w-56 bg-white rounded-xl shadow-2xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 z-50">
-                    <div className="py-2">
-                      {item.dropdown.map((subItem) =>
-                        subItem.submenu ? (
-                          <div key={subItem.name} className="relative group/submenu">
-                            <Link
-                              to={subItem.href}
-                              className="flex items-center justify-between px-4 py-3 text-sm font-medium text-gray-700 hover:bg-primary-50 rounded-lg mx-2"
-                            >
-                              {subItem.name}
-                              <ChevronDownIcon className="ml-2 h-4 w-4 rotate-[-90deg] group-hover/submenu:rotate-[-180deg] transition-transform" />
-                            </Link>
-
-                            {/* Submenu */}
-                            <div className="absolute left-full top-0 ml-2 w-52 bg-white rounded-xl shadow-2xl border border-gray-100 opacity-0 invisible group-hover/submenu:opacity-100 group-hover/submenu:visible transition-all duration-300 transform translate-x-2 group-hover/submenu:translate-x-0 z-50">
-                              <div className="py-2">
-                                {subItem.submenu.map((subSubItem) => (
-                                  <Link
-                                    key={subSubItem.name}
-                                    to={subSubItem.href}
-                                    className="block px-4 py-3 text-sm text-gray-600 hover:bg-primary-50 rounded-lg mx-2"
-                                  >
-                                    {subSubItem.name}
-                                  </Link>
-                                ))}
+                  {openDropdown === item.name && (
+                    <div className="absolute left-0 mt-3 w-56 bg-white rounded-xl shadow-2xl border border-gray-100 z-50">
+                      <div className="py-2">
+                        {item.dropdown.map((subItem) =>
+                          subItem.submenu ? (
+                            <div key={subItem.name} className="relative group/submenu">
+                              <Link
+                                to={subItem.href}
+                                onClick={handleNavClick}
+                                className="block px-4 py-3 text-sm text-gray-700 hover:bg-primary-50 rounded-lg mx-2"
+                              >
+                                {subItem.name}
+                              </Link>
+                              {/* Submenu */}
+                              <div className="absolute left-full top-0 ml-2 w-52 bg-white rounded-xl shadow-2xl border border-gray-100 opacity-0 invisible group-hover/submenu:opacity-100 group-hover/submenu:visible transition-all duration-300 z-50">
+                                <div className="py-2">
+                                  {subItem.submenu.map((subSubItem) => (
+                                    <Link
+                                      key={subSubItem.name}
+                                      to={subSubItem.href}
+                                      onClick={handleNavClick}
+                                      className="block px-4 py-3 text-sm text-gray-600 hover:bg-primary-50 rounded-lg mx-2"
+                                    >
+                                      {subSubItem.name}
+                                    </Link>
+                                  ))}
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        ) : (
-                          <Link
-                            key={subItem.name}
-                            to={subItem.href}
-                            className="block px-4 py-3 text-sm text-gray-700 hover:bg-primary-50 rounded-lg mx-2"
-                          >
-                            {subItem.name}
-                          </Link>
-                        )
-                      )}
+                          ) : (
+                            <Link
+                              key={subItem.name}
+                              to={subItem.href}
+                              onClick={handleNavClick}
+                              className="block px-4 py-3 text-sm text-gray-700 hover:bg-primary-50 rounded-lg mx-2"
+                            >
+                              {subItem.name}
+                            </Link>
+                          )
+                        )}
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               ) : (
                 <Link
                   key={item.name}
                   to={item.href}
+                  onClick={handleNavClick}
                   className="text-gray-700 hover:text-primary-600 px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-300"
                 >
                   {item.name}
@@ -226,7 +242,7 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* Right Side */}
+          {/* ✅ Right Side */}
           <div className="flex items-center space-x-3">
             <button
               onClick={toggleCart}
@@ -240,24 +256,23 @@ const Navbar = () => {
               )}
             </button>
 
-            {/* User */}
+            {/* ✅ User Menu */}
             {isAuthenticated ? (
               <div className="relative group">
                 <button className="flex items-center space-x-2 p-2 rounded-xl hover:bg-primary-50">
                   <UserIcon className="h-5 w-5 text-gray-700" />
                   <span className="hidden sm:block text-sm">{user?.name}</span>
                 </button>
-                <div className="absolute right-0 mt-3 w-56 bg-white rounded-xl shadow-2xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 z-50">
+                <div className="absolute right-0 mt-3 w-56 bg-white rounded-xl shadow-2xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
                   <div className="py-2">
-                    <Link
-                      to="/profile"
-                      state={{ activeTab: "profile" }}
-                      className="block px-4 py-3 text-sm text-gray-700 hover:bg-primary-50 rounded-lg"
-                    >
+                    <Link to="/profile" onClick={handleNavClick} className="block px-4 py-3 text-sm text-gray-700 hover:bg-primary-50 rounded-lg">
                       Profile
                     </Link>
                     <button
-                      onClick={() => navigate("/profile", { state: { activeTab: "orders" } })}
+                      onClick={() => {
+                        navigate("/profile", { state: { activeTab: "orders" } });
+                        handleNavClick();
+                      }}
                       className="block w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-primary-50 rounded-lg"
                     >
                       Orders
@@ -265,16 +280,10 @@ const Navbar = () => {
                     {user?.role === "admin" && (
                       <>
                         <div className="border-t border-gray-100 my-2"></div>
-                        <Link
-                          to="/admin"
-                          className="block px-4 py-3 text-sm text-gray-700 hover:bg-primary-50 rounded-lg"
-                        >
+                        <Link to="/admin" onClick={handleNavClick} className="block px-4 py-3 text-sm text-gray-700 hover:bg-primary-50 rounded-lg">
                           Admin Dashboard
                         </Link>
-                        <Link
-                          to="/clients"
-                          className="block px-4 py-3 text-sm text-gray-700 hover:bg-primary-50 rounded-lg"
-                        >
+                        <Link to="/clients" onClick={handleNavClick} className="block px-4 py-3 text-sm text-gray-700 hover:bg-primary-50 rounded-lg">
                           Clients
                         </Link>
                       </>
@@ -291,31 +300,21 @@ const Navbar = () => {
               </div>
             ) : (
               <>
-                <Link
-                  to="/login"
-                  className="text-gray-700 hover:text-primary-600 px-4 py-2 text-sm rounded-lg"
-                >
+                <Link to="/login" onClick={handleNavClick} className="text-gray-700 hover:text-primary-600 px-4 py-2 text-sm rounded-lg">
                   Login
                 </Link>
-                <Link
-                  to="/register"
-                  className="bg-primary-600 text-white px-4 py-2 text-sm rounded-lg"
-                >
+                <Link to="/register" onClick={handleNavClick} className="bg-primary-600 text-white px-4 py-2 text-sm rounded-lg">
                   Sign Up
                 </Link>
               </>
             )}
 
-            {/* Mobile Button */}
+            {/* ✅ Mobile Button */}
             <button
               onClick={handleMenuToggle}
               className="md:hidden p-3 text-gray-700 hover:bg-primary-50 rounded-xl"
             >
-              {isMenuOpen ? (
-                <XMarkIcon className="h-6 w-6" />
-              ) : (
-                <Bars3Icon className="h-6 w-6" />
-              )}
+              {isMenuOpen ? <XMarkIcon className="h-6 w-6" /> : <Bars3Icon className="h-6 w-6" />}
             </button>
           </div>
         </div>
@@ -326,9 +325,7 @@ const Navbar = () => {
             {navigation.map((item) => (
               <div key={item.name}>
                 <button
-                  onClick={() =>
-                    item.dropdown ? toggleDropdown(item.name) : handleMenuClose()
-                  }
+                  onClick={() => (item.dropdown ? toggleDropdown(item.name) : handleNavClick())}
                   className="flex justify-between w-full px-4 py-2 text-base font-semibold text-gray-700 hover:bg-primary-50 rounded-lg"
                 >
                   {item.name}
@@ -348,7 +345,7 @@ const Navbar = () => {
                         {!subItem.submenu ? (
                           <Link
                             to={subItem.href}
-                            onClick={handleMenuClose}
+                            onClick={handleNavClick}
                             className="block px-3 py-2 text-sm text-gray-600 hover:bg-primary-50 rounded-lg"
                           >
                             {subItem.name}
@@ -373,7 +370,7 @@ const Navbar = () => {
                                 <Link
                                   key={subSubItem.name}
                                   to={subSubItem.href}
-                                  onClick={handleMenuClose}
+                                  onClick={handleNavClick}
                                   className="block px-3 py-2 text-xs text-gray-500 hover:bg-primary-50 rounded-lg"
                                 >
                                   {subSubItem.name}
