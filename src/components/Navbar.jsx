@@ -148,7 +148,7 @@ const Navbar = () => {
               alt="Shree Graphics Logo"
               className="h-12 sm:h-14 w-auto object-contain transition-all duration-300 hover:scale-105"
             />
-            <div className="hidden sm:flex flex-col">
+            <div className="hidden sm:flex flex-col items-center text-center">
               <span className="text-lg sm:text-xl font-bold text-gray-900">
                 Shree Graphics Design
               </span>
@@ -156,6 +156,7 @@ const Navbar = () => {
                 Your Imagination, Our Embroidery Stitches.
               </span>
             </div>
+
           </Link>
 
           {/* Desktop Menu */}
@@ -333,9 +334,8 @@ const Navbar = () => {
                   {item.name}
                   {item.dropdown && (
                     <ChevronDownIcon
-                      className={`h-5 w-5 transform transition-transform ${
-                        openDropdown === item.name ? "rotate-180" : ""
-                      }`}
+                      className={`h-5 w-5 transform transition-transform ${openDropdown === item.name ? "rotate-180" : ""
+                        }`}
                     />
                   )}
                 </button>
@@ -361,15 +361,13 @@ const Navbar = () => {
                             >
                               {subItem.name}
                               <ChevronDownIcon
-                                className={`h-4 w-4 transform transition-transform ${
-                                  openSubmenu === subItem.name ? "rotate-180" : ""
-                                }`}
+                                className={`h-4 w-4 transform transition-transform ${openSubmenu === subItem.name ? "rotate-180" : ""
+                                  }`}
                               />
                             </button>
                             <div
-                              className={`ml-4 mt-1 space-y-1 border-l border-gray-200 pl-3 ${
-                                openSubmenu === subItem.name ? "block" : "hidden"
-                              }`}
+                              className={`ml-4 mt-1 space-y-1 border-l border-gray-200 pl-3 ${openSubmenu === subItem.name ? "block" : "hidden"
+                                }`}
                             >
                               {subItem.submenu.map((subSubItem) => (
                                 <Link
