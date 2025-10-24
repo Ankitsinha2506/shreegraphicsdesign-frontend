@@ -148,23 +148,25 @@ const Navbar = () => {
   return (
     <nav className="bg-white/95 backdrop-blur-md shadow-lg border-b border-gray-100 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex items-center space-x-3 py-1.5 sm:py-2 group">
           {/* ✅ Logo */}
-          <Link to="/" className="flex items-center space-x-3 group" onClick={handleNavClick}>
+          <Link to="/" className="flex items-center space-x-3 group"
+            onClick={handleNavClick}>
             <img
               src={Shreegraphicslogo}
               alt="Shree Graphics Logo"
-              className="h-12 sm:h-14 w-auto object-contain transition-all duration-300 hover:scale-105"
+              className="h-16 sm:h-19 w-auto object-contain transition-all duration-300 hover:scale-105" // 🔥 increased height only
             />
-            <div className="hidden sm:flex flex-col items-center text-center">
-              <span className="text-[1.35rem] sm:text-2xl font-extrabold text-gray-900 leading-snug">
-                Shree Graphics Design
-              </span>
-              <span className="text-[10px] sm:text-[12px] text-gray-500 font-medium tracking-wide leading-snug w-max">
-                Your Imagination, Our Embroidery Stitches.
-              </span>
-            </div>
           </Link>
+          <div className="hidden sm:flex flex-col items-center text-center">
+            <span className="text-[1.35rem] sm:text-2xl font-extrabold text-gray-900 leading-snug">
+              Shree Graphics Design
+            </span>
+            <span className="text-[10px] sm:text-[12px] text-gray-500 font-medium tracking-wide leading-snug w-max">
+              Your Imagination, Our Embroidery Stitches.
+            </span>
+          </div>
+
 
           {/* ✅ Desktop Menu */}
           <div className="hidden md:flex items-center space-x-8">
