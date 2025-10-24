@@ -8,6 +8,7 @@ import {
   Bars3Icon,
   XMarkIcon,
   ChevronDownIcon,
+  ChevronRightIcon, // ✅ Add this
 } from "@heroicons/react/24/outline";
 import Logo from "../assets/shreegraphics.png";
 import Shreegraphicslogo from "../assets/shreegraphicsnavimage.png";
@@ -163,12 +164,6 @@ const Navbar = () => {
                 Your Imagination, Our Embroidery Stitches.
               </span>
             </div>
-
-
-
-
-
-
           </Link>
 
           {/* ✅ Desktop Menu */}
@@ -191,14 +186,17 @@ const Navbar = () => {
                         {item.dropdown.map((subItem) =>
                           subItem.submenu ? (
                             <div key={subItem.name} className="relative group/submenu">
+                              {/* ✅ Updated: Added right arrow for items that have submenu */}
                               <Link
                                 to={subItem.href}
                                 onClick={handleNavClick}
-                                className="block px-4 py-3 text-sm text-gray-700 hover:bg-primary-50 rounded-lg mx-2"
+                                className="flex justify-between items-center px-4 py-3 text-sm text-gray-700 hover:bg-primary-50 rounded-lg mx-2"
                               >
                                 {subItem.name}
+                                <ChevronRightIcon className="h-4 w-4 text-gray-400 group-hover/submenu:text-primary-500 transition-transform" />
                               </Link>
-                              {/* Submenu */}
+
+                              {/* ✅ Submenu */}
                               <div className="absolute left-full top-0 ml-2 w-52 bg-white rounded-xl shadow-2xl border border-gray-100 opacity-0 invisible group-hover/submenu:opacity-100 group-hover/submenu:visible transition-all duration-300 z-50">
                                 <div className="py-2">
                                   {subItem.submenu.map((subSubItem) => (
@@ -225,6 +223,7 @@ const Navbar = () => {
                             </Link>
                           )
                         )}
+
                       </div>
                     </div>
                   )}
