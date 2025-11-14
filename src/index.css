@@ -46,6 +46,7 @@ body {
 .focus\:ring-offset-2:focus { --tw-ring-offset-width: 2px; }
 .focus\:border-transparent:focus { border-color: transparent; }
 
+
 .btn-secondary {
   @apply bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg transition-colors duration-200;
 }

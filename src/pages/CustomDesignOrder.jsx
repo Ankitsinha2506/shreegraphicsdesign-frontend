@@ -51,7 +51,6 @@ const CustomDesignOrder = () => {
       const response = await axios.get(`${API_URL}/api/products`)
       setProducts(response.data.products || [])
     } catch (error) {
-      console.error('Error fetching products:', error)
       toast.error('Failed to fetch products')
     }
   }
@@ -92,14 +91,11 @@ const CustomDesignOrder = () => {
         ...prev,
         product: productId,
         productName: selectedProduct.name,
-        productCategory: selectedProduct.category, // should now match enum
+        productCategory: selectedProduct.category,
         productSubcategory: selectedProduct.subcategory
-        // Removed productCategory and productSubcategory
       }))
     }
   }
-  
-  
 
   const addPlacement = () => {
     setFormData(prev => ({
@@ -128,105 +124,93 @@ const CustomDesignOrder = () => {
     }))
   }
 
-  // ✅ Updated handleSubmit to properly stringify objects & send multipart/form-data
   const handleSubmit = async (e) => {
     e.preventDefault()
-    
-    if (!designFile) {
-      toast.error('Please upload a design file')
-      return
-    }
-  
-    if (!formData.product) {
-      toast.error('Please select a product')
-      return
-    }
-  
+    if (!designFile) return toast.error('Please upload a design file')
+    if (!formData.product) return toast.error('Please select a product')
     setLoading(true)
-    
     try {
       const submitData = new FormData()
-      
-      // Add design file
       submitData.append('designFile', designFile)
-      
-      // Add only the fields backend expects
       submitData.append('productId', formData.product)
       submitData.append('quantity', formData.quantity)
       submitData.append('designType', formData.designType)
       submitData.append('productOptions', JSON.stringify(formData.productOptions))
       submitData.append('designPlacements', JSON.stringify(formData.designPlacements))
-      submitData.append('specialInstructions', formData.specialInstructions || '')
-      submitData.append('designNotes', formData.designNotes || '')
+      submitData.append('specialInstructions', formData.specialInstructions)
       submitData.append('deliveryType', formData.deliveryOptions.type)
       submitData.append('deliveryAddress', JSON.stringify(formData.deliveryOptions.address))
-      
-      const response = await axios.post(
-        `${API_URL}/api/custom-design-orders`,
-        submitData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
+
+      const response = await axios.post(`${API_URL}/api/custom-design-orders`, submitData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${localStorage.getItem('token')}`
         }
-      )
-  
+      })
+
       if (response.data.success) {
         toast.success('Custom design order submitted successfully!')
         navigate('/profile')
       }
-  
     } catch (error) {
-      console.error('Error submitting order:', error)
-      toast.error(error.response?.data?.message || 'Failed to submit order')
+      toast.error('Failed to submit order')
     } finally {
       setLoading(false)
     }
   }
-  
-  
-
 
   const placementOptions = [
     { value: 'front-center', label: 'Front Center' },
-    { value: 'front-left-chest', label: 'Left Chest' },
-    { value: 'front-right-chest', label: 'Right Chest' },
     { value: 'back-center', label: 'Back Center' },
-    { value: 'back-upper', label: 'Back Upper' },
     { value: 'sleeve-left', label: 'Left Sleeve' },
     { value: 'sleeve-right', label: 'Right Sleeve' },
     { value: 'collar', label: 'Collar' },
-    { value: 'pocket', label: 'Pocket' },
     { value: 'custom', label: 'Custom Position' }
   ]
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-8">
+    <div className="min-h-screen bg-black text-white py-10">
+      <div className="max-w-4xl mx-auto px-4">
+        <div className="rounded-2xl overflow-hidden shadow-[0_0_25px_rgba(255,0,0,0.3)] border border-red-900/40">
+          
+          {/* Header */}
+          <div className="bg-gradient-to-r from-red-700 via-red-800 to-black px-6 py-8">
             <h1 className="text-3xl font-bold text-white">Custom Design Order</h1>
-            <p className="text-blue-100 mt-2">Upload your design and customize your product</p>
+            <p className="text-gray-300 mt-2">Upload your design and personalize your product</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="p-6 space-y-8">
-            {/* Design Upload */}
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="p-6 space-y-8 bg-zinc-900/60 backdrop-blur-md">
+            
+            {/* Upload Section */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Upload Design File *</label>
-              <div {...getRootProps()} className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${isDragActive ? 'border-blue-400 bg-blue-50' : 'border-gray-300 hover:border-gray-400'}`}>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Upload Design File *</label>
+              <div
+                {...getRootProps()}
+                className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-all ${
+                  isDragActive
+                    ? 'border-red-500 bg-red-900/20'
+                    : 'border-red-900/40 hover:border-red-600 hover:bg-red-900/10'
+                }`}
+              >
                 <input {...getInputProps()} />
                 {previewUrl ? (
                   <div className="space-y-4">
-                    <img src={previewUrl} alt="Preview" className="max-h-48 mx-auto rounded" />
-                    <p className="text-sm text-gray-600">{designFile?.name}</p>
-                    <button type="button" onClick={() => { setDesignFile(null); setPreviewUrl('') }} className="text-red-600 hover:text-red-800">Remove</button>
+                    <img src={previewUrl} alt="Preview" className="max-h-48 mx-auto rounded-lg" />
+                    <p className="text-sm text-gray-400">{designFile?.name}</p>
+                    <button
+                      type="button"
+                      onClick={() => { setDesignFile(null); setPreviewUrl('') }}
+                      className="text-red-400 hover:text-red-600"
+                    >
+                      Remove
+                    </button>
                   </div>
                 ) : (
                   <div className="space-y-2">
-                    <CloudArrowUpIcon className="h-12 w-12 text-gray-400 mx-auto" />
-                    <p className="text-gray-600">Drop your design file here or click to browse</p>
-                    <p className="text-sm text-gray-500">PNG, JPG, SVG, PDF up to 10MB</p>
+                    <CloudArrowUpIcon className="h-12 w-12 text-red-500 mx-auto" />
+                    <p className="text-gray-400">Drop your design file here or click to browse</p>
+                    <p className="text-xs text-gray-500">PNG, JPG, SVG, PDF up to 10MB</p>
                   </div>
                 )}
               </div>
@@ -234,112 +218,92 @@ const CustomDesignOrder = () => {
 
             {/* Product Selection */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Select Product *</label>
-              <select name="product" value={formData.product} onChange={handleProductSelect} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Select Product *</label>
+              <select
+                name="product"
+                value={formData.product}
+                onChange={handleProductSelect}
+                className="w-full bg-black border border-red-900/40 text-gray-200 rounded-md px-3 py-2 focus:border-red-500"
+              >
                 <option value="">Choose a product...</option>
-                {products.map(product => <option key={product._id} value={product._id}>{product.name} - {product.category}</option>)}
+                {products.map(product => (
+                  <option key={product._id} value={product._id}>{product.name} - {product.category}</option>
+                ))}
               </select>
             </div>
 
-            {/* Product Options & Quantity */}
+            {/* Product Options */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {['color', 'size', 'material'].map(opt => (
+                <div key={opt}>
+                  <label className="block text-sm font-medium text-gray-300 mb-2 capitalize">{opt}</label>
+                  <input
+                    type="text"
+                    name={`productOptions.${opt}`}
+                    value={formData.productOptions[opt]}
+                    onChange={handleInputChange}
+                    placeholder={`Enter ${opt}`}
+                    className="w-full bg-black border border-red-900/40 text-gray-200 rounded-md px-3 py-2 focus:border-red-500"
+                  />
+                </div>
+              ))}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Color</label>
-                <input type="text" name="productOptions.color" value={formData.productOptions.color} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., Black, White, Navy" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Size</label>
-                <input type="text" name="productOptions.size" value={formData.productOptions.size} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., S, M, L, XL" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Material</label>
-                <input type="text" name="productOptions.material" value={formData.productOptions.material} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., Cotton, Polyester" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Quantity</label>
-                <input type="number" name="quantity" value={formData.quantity} onChange={handleInputChange} min="1" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required />
+                <label className="block text-sm font-medium text-gray-300 mb-2">Quantity</label>
+                <input
+                  type="number"
+                  name="quantity"
+                  value={formData.quantity}
+                  onChange={handleInputChange}
+                  min="1"
+                  className="w-full bg-black border border-red-900/40 text-gray-200 rounded-md px-3 py-2 focus:border-red-500"
+                />
               </div>
             </div>
 
-            {/* Design Placements, Special Instructions, Delivery Options, Submit */}
-            {/* ...Keep the rest as it was... */}
-
             {/* Design Placements */}
             <div>
-              <div className="flex items-center justify-between mb-4">
-                <label className="block text-sm font-medium text-gray-700">
-                  Design Placements
-                </label>
+              <div className="flex justify-between items-center mb-4">
+                <label className="block text-sm font-medium text-gray-300">Design Placements</label>
                 <button
                   type="button"
                   onClick={addPlacement}
-                  className="flex items-center text-blue-600 hover:text-blue-800"
+                  className="flex items-center text-red-400 hover:text-red-600"
                 >
-                  <PlusIcon className="h-4 w-4 mr-1" />
-                  Add Placement
+                  <PlusIcon className="h-4 w-4 mr-1" /> Add
                 </button>
               </div>
-
-              {formData.designPlacements.map((placement, index) => (
-                <div key={index} className="border border-gray-200 rounded-lg p-4 mb-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <h4 className="font-medium text-gray-700">Placement {index + 1}</h4>
+              {formData.designPlacements.map((placement, i) => (
+                <div key={i} className="bg-black/40 border border-red-900/40 rounded-lg p-4 mb-3">
+                  <div className="flex justify-between items-center mb-3">
+                    <h4 className="font-medium text-gray-200">Placement {i + 1}</h4>
                     {formData.designPlacements.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => removePlacement(index)}
-                        className="text-red-600 hover:text-red-800"
-                      >
+                      <button onClick={() => removePlacement(i)} className="text-red-500 hover:text-red-700">
                         <XMarkIcon className="h-4 w-4" />
                       </button>
                     )}
                   </div>
-
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Position</label>
-                      <select
-                        value={placement.position}
-                        onChange={(e) => updatePlacement(index, 'position', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      >
-                        {placementOptions.map(option => (
-                          <option key={option.value} value={option.value}>
-                            {option.label}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Width (cm)</label>
-                      <input
-                        type="number"
-                        value={placement.dimensions.width}
-                        onChange={(e) => updatePlacement(index, 'dimensions', {
-                          ...placement.dimensions,
-                          width: parseFloat(e.target.value)
-                        })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        min="1"
-                        step="0.1"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Height (cm)</label>
-                      <input
-                        type="number"
-                        value={placement.dimensions.height}
-                        onChange={(e) => updatePlacement(index, 'dimensions', {
-                          ...placement.dimensions,
-                          height: parseFloat(e.target.value)
-                        })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        min="1"
-                        step="0.1"
-                      />
-                    </div>
+                    <select
+                      value={placement.position}
+                      onChange={(e) => updatePlacement(i, 'position', e.target.value)}
+                      className="bg-black border border-red-900/40 text-gray-200 rounded-md px-3 py-2 focus:border-red-500"
+                    >
+                      {placementOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+                    </select>
+                    <input
+                      type="number"
+                      value={placement.dimensions.width}
+                      onChange={(e) => updatePlacement(i, 'dimensions', { ...placement.dimensions, width: e.target.value })}
+                      className="bg-black border border-red-900/40 text-gray-200 rounded-md px-3 py-2 focus:border-red-500"
+                      placeholder="Width (cm)"
+                    />
+                    <input
+                      type="number"
+                      value={placement.dimensions.height}
+                      onChange={(e) => updatePlacement(i, 'dimensions', { ...placement.dimensions, height: e.target.value })}
+                      className="bg-black border border-red-900/40 text-gray-200 rounded-md px-3 py-2 focus:border-red-500"
+                      placeholder="Height (cm)"
+                    />
                   </div>
                 </div>
               ))}
@@ -347,49 +311,30 @@ const CustomDesignOrder = () => {
 
             {/* Special Instructions */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Special Instructions
-              </label>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Special Instructions</label>
               <textarea
                 name="specialInstructions"
                 value={formData.specialInstructions}
                 onChange={handleInputChange}
                 rows={4}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Any special requirements or instructions for your design..."
+                className="w-full bg-black border border-red-900/40 text-gray-200 rounded-md px-3 py-2 focus:border-red-500"
+                placeholder="Any custom requests or notes..."
               />
             </div>
 
-            {/* Delivery Options */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Delivery Type
-              </label>
-              <select
-                name="deliveryOptions.type"
-                value={formData.deliveryOptions.type}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="standard">Standard (7-10 days)</option>
-                <option value="express">Express (3-5 days)</option>
-                <option value="rush">Rush (1-2 days)</option>
-              </select>
-            </div>
-
-            {/* Submit Button */}
-            <div className="flex justify-end space-x-4">
+            {/* Submit Buttons */}
+            <div className="flex justify-end space-x-4 pt-4">
               <button
                 type="button"
                 onClick={() => navigate(-1)}
-                className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                className="px-6 py-2 border border-gray-600 text-gray-300 rounded-md hover:bg-red-900/20 transition"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={loading}
-                className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                className="px-6 py-2 bg-gradient-to-r from-red-600 to-black text-white font-medium rounded-md hover:from-red-700 hover:to-red-900 shadow-[0_0_10px_rgba(255,0,0,0.4)] transition disabled:opacity-50"
               >
                 {loading ? 'Submitting...' : 'Submit Order'}
               </button>
