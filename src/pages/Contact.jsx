@@ -87,7 +87,7 @@ const Contact = () => {
       {/* 🧭 Hero Section */}
       <section className="relative w-full min-h-[90vh] flex items-center justify-center text-center overflow-hidden">
         <img
-          src="https://images.unsplash.com/photo-1581093804364-2f8dcead6c65?auto=format&fit=crop&w=2000&q=80"
+          src="https://www.brother.in/-/media/ap2/india/products/sewingmachines/sewingmachines/singapore_sewing-banner-component.png?rev=1a0132e1b72d4187a6636bb4994b53b3"
           alt="Embroidery machine stitching design at Shree Graphics"
           className="absolute inset-0 w-full h-full object-cover object-center"
           loading="lazy"

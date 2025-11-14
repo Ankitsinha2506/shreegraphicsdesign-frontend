@@ -29,13 +29,14 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-black text-white">
       {/* 🧵 Hero Section */}
-      <section className="relative overflow-hidden h-[80vh] flex items-center justify-center">
+      <section className="relative overflow-hidden h-screen flex items-center justify-center">
         <img
           src={embroideryMachine}
           alt="Embroidery Machine"
           className="absolute inset-0 w-full h-full object-cover opacity-30"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-black/70 to-red-950/80"></div>
+        {/* <div className="absolute inset-0 bg-gradient-to-b from-black via-black/70 to-red-950/80"></div> */}
+        <div className="absolute inset-0 bg-gradient-to-b"></div>
 
         <div className="relative z-10 text-center px-6">
           <h1 className="text-4xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-red-400 mb-6">
