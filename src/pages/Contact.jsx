@@ -164,6 +164,7 @@ const Contact = () => {
                     placeholder="Your name"
                   />
                 </div>
+
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium text-gray-400 mb-2">Email *</label>
                   <input
@@ -181,21 +182,24 @@ const Contact = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label htmlFor="phone" className="block text-sm font-medium text-gray-400 mb-2">Phone</label>
+                  <label htmlFor="phone" className="block text-sm font-medium text-gray-400 mb-2">Phone *</label>
                   <input
                     id="phone"
                     name="phone"
+                    required
                     value={formData.phone}
                     onChange={handleChange}
                     className="w-full px-4 py-3 bg-zinc-900 text-gray-100 rounded-lg border border-gray-700 focus:ring-2 focus:ring-red-600 focus:border-transparent"
                     placeholder="+91 98765 43210"
                   />
                 </div>
+
                 <div>
-                  <label htmlFor="projectType" className="block text-sm font-medium text-gray-400 mb-2">Project Type</label>
+                  <label htmlFor="projectType" className="block text-sm font-medium text-gray-400 mb-2">Project Type *</label>
                   <select
                     id="projectType"
                     name="projectType"
+                    required
                     value={formData.projectType}
                     onChange={handleChange}
                     className="w-full px-4 py-3 bg-zinc-900 text-gray-100 rounded-lg border border-gray-700 focus:ring-2 focus:ring-red-600 focus:border-transparent"
