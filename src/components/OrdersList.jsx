@@ -33,6 +33,20 @@ const OrdersList = () => {
     });
     const [selectedOrder, setSelectedOrder] = useState(null);
 
+    const getPaymentMethod = () => {
+  if (selectedOrder.paymentMethod)
+    return selectedOrder.paymentMethod.replace(/_/g, " ");
+  
+  if (selectedOrder.paymentDetails?.cardLast4)
+    return "card";
+
+  if (selectedOrder.paymentDetails?.upiId)
+    return "upi";
+
+  return "cod"; // fallback
+};
+
+
     /* -------------------------------------------------------------------------- */
     /*                                 FETCH ORDERS                               */
     /* -------------------------------------------------------------------------- */
@@ -94,6 +108,9 @@ const OrdersList = () => {
         if (s === 'cancelled') return 'text-red-600 bg-red-100';
         return 'text-gray-600 bg-gray-100';
     };
+
+
+
 
     const formatAddress = (addr) => {
         if (!addr) return 'Not provided';
@@ -431,7 +448,7 @@ const OrdersList = () => {
                                     <div className="flex items-center gap-2 text-gray-300">
                                         <UserIcon className="h-4 w-4 text-red-400" />
                                         <span className="font-medium">Name:</span>{' '}
-                                        <span className="text-gray-200">{selectedOrder.shippingAddress?.name || 'Not provided'}</span>
+                                        <span className="text-gray-200">{selectedOrder.shippingAddress?.fullName || 'Not provided'}</span>
                                     </div>
                                     <div className="flex items-center gap-2 text-gray-300">
                                         <PhoneIcon className="h-4 w-4 text-red-400" />
@@ -456,9 +473,10 @@ const OrdersList = () => {
                                     <p className="flex justify-between text-gray-300">
                                         <span className="font-medium">Method:</span>
                                         <span className="text-gray-200 capitalize">
-                                            {selectedOrder.paymentMethod?.replace('_', ' ') || 'Not specified'}
+                                            {getPaymentMethod()}
                                         </span>
                                     </p>
+
                                     <p className="flex justify-between text-gray-300">
                                         <span className="font-medium">Status:</span>
                                         <span

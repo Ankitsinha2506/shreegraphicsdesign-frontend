@@ -81,18 +81,49 @@ const Checkout = () => {
   }
 
   const handlePlaceOrder = async () => {
-    setLoading(true)
+    if (loading) return; // prevent double submit
+    setLoading(true);
 
     try {
-      // Prepare order data for backend
+      // VALIDATION -----------------------------
+
+      if (!paymentInfo.method) {
+        toast.error("Please select a payment method.");
+        setLoading(false);
+        return;
+      }
+
+      if (paymentInfo.method === "card") {
+        if (
+          !paymentInfo.cardNumber ||
+          !paymentInfo.expiryDate ||
+          !paymentInfo.cvv ||
+          !paymentInfo.cardName
+        ) {
+          toast.error("Please fill all card details.");
+          setLoading(false);
+          return;
+        }
+      }
+
+      if (paymentInfo.method === "upi" && !paymentInfo.upiId) {
+        toast.error("Please enter your UPI ID.");
+        setLoading(false);
+        return;
+      }
+
+      // ----------------------------------------
+
+      // Prepare order payload
       const orderData = {
-        items: cartItems.map(item => ({
+        items: cartItems.map((item) => ({
           product: item.productId,
-          tier: item.tier || 'base',
+          tier: item.tier || "base",
           quantity: item.quantity,
           customization: item.customization || {},
-          price: item.price
+          price: item.price,
         })),
+
         shippingAddress: {
           fullName: `${shippingInfo.firstName} ${shippingInfo.lastName}`,
           email: shippingInfo.email,
@@ -101,32 +132,54 @@ const Checkout = () => {
           city: shippingInfo.city,
           state: shippingInfo.state,
           pincode: shippingInfo.pincode,
-          country: shippingInfo.country
+          country: shippingInfo.country,
         },
+
+        // ------------------ PAYMENT -------------------
         paymentMethod: paymentInfo.method,
-        specialInstructions: ''
-      }
+        paymentStatus: paymentInfo.method === "cod" ? "pending" : "paid",
+        paymentId:
+          paymentInfo.method === "cod" ? null : `TXN-${Date.now()}`,
 
-      // Send order to backend
-      const response = await axios.post(`${API_URL}/api/orders`, orderData, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        paymentDetails: {
+          cardLast4:
+            paymentInfo.method === "card"
+              ? paymentInfo.cardNumber?.slice(-4)
+              : null,
+          upiId: paymentInfo.method === "upi" ? paymentInfo.upiId : null,
+        },
+        // ------------------------------------------------
+
+        specialInstructions: "",
+      };
+
+      console.log("📦 Final Order Sent:", orderData);
+
+      const response = await axios.post(
+        `${API_URL}/api/orders`,
+        orderData,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         }
-      })
+      );
 
-      // Clear cart and redirect
-      clearCart()
-      toast.success('Order placed successfully!')
-      navigate('/profile?tab=orders')
-
+      // After success
+      clearCart();
+      toast.success("Order placed successfully!");
+      navigate("/profile?tab=orders");
     } catch (error) {
-      console.error('Order placement error:', error)
-      const errorMessage = error.response?.data?.message || 'Failed to place order. Please try again.'
-      toast.error(errorMessage)
+      console.error("Order placement error:", error);
+      toast.error(
+        error.response?.data?.message ||
+        "Failed to place order. Please try again."
+      );
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
+
 
   if (cartItems.length === 0) {
     return (
@@ -156,14 +209,12 @@ const Checkout = () => {
           <div className="flex items-center justify-center space-x-8">
             {[1, 2, 3].map((stepNumber) => (
               <div key={stepNumber} className="flex items-center">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium shadow-sm ${
-                  step >= stepNumber ? 'bg-gradient-to-r from-red-600 to-red-800 text-white' : 'bg-zinc-800 text-zinc-300 border border-zinc-800'
-                }`}>
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium shadow-sm ${step >= stepNumber ? 'bg-gradient-to-r from-red-600 to-red-800 text-white' : 'bg-zinc-800 text-zinc-300 border border-zinc-800'
+                  }`}>
                   {stepNumber}
                 </div>
-                <span className={`ml-3 text-sm font-medium ${
-                  step >= stepNumber ? 'text-red-300' : 'text-zinc-400'
-                }`}>
+                <span className={`ml-3 text-sm font-medium ${step >= stepNumber ? 'text-red-300' : 'text-zinc-400'
+                  }`}>
                   {stepNumber === 1 ? 'Shipping' : stepNumber === 2 ? 'Payment' : 'Review'}
                 </span>
                 {stepNumber < 3 && (
@@ -304,7 +355,10 @@ const Checkout = () => {
                             name="paymentMethod"
                             value="card"
                             checked={paymentInfo.method === 'card'}
-                            onChange={(e) => setPaymentInfo(prev => ({ ...prev, method: e.target.value }))}
+                            onChange={(e) => {
+                              console.log("Selected Payment Method:", e.target.value);
+                              setPaymentInfo(prev => ({ ...prev, method: e.target.value }))
+                            }}
                             className="mr-3"
                           />
                           <CreditCardIcon className="h-5 w-5 mr-2 text-zinc-300" />
@@ -317,7 +371,10 @@ const Checkout = () => {
                             name="paymentMethod"
                             value="upi"
                             checked={paymentInfo.method === 'upi'}
-                            onChange={(e) => setPaymentInfo(prev => ({ ...prev, method: e.target.value }))}
+                            onChange={(e) => {
+                              console.log("Selected Payment Method:", e.target.value);
+                              setPaymentInfo(prev => ({ ...prev, method: e.target.value }))
+                            }}
                             className="mr-3"
                           />
                           <span className="mr-2">💳</span>
@@ -330,7 +387,10 @@ const Checkout = () => {
                             name="paymentMethod"
                             value="cod"
                             checked={paymentInfo.method === 'cod'}
-                            onChange={(e) => setPaymentInfo(prev => ({ ...prev, method: e.target.value }))}
+                            onChange={(e) => {
+                              console.log("Selected Payment Method:", e.target.value);
+                              setPaymentInfo(prev => ({ ...prev, method: e.target.value }))
+                            }}
                             className="mr-3"
                           />
                           <TruckIcon className="h-5 w-5 mr-2 text-zinc-300" />

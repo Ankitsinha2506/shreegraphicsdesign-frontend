@@ -394,6 +394,29 @@ const AdminDashboard = () => {
     )
   })
 
+  const getCustomerName = (order) => {
+    const addr = order?.shippingAddress || {};
+
+    // 1) If fullName exists → highest priority
+    if (addr.fullName) return addr.fullName;
+
+    // 2) If firstName or lastName exists
+    if (addr.firstName || addr.lastName) {
+      return `${addr.firstName || ""} ${addr.lastName || ""}`.trim();
+    }
+
+    // 3) If "name" exists
+    if (addr.name) return addr.name;
+
+    // 4) If order.user.name exists
+    if (order.user?.name) return order.user.name;
+
+    // 5) Default
+    return "N/A";
+  };
+
+
+
   // Product statistics
   const productStats = {
     total: products.length,
@@ -512,6 +535,7 @@ const AdminDashboard = () => {
   }
 
 
+
   const fetchProducts = async () => {
     setProductsLoading(true)
     try {
@@ -557,6 +581,19 @@ const AdminDashboard = () => {
       setOrdersLoading(false)
     }
   }
+
+  const detectPaymentMethod = () => {
+    const m = selectedOrder.paymentMethod;
+
+    if (m) return m.replace(/_/g, " ");
+
+    // fallback if method missing
+    if (selectedOrder.paymentDetails?.cardLast4) return "card";
+    if (selectedOrder.paymentDetails?.upiId) return "upi";
+
+    return "cod"; // final fallback
+  };
+
 
   const fetchLogoRequests = async () => {
     setLogoRequestsLoading(true)
@@ -2139,12 +2176,14 @@ const AdminDashboard = () => {
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
                           {orders.map((order) => (
+
+
                             <tr key={order._id} className="hover:bg-gray-50">
                               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                 {order.orderNumber || `#${order._id.slice(-6)}`}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {order.user?.name || order.shippingAddress?.name || 'N/A'}
+                                {getCustomerName(order)}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                 ₹{(() => {
@@ -2374,7 +2413,7 @@ const AdminDashboard = () => {
                             <div className="flex items-center gap-2 text-gray-700">
                               <UserIcon className="h-4 w-4 text-blue-600" />
                               <span className="font-medium">Name:</span>{' '}
-                              <span>{selectedOrder.shippingAddress?.name || 'Not provided'}</span>
+                              <span>{selectedOrder.shippingAddress?.fullName || 'Not provided'}</span>
                             </div>
                             <div className="flex items-center gap-2 text-gray-700">
                               <PhoneIcon className="h-4 w-4 text-blue-600" />
@@ -2409,7 +2448,7 @@ const AdminDashboard = () => {
                             <p className="flex justify-between text-gray-700">
                               <span className="font-medium">Method:</span>
                               <span className="capitalize">
-                                {selectedOrder.paymentMethod?.replace('_', ' ') || 'Not specified'}
+                                {detectPaymentMethod()}
                               </span>
                             </p>
                             <p className="flex justify-between text-gray-700">
