@@ -1,4 +1,4 @@
-import { useState, useCallback, memo } from "react";
+import { useState, useCallback, memo, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
@@ -10,7 +10,7 @@ import {
   ChevronDownIcon,
   ChevronRightIcon,
 } from "@heroicons/react/24/outline";
-import Shreegraphicslogo from "../assets/shreegraphicsfooterimage.png";
+import Shreegraphicslogo from "../assets/FooterLogo.png";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -20,6 +20,7 @@ const Navbar = () => {
   const { user, logout, isAuthenticated } = useAuth();
   const { getCartItemsCount, toggleCart } = useCart();
   const navigate = useNavigate();
+  const timeoutRef = useRef(null);
 
   const handleLogout = useCallback(async () => {
     try {
@@ -30,22 +31,30 @@ const Navbar = () => {
     }
   }, [logout, navigate]);
 
-  const handleMenuToggle = useCallback(() => {
-    setIsMenuOpen((prev) => !prev);
-  }, []);
+  const handleMenuToggle = () => setIsMenuOpen((prev) => !prev);
 
-  const handleNavClick = useCallback(() => {
+  const closeMobileMenu = () => {
     setIsMenuOpen(false);
     setOpenDropdown(null);
     setOpenSubmenu(null);
+  };
+
+  const handleMouseEnter = (name) => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    setOpenDropdown(name);
+  };
+
+  const handleMouseLeave = () => {
+    timeoutRef.current = setTimeout(() => {
+      setOpenDropdown(null);
+      setOpenSubmenu(null);
+    }, 200);
+  };
+
+  useEffect(() => {
+    return () => clearTimeout(timeoutRef.current);
   }, []);
 
-  const toggleDropdown = (name) =>
-    setOpenDropdown(openDropdown === name ? null : name);
-  const toggleSubmenu = (name) =>
-    setOpenSubmenu(openSubmenu === name ? null : name);
-
-  // Your existing full navigation tree
   const navigation = [
     { name: "Home", href: "/" },
     {
@@ -57,10 +66,10 @@ const Navbar = () => {
           href: "/products?category=apparels",
           submenu: [
             { name: "All Apparels", href: "/products?category=apparels" },
-            { name: "Cap", href: "/products?category=apparels&subcategory=cap" },
+            { name: "Caps", href: "/products?category=apparels&subcategory=cap" },
             { name: "Jackets", href: "/products?category=apparels&subcategory=jackets" },
-            { name: "Shirt", href: "/products?category=apparels&subcategory=Shirt" },
-            { name: "T-Shirt", href: "/products?category=apparels&subcategory=denim-shirt" },
+            { name: "Shirts", href: "/products?category=apparels&subcategory=shirt" },
+            { name: "T-Shirts", href: "/products?category=apparels&subcategory=t-shirt" },
           ],
         },
         {
@@ -72,20 +81,17 @@ const Navbar = () => {
             { name: "Text Embroidery", href: "/products?category=embroidery&subcategory=text-embroidery" },
             { name: "Patches", href: "/products?category=embroidery&subcategory=custom-patches" },
             { name: "Monogramming", href: "/products?category=embroidery&subcategory=monogramming" },
-            { name: "Badge Embroidery", href: "/products?category=embroidery&subcategory=badge-embroidery" },
             { name: "Custom Embroidery", href: "/products?category=embroidery&subcategory=custom-embroidery" },
-            { name: "Hand Embroidery", href: "/products?category=embroidery&subcategory=hand-embroidery" },
           ],
         },
         {
-          name: "Travels",
+          name: "Travel Items",
           href: "/products?category=travels",
           submenu: [
             { name: "All Travel Items", href: "/products?category=travels" },
-            { name: "Hand Bag", href: "/products?category=travels&subcategory=hand-bag" },
-            { name: "Strolley Bags", href: "/products?category=travels&subcategory=strolley-bags" },
-            { name: "Travel Bags", href: "/products?category=travels&subcategory=travel-bags" },
-            { name: "Back Packs", href: "/products?category=travels&subcategory=back-packs" },
+            { name: "Hand Bags", href: "/products?category=travels&subcategory=hand-bag" },
+            { name: "Trolley Bags", href: "/products?category=travels&subcategory=strolley-bags" },
+            { name: "Backpacks", href: "/products?category=travels&subcategory=back-packs" },
             { name: "Laptop Bags", href: "/products?category=travels&subcategory=laptop-bags" },
           ],
         },
@@ -93,7 +99,7 @@ const Navbar = () => {
           name: "Leather",
           href: "/products?category=leather",
           submenu: [
-            { name: "All Leather Items", href: "/products?category=leather" },
+            { name: "All Leather", href: "/products?category=leather" },
             { name: "Office Bags", href: "/products?category=leather&subcategory=office-bags" },
             { name: "Wallets", href: "/products?category=leather&subcategory=wallets" },
           ],
@@ -104,17 +110,16 @@ const Navbar = () => {
           submenu: [
             { name: "All Uniforms", href: "/products?category=uniforms" },
             { name: "School Uniforms", href: "/products?category=uniforms&subcategory=school-uniforms" },
-            { name: "Corporate", href: "/products?category=uniforms&subcategory=corporate" },
+            { name: "Corporate Uniforms", href: "/products?category=uniforms&subcategory=corporate" },
           ],
         },
         {
           name: "Design Services",
           href: "/products?category=design-services",
           submenu: [
-            { name: "All Design Services", href: "/products?category=design-services" },
+            { name: "All Services", href: "/products?category=design-services" },
             { name: "Logo Design", href: "/products?category=design-services&subcategory=logo-design" },
             { name: "Branding", href: "/products?category=design-services&subcategory=branding" },
-            { name: "Print Design", href: "/products?category=design-services&subcategory=print-design" },
           ],
         },
       ],
@@ -125,8 +130,8 @@ const Navbar = () => {
       dropdown: [
         { name: "Embroidery Services", href: "/embroidery" },
         { name: "Custom Logo Design", href: "/custom-logo-design" },
-        { name: "Custom Design Orders", href: "/custom-design-order" },
-        { name: "Custom Embroidery Request", href: "/custom-embroidery-request" },
+        { name: "Custom Orders", href: "/custom-design-order" },
+        { name: "Embroidery Request", href: "/custom-embroidery-request" },
       ],
     },
     { name: "About", href: "/about" },
@@ -134,155 +139,151 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className="sticky top-0 z-50 bg-black/95 backdrop-blur-md border-b border-red-800 shadow-[0_2px_10px_rgba(255,30,86,0.2)]">
+    <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-lg border-b border-orange-200 shadow-lg shadow-orange-100/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* main row */}
-        <div className="flex items-center justify-between py-3">
-          {/* logo */}
-          <Link
-            to="/"
-            onClick={handleNavClick}
-            className="flex items-center gap-3 group"
-          >
+        <div className="flex items-center justify-between h-20">
+
+          {/* Logo */}
+          <Link to="/" onClick={closeMobileMenu} className="flex items-center gap-4 group">
             <img
               src={Shreegraphicslogo}
               alt="Shree Graphics Logo"
-              className="h-16 sm:h-20 object-contain drop-shadow-[0_0_10px_rgba(255,0,0,0.6)] group-hover:scale-105 transition-transform"
+              className="h-16 sm:h-20 object-contain drop-shadow-xl group-hover:scale-105 transition-all duration-300"
             />
-            <div className="hidden sm:flex flex-col">
-              <span className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
+            <div className="hidden lg:flex flex-col">
+              <span className="text-2xl font-extrabold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent leading-tight">
                 Shree Graphics Design
               </span>
-              <span className="text-xs text-gray-400">
-                Your Imagination, Our Embroidery Stitches
+              <span className="text-xs text-orange-600 font-medium tracking-wider">
+                YOUR IMAGINATION • OUR STITCHES
               </span>
             </div>
           </Link>
 
-          {/* desktop nav */}
-          <div className="hidden md:flex items-center gap-6">
-            {navigation.map((item) =>
-              item.dropdown ? (
-                <div key={item.name} className="relative group">
-                  <button
-                    onClick={() => toggleDropdown(item.name)}
-                    className="flex items-center text-gray-300 hover:text-red-500 font-medium transition-all duration-300"
-                  >
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center gap-10">
+            {navigation.map((item) => (
+              <div
+                key={item.name}
+                className="relative"
+                onMouseEnter={() => item.dropdown && handleMouseEnter(item.name)}
+                onMouseLeave={handleMouseLeave}
+              >
+                {item.dropdown ? (
+                  <button className="flex items-center gap-1.5 text-gray-700 hover:text-orange-600 font-semibold transition-all duration-200">
                     {item.name}
                     <ChevronDownIcon
-                      className={`ml-1 h-4 w-4 transition-transform ${
-                        openDropdown === item.name ? "rotate-180 text-red-500" : ""
-                      }`}
+                      className={`h-4 w-4 transition-transform ${openDropdown === item.name ? "rotate-180 text-orange-600" : ""}`}
                     />
                   </button>
+                ) : (
+                  <Link
+                    to={item.href}
+                    onClick={closeMobileMenu}
+                    className="text-gray-700 hover:text-orange-600 font-semibold transition-all duration-200"
+                  >
+                    {item.name}
+                  </Link>
+                )}
 
-                  {openDropdown === item.name && (
-                    <div className="absolute left-0 mt-3 w-56 bg-black text-gray-200 rounded-lg border border-red-800/40 shadow-[0_0_20px_rgba(255,0,0,0.3)]">
-                      <div className="py-2">
-                        {item.dropdown.map((sub) =>
-                          sub.submenu ? (
-                            <div
-                              key={sub.name}
-                              className="relative group/sub"
-                            >
-                              <Link
-                                to={sub.href}
-                                onClick={handleNavClick}
-                                className="flex justify-between items-center px-4 py-2 hover:bg-red-900/30 rounded-md"
-                              >
-                                {sub.name}
-                                <ChevronRightIcon className="h-4 w-4 text-gray-400 group-hover/sub:text-red-500" />
-                              </Link>
-                              <div className="absolute left-full top-0 ml-2 w-52 bg-black border border-red-800/30 rounded-lg opacity-0 invisible group-hover/sub:opacity-100 group-hover/sub:visible transition-all">
+                {/* Dropdown Menu */}
+                {item.dropdown && openDropdown === item.name && (
+                  <div
+                    className="absolute left-1/2 -translate-x-1/2 mt-5 w-72 bg-white rounded-2xl shadow-2xl border border-orange-100 overflow-hidden"
+                    onMouseEnter={() => clearTimeout(timeoutRef.current)}
+                    onMouseLeave={handleMouseLeave}
+                  >
+                    <div className="p-3">
+                      {item.dropdown.map((sub) => (
+                        <div
+                          key={sub.name}
+                          className="relative group/sub"
+                          onMouseEnter={() => sub.submenu && setOpenSubmenu(sub.name)}
+                          onMouseLeave={() => setOpenSubmenu(null)}
+                        >
+                          <Link
+                            to={sub.href}
+                            onClick={closeMobileMenu}
+                            className="flex items-center justify-between px-5 py-3.5 text-gray-700 hover:bg-orange-50 hover:text-orange-600 rounded-lg transition-all font-medium"
+                          >
+                            <span>{sub.name}</span>
+                            {sub.submenu && <ChevronRightIcon className="h-4 w-4 text-orange-500" />}
+                          </Link>
+
+                          {/* Submenu */}
+                          {sub.submenu && openSubmenu === sub.name && (
+                            <div className="absolute left-full top-0 w-64 -ml-2 bg-white rounded-xl shadow-xl border border-orange-100">
+                              <div className="py-2">
                                 {sub.submenu.map((ss) => (
                                   <Link
                                     key={ss.name}
                                     to={ss.href}
-                                    onClick={handleNavClick}
-                                    className="block px-4 py-2 hover:bg-red-900/40 rounded-md"
+                                    onClick={closeMobileMenu}
+                                    className="block px-6 py-3 text-gray-600 hover:bg-orange-50 hover:text-orange-600 transition-all"
                                   >
                                     {ss.name}
                                   </Link>
                                 ))}
                               </div>
                             </div>
-                          ) : (
-                            <Link
-                              key={sub.name}
-                              to={sub.href}
-                              onClick={handleNavClick}
-                              className="block px-4 py-2 hover:bg-red-900/30 rounded-md"
-                            >
-                              {sub.name}
-                            </Link>
-                          )
-                        )}
-                      </div>
+                          )}
+                        </div>
+                      ))}
                     </div>
-                  )}
-                </div>
-              ) : (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  onClick={handleNavClick}
-                  className="text-gray-300 hover:text-red-500 font-medium transition"
-                >
-                  {item.name}
-                </Link>
-              )
-            )}
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
 
-          {/* right */}
-          <div className="flex items-center gap-4">
+          {/* Right Side - Cart & Auth */}
+          <div className="flex items-center gap-5">
+            {/* Cart */}
             <button
               onClick={toggleCart}
-              className="relative p-2 text-gray-300 hover:text-red-500"
+              className="relative p-3 text-gray-700 hover:text-orange-600 hover:bg-orange-50 rounded-full transition-all duration-200"
             >
-              <ShoppingCartIcon className="h-6 w-6" />
+              <ShoppingCartIcon className="h-7 w-7" />
               {getCartItemsCount() > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs h-5 w-5 flex items-center justify-center rounded-full">
+                <span className="absolute -top-1 -right-1 bg-gradient-to-r from-orange-500 to-red-600 text-white text-xs font-bold h-6 w-6 rounded-full flex items-center justify-center shadow-lg animate-pulse">
                   {getCartItemsCount()}
                 </span>
               )}
             </button>
 
+            {/* User Menu */}
             {isAuthenticated ? (
               <div className="relative group">
-                <button className="flex items-center gap-2 px-3 py-1.5 rounded-md text-gray-300 hover:text-red-500">
-                  <UserIcon className="h-5 w-5" />
-                  <span className="hidden sm:block">{user?.name}</span>
+                <button className="flex items-center gap-2 text-gray-700 hover:text-orange-600 font-medium transition">
+                  <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-red-500 rounded-full flex items-center justify-center text-white font-bold shadow-lg">
+                    {user?.name?.charAt(0).toUpperCase() || "U"}
+                  </div>
+                  <span className="hidden lg:block">{user?.name?.split(" ")[0] || "User"}</span>
                 </button>
-                <div className="absolute right-0 mt-3 w-56 bg-black border border-red-800/40 rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all shadow-[0_0_15px_rgba(255,0,0,0.3)]">
-                  <div className="py-2 text-gray-300">
-                    <Link
-                      to="/profile"
-                      onClick={handleNavClick}
-                      className="block px-4 py-2 hover:bg-red-900/30"
-                    >
-                      Profile
+
+                <div className="absolute right-0 mt-4 w-64 bg-white rounded-2xl shadow-2xl border border-orange-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">
+                  <div className="p-3">
+                    <Link to="/profile" onClick={closeMobileMenu} className="block px-5 py-3 hover:bg-orange-50 rounded-lg text-gray-700 font-medium">
+                      My Profile
                     </Link>
                     <button
-                      onClick={() => {
-                        navigate("/profile", { state: { activeTab: "orders" } });
-                        handleNavClick();
-                      }}
-                      className="block w-full text-left px-4 py-2 hover:bg-red-900/30"
+                      onClick={() => { navigate("/profile", { state: { activeTab: "orders" } }); closeMobileMenu(); }}
+                      className="block w-full text-left px-5 py-3 hover:bg-orange-50 rounded-lg text-gray-700 font-medium"
                     >
-                      Orders
+                      My Orders
                     </button>
                     {user?.role === "admin" && (
                       <>
-                        <div className="border-t border-red-900/40 my-1"></div>
-                        <Link to="/admin" className="block px-4 py-2 hover:bg-red-900/30">Admin Dashboard</Link>
-                        <Link to="/clients" className="block px-4 py-2 hover:bg-red-900/30">Clients</Link>
+                        <div className="border-t border-orange-100 my-2"></div>
+                        <Link to="/admin" onClick={closeMobileMenu} className="block px-5 py-3 hover:bg-orange-50 rounded-lg text-orange-600 font-bold">
+                          Admin Dashboard
+                        </Link>
                       </>
                     )}
-                    <div className="border-t border-red-900/40 my-1"></div>
+                    <div className="border-t border-orange-100 my-2"></div>
                     <button
                       onClick={handleLogout}
-                      className="block w-full text-left px-4 py-2 text-red-500 hover:bg-red-900/30"
+                      className="block w-full text-left px-5 py-3 hover:bg-red-50 text-red-600 rounded-lg font-medium"
                     >
                       Logout
                     </button>
@@ -293,102 +294,85 @@ const Navbar = () => {
               <>
                 <Link
                   to="/login"
-                  className="text-gray-300 hover:text-red-500"
-                  onClick={handleNavClick}
+                  className="text-gray-700 hover:text-orange-600 font-semibold transition"
                 >
                   Login
                 </Link>
                 <Link
                   to="/register"
-                  className="bg-red-600 text-white px-4 py-2 rounded-md font-semibold hover:bg-red-500 transition"
-                  onClick={handleNavClick}
+                  className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white px-7 py-3 rounded-full font-bold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
                 >
-                  Sign Up
+                  Get Started
                 </Link>
               </>
             )}
 
-            {/* mobile toggle */}
+            {/* Mobile Menu Toggle */}
             <button
               onClick={handleMenuToggle}
-              className="md:hidden text-gray-300 hover:text-red-500"
+              className="md:hidden p-2 text-gray-700 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition"
             >
-              {isMenuOpen ? (
-                <XMarkIcon className="h-6 w-6" />
-              ) : (
-                <Bars3Icon className="h-6 w-6" />
-              )}
+              {isMenuOpen ? <XMarkIcon className="h-8 w-8" /> : <Bars3Icon className="h-8 w-8" />}
             </button>
           </div>
         </div>
 
-        {/* mobile menu */}
+        {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="md:hidden bg-black text-gray-300 border-t border-red-900/40 p-4 rounded-b-lg">
-            {navigation.map((item) => (
-              <div key={item.name}>
-                <button
-                  onClick={() =>
-                    item.dropdown ? toggleDropdown(item.name) : handleNavClick()
-                  }
-                  className="flex justify-between w-full py-2 text-left font-semibold hover:text-red-500"
-                >
-                  {item.name}
-                  {item.dropdown && (
-                    <ChevronDownIcon
-                      className={`h-5 w-5 transition-transform ${
-                        openDropdown === item.name ? "rotate-180 text-red-500" : ""
-                      }`}
-                    />
+          <div className="md:hidden bg-white border-t border-orange-100 shadow-2xl">
+            <div className="px-4 py-6 space-y-1">
+              {navigation.map((item) => (
+                <div key={item.name}>
+                  {item.dropdown ? (
+                    <button
+                      onClick={() => setOpenDropdown(openDropdown === item.name ? null : item.name)}
+                      className="w-full text-left flex items-center justify-between px-4 py-4 text-lg font-semibold text-gray-800 hover:bg-orange-50 rounded-lg transition"
+                    >
+                      {item.name}
+                      <ChevronDownIcon className={`h-6 w-6 transition-transform ${openDropdown === item.name ? "rotate-180 text-orange-600" : ""}`} />
+                    </button>
+                  ) : (
+                    <Link
+                      to={item.href}
+                      onClick={closeMobileMenu}
+                      className="block px-4 py-4 text-lg font-semibold text-gray-800 hover:bg-orange-50 rounded-lg transition"
+                    >
+                      {item.name}
+                    </Link>
                   )}
-                </button>
-                {item.dropdown && openDropdown === item.name && (
-                  <div className="ml-4 border-l border-red-800/50 pl-3">
-                    {item.dropdown.map((sub) => (
-                      <div key={sub.name}>
-                        {!sub.submenu ? (
+
+                  {item.dropdown && openDropdown === item.name && (
+                    <div className="ml-4 mt-2 space-y-1 bg-orange-50/50 rounded-xl p-4">
+                      {item.dropdown.map((sub) => (
+                        <div key={sub.name}>
                           <Link
                             to={sub.href}
-                            onClick={handleNavClick}
-                            className="block py-1 text-sm hover:text-red-500"
+                            onClick={closeMobileMenu}
+                            className="block py-3 text-gray-700 hover:text-orange-600 font-medium"
                           >
                             {sub.name}
                           </Link>
-                        ) : (
-                          <>
-                            <button
-                              onClick={() => toggleSubmenu(sub.name)}
-                              className="flex justify-between w-full py-1 text-sm hover:text-red-500"
-                            >
-                              {sub.name}
-                              <ChevronDownIcon
-                                className={`h-4 w-4 transition-transform ${
-                                  openSubmenu === sub.name ? "rotate-180" : ""
-                                }`}
-                              />
-                            </button>
-                            {openSubmenu === sub.name && (
-                              <div className="ml-3 border-l border-red-900/40 pl-3">
-                                {sub.submenu.map((ss) => (
-                                  <Link
-                                    key={ss.name}
-                                    to={ss.href}
-                                    onClick={handleNavClick}
-                                    className="block py-1 text-xs hover:text-red-400"
-                                  >
-                                    {ss.name}
-                                  </Link>
-                                ))}
-                              </div>
-                            )}
-                          </>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
+                          {sub.submenu && (
+                            <div className="ml-6 mt-2 space-y-2 border-l-2 border-orange-300 pl-4">
+                              {sub.submenu.map((ss) => (
+                                <Link
+                                  key={ss.name}
+                                  to={ss.href}
+                                  onClick={closeMobileMenu}
+                                  className="block py-2 text-sm text-gray-600 hover:text-orange-600"
+                                >
+                                  {ss.name}
+                                </Link>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>

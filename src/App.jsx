@@ -8,6 +8,7 @@ import CartSidebar from './components/CartSidebar'
 import ScrollToTop from './ScrollToTop'
 import { Suspense, lazy } from 'react' // ✅ Added for lazy loading
 import 'react-medium-image-zoom/dist/styles.css';
+import WhatsappFloat from './components/WhatsappFloat'
 
 
 // ✅ Lazy-loaded pages
@@ -50,6 +51,7 @@ function Layout({ children }) {
         {children}
       </main>
       <Footer />
+      {/* <WhatsappFloat /> */}
       <CartSidebar />
       <Toaster position="top-right" />
     </div>

@@ -1,11 +1,11 @@
 import { Link } from 'react-router-dom'
 import { ArrowRightIcon, StarIcon } from '@heroicons/react/24/solid'
-import { CheckCircleIcon, TruckIcon, ShieldCheckIcon, ChevronDownIcon } from '@heroicons/react/24/outline'
-import { useState, useEffect, useRef } from 'react'
+import { CheckCircleIcon, TruckIcon, ShieldCheckIcon } from '@heroicons/react/24/outline'
+import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { toast } from 'react-hot-toast'
 import ClientsCarousel from '../components/ClientsCarousel'
-import embroideryMachine from "../assets/images/embroideryhero.jpg";
+import embroideryMachine from "../assets/images/embroideryhero.jpg"
 
 const Home = () => {
   const [products, setProducts] = useState([])
@@ -26,88 +26,113 @@ const Home = () => {
     fetchProducts()
   }, [])
 
+  // Brand Colors
+  const brandRed = "rgb(255, 69, 0)"        // Orange-Red (your "silly red")
+  const brandLight = "rgb(255, 107, 53)"     // Softer orange accent
+
   return (
-    <div className="min-h-screen bg-black text-white">
-      {/* 🧵 Hero Section */}
-      <section className="relative overflow-hidden h-screen flex items-center justify-center">
+    <div className="min-h-screen bg-white text-gray-900">
+      {/* Hero Section - Light & Bold */}
+      <section className="relative overflow-hidden h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-white to-red-50">
         <img
           src={embroideryMachine}
           alt="Embroidery Machine"
-          className="absolute inset-0 w-full h-full object-cover opacity-30"
+          className="absolute inset-0 w-full h-full object-cover opacity-20"
         />
-        {/* <div className="absolute inset-0 bg-gradient-to-b from-black via-black/70 to-red-950/80"></div> */}
-        <div className="absolute inset-0 bg-gradient-to-b"></div>
-
-        <div className="relative z-10 text-center px-6">
-          <h1 className="text-4xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-red-400 mb-6">
+        <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
+          <h1 className="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-orange-600 via-red-500 to-orange-500 bg-clip-text text-transparent mb-6 leading-tight">
             Custom Embroidery & Branding That Commands Attention
           </h1>
-          <p className="text-gray-300 text-lg md:text-xl max-w-2xl mx-auto mb-8">
+          <p className="text-gray-700 text-lg md:text-xl max-w-2xl mx-auto mb-10">
             Elevate your brand with bold, precision-crafted embroidery and custom logo design.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-5 justify-center">
             <Link
               to="/products"
-              className="bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white px-8 py-3 rounded-md font-semibold shadow-[0_0_15px_rgba(255,0,0,0.3)] transition-all flex items-center justify-center"
+              className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white px-9 py-4 rounded-full font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center"
+              style={{ boxShadow: `0 10px 30px rgba(255,69,0,0.3)` }}
             >
               Browse Products
-              <ArrowRightIcon className="ml-2 h-5 w-5" />
+              <ArrowRightIcon className="ml-3 h-6 w-6" />
             </Link>
             <Link
               to="/contact"
-              className="border border-red-500 text-red-400 px-8 py-3 rounded-md font-semibold hover:bg-red-900/30 transition-all flex items-center justify-center"
+              className="border-2 border-orange-500 text-orange-600 hover:bg-orange-500 hover:text-white px-9 py-4 rounded-full font-bold text-lg transition-all duration-300 flex items-center justify-center"
             >
               Get Custom Quote
             </Link>
           </div>
-          <p className="mt-8 text-sm text-gray-400 italic">
-            Trusted by 500+ brands for premium embroidery and design services.
+          <p className="mt-10 text-gray-600 font-medium">
+            Trusted by <span className="text-orange-600 font-bold">500+ brands</span> across India
           </p>
         </div>
       </section>
 
-      {/* 🛍 Products Section */}
-      <section className="py-20 bg-gradient-to-b from-black via-zinc-900 to-black">
+      {/* Products Section */}
+      <section className="py-24 bg-gray-50">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-red-500 mb-3">Our Products</h2>
-            <p className="text-gray-400">Discover the art of stitched perfection.</p>
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-red-600 mb-4">
+              Our Premium Products
+            </h2>
+            <p className="text-xl text-gray-600">Corporate Gifting • Uniforms • Merchandise</p>
           </div>
 
           {loading ? (
-            <div className="flex justify-center py-12">
-              <div className="animate-spin h-12 w-12 border-b-2 border-red-600 rounded-full"></div>
+            <div className="flex justify-center py-20">
+              <div className="animate-spin h-14 w-14 border-4 border-orange-600 border-t-transparent rounded-full"></div>
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                 {products.slice(0, displayedProducts).map((product) => (
                   <div
                     key={product._id}
-                    className="bg-zinc-900 border border-red-900/40 rounded-xl overflow-hidden shadow-[0_0_20px_rgba(255,0,0,0.15)] hover:shadow-[0_0_25px_rgba(255,0,0,0.35)] transition-all group"
+                    className="group relative bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl border border-gray-100 
+                               transition-all duration-500 hover:-translate-y-3 hover:border-orange-300 flex flex-col"
                   >
-                    <div className="relative">
+                    {/* Image */}
+                    <div className="relative aspect-square bg-gray-50 overflow-hidden">
                       <img
-                        src={product.images?.[0]?.url || 'https://via.placeholder.com/400x300'}
+                        src={product.images?.[0]?.url || 'https://via.placeholder.com/600x600'}
                         alt={product.name}
-                        className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                        className="w-full h-full object-contain p-6 transition-transform duration-700 group-hover:scale-110"
+                        loading="lazy"
                       />
                       {product.isFeatured && (
-                        <div className="absolute top-3 left-3 bg-red-600 text-xs font-semibold px-2 py-1 rounded-md">
+                        <div className="absolute top-4 left-4 bg-gradient-to-r from-orange-500 to-red-600 text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg">
                           Featured
                         </div>
                       )}
-                    </div>
-                    <div className="p-4">
-                      <h3 className="text-lg font-semibold text-white mb-1">{product.name}</h3>
-                      <p className="text-sm text-gray-400 mb-3 line-clamp-2">{product.description}</p>
-                      <div className="flex justify-between items-center">
-                        <span className="text-red-400 font-bold">₹{product.price?.base || 0}</span>
-                        <span className="text-xs text-gray-500">{product.category}</span>
+                      <div className="absolute bottom-4 right-4 bg-black/80 text-white px-4 py-2 rounded-lg text-lg font-bold">
+                        ₹{product.price?.base || product.price || 0}
                       </div>
+                    </div>
+
+                    {/* Content */}
+                    <div className="p-6 flex-1 flex flex-col justify-between bg-white">
+                      <div>
+                        <h3 className="text-xl font-bold text-gray-900 line-clamp-2">
+                          {product.name}
+                        </h3>
+                        <p className="text-gray-600 text-sm mt-2 line-clamp-2">
+                          {product.description || "Premium custom embroidery & branding"}
+                        </p>
+                        <div className="flex justify-between items-center mt-4">
+                          <span className="text-orange-600 font-semibold text-sm uppercase tracking-wider">
+                            {product.category?.replace(/-/g, ' ') || 'Product'}
+                          </span>
+                          <div className="flex gap-1">
+                            {[...Array(5)].map((_, i) => (
+                              <StarIcon key={i} className={`w-5 h-5 ${i < 4.7 ? 'text-orange-500' : 'text-gray-300'}`} />
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
                       <Link
                         to={`/products/${product._id}`}
-                        className="block mt-4 w-full text-center bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white py-2 rounded-md font-medium transition-all"
+                        className="mt-6 w-full text-center bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white font-bold py-3.5 rounded-xl transition-all duration-300 shadow-md hover:shadow-orange-500/50"
                       >
                         View Details
                       </Link>
@@ -116,13 +141,14 @@ const Home = () => {
                 ))}
               </div>
 
+              {/* Load More */}
               {products.length > displayedProducts && (
-                <div className="text-center mt-10">
+                <div className="text-center mt-16">
                   <button
-                    onClick={() => setDisplayedProducts((p) => p + 8)}
-                    className="bg-zinc-800 border border-red-900/50 text-red-400 px-8 py-3 rounded-md hover:bg-red-900/20 transition"
+                    onClick={() => setDisplayedProducts(p => p + 12)}
+                    className="border-2 border-orange-500 text-orange-600 hover:bg-orange-500 hover:text-white font-bold px-12 py-4 rounded-full transition-all duration-400"
                   >
-                    Load More
+                    Load More Products
                   </button>
                 </div>
               )}
@@ -131,64 +157,50 @@ const Home = () => {
         </div>
       </section>
 
-      {/* 💼 Services */}
-      <section className="py-20 bg-black">
+      {/* Services */}
+      <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-6 text-center">
-          <h2 className="text-4xl font-bold text-red-500 mb-10">Our Services</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <h2 className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-red-600 mb-12">
+            Our Services
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
             {[
-              { title: 'Custom Logo Design', desc: 'Distinctive designs that define your brand.' },
-              { title: 'Embroidery Services', desc: 'Perfect stitches. Perfect impressions.' },
-              { title: 'Brand Merchandise', desc: 'Bags, apparel, and corporate uniforms.' },
+              { title: 'Custom Logo Design', desc: 'Bold, memorable logos that stand out.' },
+              { title: 'Precision Embroidery', desc: 'Flawless stitching on any fabric.' },
+              { title: 'Brand Merchandise', desc: 'T-shirts, bags, caps & corporate gifts.' },
             ].map((srv, i) => (
-              <div
-                key={i}
-                className="bg-zinc-900/70 border border-red-900/40 rounded-xl p-6 hover:shadow-[0_0_20px_rgba(255,0,0,0.25)] transition-all"
-              >
-                <h3 className="text-xl font-semibold text-red-400 mb-2">{srv.title}</h3>
-                <p className="text-gray-400">{srv.desc}</p>
+              <div key={i} className="bg-gradient-to-br from-orange-50 to-red-50 rounded-2xl p-8 hover:shadow-xl transition-shadow border border-orange-200">
+                <h3 className="text-2xl font-bold text-orange-600 mb-3">{srv.title}</h3>
+                <p className="text-gray-700">{srv.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* 🧷 Clients */}
+      {/* Clients Carousel */}
       <ClientsCarousel />
 
-      {/* ⭐ Features */}
-      <section className="py-20 bg-zinc-900/70 border-t border-red-900/40">
+      {/* Why Choose Us */}
+      <section className="py-24 bg-gray-50">
         <div className="max-w-6xl mx-auto px-6 text-center">
-          <h2 className="text-3xl font-bold text-red-500 mb-12">Why Choose Us?</h2>
+          <h2 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-red-600 mb-12">
+            Why Brands Trust Us
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
             {[
-              {
-                icon: CheckCircleIcon,
-                title: 'Custom Designs',
-                desc: 'Unique embroidery tailored for your brand.',
-              },
-              {
-                icon: TruckIcon,
-                title: 'Fast Delivery',
-                desc: 'Quick turnarounds with consistent quality.',
-              },
-              {
-                icon: ShieldCheckIcon,
-                title: 'Quality Guarantee',
-                desc: '100% satisfaction or free revision.',
-              },
+              { icon: CheckCircleIcon, title: '100% Custom', desc: 'Every design made just for you.' },
+              { icon: TruckIcon, title: 'Express Delivery', desc: 'Fast production & pan-India shipping.' },
+              { icon: ShieldCheckIcon, title: 'Quality Assured', desc: 'Free revisions until you love it.' },
             ].map((f, i) => {
               const Icon = f.icon
               return (
-                <div
-                  key={i}
-                  className="bg-black/60 border border-red-900/30 rounded-xl p-6 hover:shadow-[0_0_15px_rgba(255,0,0,0.25)] transition"
-                >
-                  <div className="bg-red-600/20 w-16 h-16 flex items-center justify-center rounded-full mx-auto mb-4">
-                    <Icon className="h-8 w-8 text-red-500" />
+                <div key={i} className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all border border-gray-100">
+                  <div className="bg-orange-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-5">
+                    <Icon className="h-10 w-10 text-orange-600" />
                   </div>
-                  <h3 className="text-xl font-semibold text-white mb-2">{f.title}</h3>
-                  <p className="text-gray-400">{f.desc}</p>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-3">{f.title}</h3>
+                  <p className="text-gray-600">{f.desc}</p>
                 </div>
               )
             })}
@@ -196,44 +208,50 @@ const Home = () => {
         </div>
       </section>
 
-      {/* 💬 Testimonials */}
-      <section className="py-20 bg-black">
+      {/* Testimonials */}
+      <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-6 text-center">
-          <h2 className="text-3xl font-bold text-red-500 mb-10">What Clients Say</h2>
+          <h2 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-red-600 mb-12">
+            Loved by Our Clients
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
-              { name: 'Rajesh Kumar', comment: 'Fantastic quality and creativity!', rating: 5 },
-              { name: 'Priya Sharma', comment: 'Loved their embroidery detail and speed.', rating: 5 },
-              { name: 'Amit Patel', comment: 'Professional and perfect branding partner.', rating: 5 },
+              { name: 'Rajesh Kumar', role: 'CEO, TechCorp', comment: 'Outstanding quality and super fast delivery!' },
+              { name: 'Priya Sharma', role: 'Marketing Head, FashionCo', comment: 'Best embroidery partner we’ve ever had.' },
+              { name: 'Amit Patel', role: 'Founder, StartupX', comment: 'They brought our brand to life perfectly.' },
             ].map((t, i) => (
-              <div
-                key={i}
-                className="bg-zinc-900/70 border border-red-900/40 rounded-xl p-6 hover:shadow-[0_0_20px_rgba(255,0,0,0.3)] transition"
-              >
-                <div className="flex justify-center mb-3">
-                  {[...Array(t.rating)].map((_, idx) => (
-                    <StarIcon key={idx} className="h-5 w-5 text-yellow-400" />
+              <div key={i} className="bg-gray-50 rounded-2xl p-8 border border-orange-100 hover:border-orange-400 transition-all">
+                <div className="flex justify-center gap-1 mb-4">
+                  {[...Array(5)].map((_, i) => (
+                    <StarIcon key={i} className="h-6 w-6 text-orange-500" />
                   ))}
                 </div>
-                <p className="text-gray-300 italic mb-3">"{t.comment}"</p>
-                <p className="text-red-400 font-semibold">- {t.name}</p>
+                <p className="text-gray-700 italic mb-5">"{t.comment}"</p>
+                <p className="font-bold text-orange-600">{t.name}</p>
+                <p className="text-sm text-gray-500">{t.role}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* 🚀 CTA */}
-      <section className="py-20 bg-gradient-to-r from-red-700 to-red-500 text-center">
-        <h2 className="text-3xl font-bold mb-4">Ready to Elevate Your Brand?</h2>
-        <p className="text-lg text-red-100 mb-6">Let’s bring your logo and products to life.</p>
-        <Link
-          to="/contact"
-          className="bg-black text-red-400 px-8 py-3 rounded-md font-semibold hover:bg-zinc-900 transition"
-        >
-          Get Started
-          <ArrowRightIcon className="ml-2 h-5 w-5 inline-block" />
-        </Link>
+      {/* Final CTA */}
+      <section className="py-24 bg-gradient-to-r from-orange-500 to-red-600 text-center">
+        <div className="max-w-4xl mx-auto px-6">
+          <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-6">
+            Ready to Elevate Your Brand?
+          </h2>
+          <p className="text-xl text-orange-100 mb-10">
+            Let’s create something extraordinary together.
+          </p>
+          <Link
+            to="/contact"
+            className="inline-flex items-center bg-white text-orange-600 hover:bg-gray-100 px-10 py-5 rounded-full font-bold text-lg shadow-2xl hover:shadow-orange-300 transition-all transform hover:scale-105"
+          >
+            Get Your Free Quote Today
+            <ArrowRightIcon className="ml-3 h-6 w-6" />
+          </Link>
+        </div>
       </section>
     </div>
   )
