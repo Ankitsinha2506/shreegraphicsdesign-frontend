@@ -40,10 +40,22 @@ const About = () => {
       description: 'Oversees marketing strategies and operations in India.'
     },
     {
+      name: 'Kavita Gopale',
+      role: 'Delivery Head (India)',
+      image: Kavita,
+      description: 'Responsible for timely delivery and project execution in India.'
+    },
+    {
       name: 'Shailesh L',
       role: 'CEO & Founder',
       image: Shailesh,
       description: 'Founder of the company, driving vision and growth.'
+    },
+    {
+      name: 'Sheela Lanke',
+      role: 'Operation Head (India)',
+      image: Sheela,
+      description: 'Oversees daily operations and team management in India.'
     },
     {
       name: 'Shubham Mane',
@@ -51,18 +63,8 @@ const About = () => {
       image: Shubham,
       description: 'Manages overall operations and strategic decisions.'
     },
-    {
-      name: 'Kavita Gopale',
-      role: 'Delivery Head (India)',
-      image: Kavita,
-      description: 'Responsible for timely delivery and project execution in India.'
-    },
-    {
-      name: 'Sheela Lanke',
-      role: 'Operation Head (India)',
-      image: Sheela,
-      description: 'Oversees daily operations and team management in India.'
-    }
+    
+    
   ]
 
   return (
