@@ -85,6 +85,8 @@ const Embroidery = () => {
       formData.append('contactEmail', user?.email || '')
 
       const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:5003'
+      console.log("👉 Selected API Base URL:", baseURL);
+      console.log("👉 Full request URL:", `${baseURL}/api/custom-embroidery-requests`);
       const res = await axios.post(`${baseURL}/api/custom-embroidery-requests`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -108,7 +110,7 @@ const Embroidery = () => {
   return (
     <div className="min-h-screen bg-black text-white py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
+
         {/* Header */}
         <div className="text-center mb-16">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-red-700 to-black rounded-full shadow-[0_0_15px_rgba(255,0,0,0.5)] mb-6">
@@ -195,11 +197,10 @@ const Embroidery = () => {
           {showDesignUpload && (
             <div className="p-6">
               <div
-                className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-                  dragActive
+                className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${dragActive
                     ? 'border-red-500 bg-red-900/20'
                     : 'border-red-800/40 hover:border-red-600 hover:bg-red-900/10'
-                }`}
+                  }`}
                 onDragEnter={handleDrag}
                 onDragLeave={handleDrag}
                 onDragOver={handleDrag}
