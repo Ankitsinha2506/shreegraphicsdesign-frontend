@@ -484,8 +484,8 @@ const CustomEmbroideryRequest = () => {
               onDragLeave={() => setDragActive(false)}
               onClick={() => fileInputRef.current?.click()}
               className={`p-10 border-2 border-dashed rounded-xl text-center transition-all cursor-pointer ${dragActive
-                  ? 'border-red-500 bg-red-900/20'
-                  : 'border-red-900/40 hover:border-red-600 hover:bg-red-900/10'
+                ? 'border-red-500 bg-red-900/20'
+                : 'border-red-900/40 hover:border-red-600 hover:bg-red-900/10'
                 }`}
             >
               <CloudArrowUpIcon className="h-10 w-10 text-red-500 mx-auto mb-3" />
@@ -561,8 +561,8 @@ const CustomEmbroideryRequest = () => {
                   key={type}
                   onClick={() => setSelectedPackage(type)}
                   className={`p-6 rounded-xl text-center cursor-pointer transition-all border-2 ${selectedPackage === type
-                      ? 'border-red-600 bg-red-900/20 shadow-[0_0_15px_rgba(255,0,0,0.3)]'
-                      : 'border-red-900/40 hover:border-red-600 hover:bg-red-900/10'
+                    ? 'border-red-600 bg-red-900/20 shadow-[0_0_15px_rgba(255,0,0,0.3)]'
+                    : 'border-red-900/40 hover:border-red-600 hover:bg-red-900/10'
                     }`}
                 >
                   <h3 className="capitalize text-lg font-semibold text-white mb-2">
