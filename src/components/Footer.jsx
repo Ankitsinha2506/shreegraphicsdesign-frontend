@@ -34,7 +34,7 @@ const Footer = () => {
             </p>
 
             <p className="text-gray-600 text-sm leading-relaxed mt-5 max-w-xs">
-              Premium custom embroidery, logo design & corporate branding solutions since 2015. 
+              Premium custom embroidery, logo design & corporate branding solutions since 2015.
               Trusted by 500+ brands across India.
             </p>
 
@@ -100,34 +100,59 @@ const Footer = () => {
           </div>
 
           {/* Contact Info */}
+          {/* Contact Info */}
           <div>
             <h4 className="text-xl font-bold text-gray-800 mb-6 relative inline-block after:content-[''] after:absolute after:left-0 after:-bottom-2 after:w-16 after:h-1 after:bg-gradient-to-r after:from-orange-500 after:to-red-600 after:rounded-full">
               Get in Touch
             </h4>
-            <div className="space-y-5 text-gray-600">
+
+            <div className="space-y-6 text-gray-600">
+
+              {/* PHONE NUMBERS */}
               <div className="flex items-start gap-3">
                 <Phone className="h-5 w-5 text-orange-600 mt-0.5" />
                 <div>
                   <p className="font-semibold text-gray-800">Call / WhatsApp</p>
-                  <p className="text-orange-600 font-bold">+91 98765 43210</p>
+                  <p className="text-orange-600 font-bold">+91 88888 30696</p>
+                  <p className="text-orange-600 font-bold">+91 87654 32109</p>
+                  <p className="text-xs text-gray-500">Instant response on WhatsApp</p>
                 </div>
               </div>
+
+              {/* EMAIL */}
               <div className="flex items-start gap-3">
                 <Mail className="h-5 w-5 text-orange-600 mt-0.5" />
                 <div>
                   <p className="font-semibold text-gray-800">Email Us</p>
-                  <p className="text-orange-600">hello@shreegraphics.in</p>
+                  <p className="text-orange-600">info@shreegraphics.com</p>
+                  <p className="text-orange-600">support@shreegraphics.com</p>
+                  <p className="text-xs text-gray-500">We reply within 24 hours</p>
                 </div>
               </div>
+
+              {/* ADDRESS */}
               <div className="flex items-start gap-3">
                 <MapPin className="h-5 w-5 text-orange-600 mt-0.5" />
                 <p className="text-sm leading-relaxed">
-                  Mumbai, Maharashtra<br />
-                  India 400001
+                  Mountain View Society, Radhyeswari Nagari,<br />
+                  Bakori Road, Wagholi, Pune – 412207<br />
+                  India
                 </p>
               </div>
+
+              {/* BUSINESS HOURS */}
+              {/* <div className="flex items-start gap-3">
+                <MapPin className="h-5 w-5 text-orange-600 mt-0.5" />
+                <div>
+                  <p className="font-semibold text-gray-800">Business Hours</p>
+                  <p className="text-orange-600">Mon–Fri: 9:00 AM – 6:00 PM</p>
+                  <p className="text-orange-600">Saturday: 10:00 AM – 4:00 PM</p>
+                </div>
+              </div> */}
+
             </div>
           </div>
+
         </div>
 
         {/* Bottom Bar */}
