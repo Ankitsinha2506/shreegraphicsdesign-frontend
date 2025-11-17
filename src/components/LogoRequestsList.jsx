@@ -110,7 +110,7 @@ const LogoRequestsList = () => {
               <div className="mt-4 flex gap-2">
                 <button onClick={() => setSelectedRequest(request)} className={`${btnSecondary} text-sm`}>View Details</button>
                 {request.status === 'completed' && request.finalDesigns && <button className={`${btnPrimary} text-sm`}>Download Designs</button>}
-                {request.status === 'in-progress' && <button className={`${btnSecondary} text-sm`}>Add Revision</button>}
+                {/* {request.status === 'in-progress' && <button className={`${btnSecondary} text-sm`}>Add Revision</button>} */}
               </div>
             </div>
           ))}

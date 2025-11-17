@@ -125,39 +125,73 @@ const CustomDesignOrder = () => {
   }
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    if (!designFile) return toast.error('Please upload a design file')
-    if (!formData.product) return toast.error('Please select a product')
-    setLoading(true)
-    try {
-      const submitData = new FormData()
-      submitData.append('designFile', designFile)
-      submitData.append('productId', formData.product)
-      submitData.append('quantity', formData.quantity)
-      submitData.append('designType', formData.designType)
-      submitData.append('productOptions', JSON.stringify(formData.productOptions))
-      submitData.append('designPlacements', JSON.stringify(formData.designPlacements))
-      submitData.append('specialInstructions', formData.specialInstructions)
-      submitData.append('deliveryType', formData.deliveryOptions.type)
-      submitData.append('deliveryAddress', JSON.stringify(formData.deliveryOptions.address))
+    e.preventDefault();
 
-      const response = await axios.post(`${API_URL}/api/custom-design-orders`, submitData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          Authorization: `Bearer ${localStorage.getItem('token')}`
+    if (!designFile) return toast.error("Please upload a design file");
+    if (!formData.product) return toast.error("Please select a product");
+
+    setLoading(true);
+
+    try {
+      const submitData = new FormData();
+
+      submitData.append("designFile", designFile);
+      submitData.append("productId", formData.product);           // ← Keep this
+      submitData.append("quantity", formData.quantity);
+      submitData.append("designType", formData.designType);
+
+      // Product info
+      submitData.append("productName", formData.productName || "");
+      submitData.append("productCategory", formData.productCategory || "");
+      submitData.append("productSubcategory", formData.productSubcategory || "");
+
+      // Options & placements
+      submitData.append("productOptions", JSON.stringify({
+        color: formData.productOptions.color || "",
+        size: formData.productOptions.size || "",
+        material: formData.productOptions.material || "",
+      }));
+      submitData.append("designPlacements", JSON.stringify(formData.designPlacements));
+
+      // Instructions
+      submitData.append("specialInstructions", formData.specialInstructions || "");
+      submitData.append("designNotes", formData.designNotes || "");
+
+      // Delivery — flat as backend expects
+      submitData.append("deliveryType", formData.deliveryOptions.type);
+      submitData.append("deliveryAddress", JSON.stringify(formData.deliveryOptions.address));
+      submitData.append("estimatedDays", formData.deliveryOptions.estimatedDays);
+
+      // Optional but safe
+      submitData.append("customer", user._id);
+
+      const response = await axios.post(
+        `${API_URL}/api/custom-design-orders`,
+        submitData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         }
-      })
+      );
 
       if (response.data.success) {
-        toast.success('Custom design order submitted successfully!')
-        navigate('/profile')
+        toast.success("Custom design order submitted successfully!");
+        // navigate("/profile");
+        navigate("/profile", {
+          state: { activeTab: "custom-design-orders" }
+        });
       }
+
     } catch (error) {
-      toast.error('Failed to submit order')
+      console.log("Error:", error.response?.data);
+      toast.error(error.response?.data?.message || "Failed to submit order");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
+
 
   const placementOptions = [
     { value: 'front-center', label: 'Front Center' },
@@ -172,7 +206,7 @@ const CustomDesignOrder = () => {
     <div className="min-h-screen bg-black text-white py-10">
       <div className="max-w-4xl mx-auto px-4">
         <div className="rounded-2xl overflow-hidden shadow-[0_0_25px_rgba(255,0,0,0.3)] border border-red-900/40">
-          
+
           {/* Header */}
           <div className="bg-gradient-to-r from-red-700 via-red-800 to-black px-6 py-8">
             <h1 className="text-3xl font-bold text-white">Custom Design Order</h1>
@@ -181,17 +215,16 @@ const CustomDesignOrder = () => {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="p-6 space-y-8 bg-zinc-900/60 backdrop-blur-md">
-            
+
             {/* Upload Section */}
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">Upload Design File *</label>
               <div
                 {...getRootProps()}
-                className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-all ${
-                  isDragActive
-                    ? 'border-red-500 bg-red-900/20'
-                    : 'border-red-900/40 hover:border-red-600 hover:bg-red-900/10'
-                }`}
+                className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-all ${isDragActive
+                  ? 'border-red-500 bg-red-900/20'
+                  : 'border-red-900/40 hover:border-red-600 hover:bg-red-900/10'
+                  }`}
               >
                 <input {...getInputProps()} />
                 {previewUrl ? (
