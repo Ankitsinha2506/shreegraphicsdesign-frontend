@@ -17,28 +17,47 @@ export const CartProvider = ({ children }) => {
 
   // Load cart from localStorage on mount
   useEffect(() => {
-    const savedCart = localStorage.getItem('cart')
-    if (savedCart) {
-      setCartItems(JSON.parse(savedCart))
+    try {
+      const savedCart = localStorage.getItem("cart");
+      if (savedCart) {
+        setCartItems(JSON.parse(savedCart));
+      }
+    } catch (err) {
+      console.error("Error reading cart from localStorage", err);
+      localStorage.removeItem("cart");
     }
-  }, [])
+  }, []);
+
 
   // Save cart to localStorage whenever it changes
+  const [loaded, setLoaded] = useState(false);
+
   useEffect(() => {
-    localStorage.setItem('cart', JSON.stringify(cartItems))
-  }, [cartItems])
+    const savedCart = localStorage.getItem("cart");
+    if (savedCart) {
+      setCartItems(JSON.parse(savedCart));
+    }
+    setLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    if (loaded) {
+      localStorage.setItem("cart", JSON.stringify(cartItems));
+    }
+  }, [cartItems, loaded]);
+
 
   const addToCart = (product, customization = {}) => {
     // Extract the base price from the price object or use the price directly if it's a number
     const price = typeof product.price === 'object' ? product.price.base : product.price
-    
+
     // Get product image with fallback for placeholder URLs
     const firstImage = product.images && product.images[0]
     const imageUrl = typeof firstImage === 'string' ? firstImage : (firstImage?.url || '')
-    const productImage = imageUrl && imageUrl.startsWith('http') 
-      ? imageUrl 
+    const productImage = imageUrl && imageUrl.startsWith('http')
+      ? imageUrl
       : 'https://via.placeholder.com/150x150/e5e7eb/6b7280?text=Product'
-    
+
     const cartItem = {
       id: `${product._id}-${Date.now()}`,
       productId: product._id,
@@ -64,8 +83,8 @@ export const CartProvider = ({ children }) => {
       return
     }
 
-    setCartItems(prev => 
-      prev.map(item => 
+    setCartItems(prev =>
+      prev.map(item =>
         item.id === itemId ? { ...item, quantity } : item
       )
     )

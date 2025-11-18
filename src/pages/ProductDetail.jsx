@@ -30,21 +30,18 @@ const CUSTOMIZATION_OPTIONS = {
 const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { addToCart } = useCart();
+  const { addToCart, clearCart, setCartItems } = useCart(); // Make sure setCartItems is available
   const { isAuthenticated } = useAuth();
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
-
   const [quantity, setQuantity] = useState(1);
   const [isFavorite, setIsFavorite] = useState(false);
-
   const [customization, setCustomization] = useState({
     color: "",
     size: "",
   });
-
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
@@ -66,7 +63,7 @@ const ProductDetail = () => {
     const sub = product?.subcategory?.toLowerCase();
     return (
       CUSTOMIZATION_OPTIONS.size[sub] ||
-      CUSTOMIZATION_OPTIONS.size[product?.category] ||
+      CUSTOMIZATION_OPTIONS.size[product?.category?.toLowerCase()] ||
       CUSTOMIZATION_OPTIONS.size.default
     );
   };
@@ -81,16 +78,43 @@ const ProductDetail = () => {
 
   const handleAddToCart = () => {
     if (!isAuthenticated) {
-      toast.error("Please login");
+      toast.error("Please login to add to cart");
       navigate("/login");
       return;
     }
     if (!validateCustomization()) {
-      toast.error("Please complete customization");
+      toast.error("Please select color and size");
       return;
     }
     addToCart(product, { ...customization, quantity });
-    toast.success("Added to cart");
+    toast.success("Added to cart!");
+  };
+
+  // FIXED BUY NOW FUNCTION
+  const handleBuyNow = () => {
+    if (!isAuthenticated) {
+      toast.error("Please login to place order");
+      navigate("/login");
+      return;
+    }
+
+    if (!validateCustomization()) {
+      toast.error("Please select color and size");
+      return;
+    }
+
+    const buyNowItem = {
+      ...product,
+      customization: { ...customization, quantity },
+      quantity: customization.quantity || quantity,
+      price: product.price?.base || product.price,
+      productId: product._id,
+    };
+
+    setCartItems([buyNowItem]);   // ← This line is the key!
+
+    // toast.success("Redirecting to checkout...");
+    navigate("/checkout");
   };
 
   if (loading) {
@@ -106,8 +130,6 @@ const ProductDetail = () => {
   return (
     <div className="min-h-screen bg-white text-black py-10">
       <div className="max-w-7xl mx-auto px-4 lg:px-8">
-
-        {/* BACK */}
         <button
           onClick={() => navigate(-1)}
           className="mb-6 px-5 py-2 rounded-md bg-gray-100 hover:bg-gray-200"
@@ -115,13 +137,9 @@ const ProductDetail = () => {
           ← Back
         </button>
 
-        {/* ========================= MAIN LAYOUT ========================= */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-
-          {/* ========== LEFT IMAGE SIDE (FINAL PROFESSIONAL VERSION) ========== */}
+          {/* LEFT: Images */}
           <div className="space-y-4">
-
-            {/* MAIN PRODUCT IMAGE */}
             <div className="flex items-center justify-center">
               <div className="w-full max-w-[420px] mx-auto">
                 <ImageZoomAmazon
@@ -132,166 +150,126 @@ const ProductDetail = () => {
                   gap={40}
                   topOffset={30}
                 />
-
               </div>
             </div>
-
-            {/* THUMBNAILS */}
             <div className="grid grid-cols-5 gap-3">
               {product.images.map((img, i) => (
                 <button
                   key={i}
                   onClick={() => setSelectedImage(i)}
-                  className={`h-16 rounded-lg bg-white flex items-center justify-center transition-all 
+                  className={`h-16 rounded-lg bg-white flex items-center justify-center transition-all
                     ${selectedImage === i
                       ? "ring-2 ring-[#FF4500] shadow-md"
                       : "ring-1 ring-gray-200 hover:ring-[#FF4500]"
                     }`}
                 >
-                  <img
-                    src={img?.url || img}
-                    className="w-full h-full object-contain p-1"
-                  />
+                  <img src={img?.url || img} className="w-full h-full object-contain p-1" alt={`Thumbnail ${i + 1}`} />
                 </button>
               ))}
             </div>
           </div>
 
-          {/* ========== RIGHT INFO SIDE (COMPACT · AMAZON STYLE) ========== */}
+          {/* RIGHT: Info */}
           <div className="space-y-4 self-start pt-1">
+            <h1 className="text-2xl font-bold text-gray-900 leading-snug">{product.name}</h1>
 
-            {/* Product Name */}
-            <h1 className="text-2xl font-bold text-gray-900 leading-snug">
-              {product.name}
-            </h1>
-
-            {/* Ratings */}
             <div className="flex items-center gap-2">
               {[...Array(5)].map((_, i) => (
                 <StarIconSolid
                   key={i}
-                  className={`h-4 w-4 ${i < Math.round(product.rating?.average || 0)
-                      ? "text-yellow-400"
-                      : "text-gray-300"
-                    }`}
+                  className={`h-4 w-4 ${i < Math.round(product.rating?.average || 0) ? "text-yellow-400" : "text-gray-300"}`}
                 />
               ))}
               <span className="text-gray-500 text-xs">
-                {product.rating?.average || 0} ({product.rating?.count || 0})
+                {product.rating?.average || 0} ({product.rating?.count || 0} reviews)
               </span>
             </div>
 
-            {/* Price */}
-            <div className="text-2xl font-bold text-[#FF4500]">
+            <div className="text-3xl font-bold text-[#FF4500]">
               ₹{product.price?.base || product.price}
             </div>
 
-            {/* Short Description */}
-            <p className="text-gray-700 text-sm leading-relaxed line-clamp-3">
-              {product.description}
-            </p>
+            <p className="text-gray-700 text-sm leading-relaxed">{product.description}</p>
 
-            {/* ========== CUSTOMIZATION BOX ========== */}
-            <div className="bg-gray-100 p-4 rounded-xl space-y-4">
-
-              {/* Color */}
+            {/* Customization */}
+            <div className="bg-gray-100 p-5 rounded-xl space-y-5">
               <div>
-                <label className="block font-medium text-sm mb-1">Color *</label>
+                <label className="block font-medium text-sm mb-2">Color *</label>
                 <select
                   value={customization.color}
-                  onChange={(e) =>
-                    setCustomization({ ...customization, color: e.target.value })
-                  }
-                  className="w-full border rounded-lg px-3 py-2 bg-white text-sm"
+                  onChange={(e) => setCustomization({ ...customization, color: e.target.value })}
+                  className="w-full border rounded-lg px-4 py-3 bg-white text-sm"
                 >
                   <option value="">Select Color</option>
                   {CUSTOMIZATION_OPTIONS.color.map((c) => (
                     <option key={c} value={c}>{c}</option>
                   ))}
                 </select>
-                {errors.color && <p className="text-red-500 text-xs">{errors.color}</p>}
+                {errors.color && <p className="text-red-500 text-xs mt-1">{errors.color}</p>}
               </div>
 
-              {/* Size */}
               <div>
-                <label className="block font-medium text-sm mb-1">Size *</label>
+                <label className="block font-medium text-sm mb-2">Size *</label>
                 <select
                   value={customization.size}
-                  onChange={(e) =>
-                    setCustomization({ ...customization, size: e.target.value })
-                  }
-                  className="w-full border rounded-lg px-3 py-2 bg-white text-sm"
+                  onChange={(e) => setCustomization({ ...customization, size: e.target.value })}
+                  className="w-full border rounded-lg px-4 py-3 bg-white text-sm"
                 >
                   <option value="">Select Size</option>
                   {getSizeOptions().map((s) => (
                     <option key={s} value={s}>{s}</option>
                   ))}
                 </select>
-                {errors.size && <p className="text-red-500 text-xs">{errors.size}</p>}
+                {errors.size && <p className="text-red-500 text-xs mt-1">{errors.size}</p>}
               </div>
 
-              {/* Quantity */}
               <div>
-                <label className="block font-medium text-sm mb-1">Quantity</label>
+                <label className="block font-medium text-sm mb-2">Quantity</label>
                 <div className="flex items-center gap-4">
                   <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="w-8 h-8 border rounded-lg text-sm"
-                  >
-                    -
-                  </button>
-                  <span className="text-base font-semibold">{quantity}</span>
+                    className="w-10 h-10 border rounded-lg text-lg hover:bg-gray-100"
+                  >−</button>
+                  <span className="w-12 text-center font-semibold text-lg">{quantity}</span>
                   <button
                     onClick={() => setQuantity(quantity + 1)}
-                    className="w-8 h-8 border rounded-lg text-sm"
-                  >
-                    +
-                  </button>
+                    className="w-10 h-10 border rounded-lg text-lg hover:bg-gray-100"
+                  >+</button>
                 </div>
               </div>
             </div>
 
-            {/* ACTION BUTTONS */}
-            <div className="flex gap-3">
+            {/* Action Buttons */}
+            <div className="flex gap-4">
               <button
                 onClick={handleAddToCart}
-                className="flex-1 bg-[#FF4500] text-white py-2.5 rounded-lg text-sm font-semibold hover:opacity-90"
+                className="flex-1 bg-gray-200 text-black py-3.5 rounded-lg text-base font-bold hover:bg-gray-300 transition"
               >
                 Add to Cart
               </button>
-
               <button
-                onClick={() => navigate('/checkout')}
-                className="flex-1 border border-[#FF4500] text-[#FF4500] py-2.5 rounded-lg text-sm font-semibold hover:bg-orange-50"
+                onClick={handleBuyNow}
+                className="flex-1 bg-[#FF4500] text-white py-3.5 rounded-lg text-base font-bold hover:bg-orange-600 transition shadow-lg"
               >
                 Buy Now
               </button>
-
               <button
                 onClick={() => setIsFavorite(!isFavorite)}
-                className="p-2.5 border rounded-lg"
+                className="p-3 border rounded-lg hover:bg-gray-50"
               >
-                {isFavorite ? (
-                  <HeartIconSolid className="h-5 w-5 text-red-500" />
-                ) : (
-                  <HeartIcon className="h-5 w-5 text-gray-500" />
-                )}
+                {isFavorite ? <HeartIconSolid className="h-6 w-6 text-red-500" /> : <HeartIcon className="h-6 w-6 text-gray-500" />}
               </button>
             </div>
 
-            {/* Delivery Info */}
-            <div className="bg-gray-100 p-3 rounded-lg text-gray-700 text-xs">
-              Delivery in {product.deliveryTime?.base || "5-7"} days
+            <div className="bg-green-50 border border-green-200 text-green-800 p-4 rounded-lg text-sm">
+              Delivery in {product.deliveryTime?.base || "5-7"} days • Free Shipping • COD Available
             </div>
           </div>
-
         </div>
 
-        {/* REVIEWS */}
-        <div className="mt-16">
+        <div className="mt-20">
           <ReviewSection productId={product._id} />
         </div>
-
       </div>
     </div>
   );

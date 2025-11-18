@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { CreditCardIcon, TruckIcon, ShieldCheckIcon } from '@heroicons/react/24/outline'
 import { ArrowRightIcon } from '@heroicons/react/24/solid'
@@ -15,8 +15,8 @@ const Checkout = () => {
 
   const [loading, setLoading] = useState(false)
   const [step, setStep] = useState(1)
+  const [showQR, setShowQR] = useState(false)
 
-  // === ALL DATA IN ONE PLACE (Never Lost) ===
   const [formData, setFormData] = useState({
     shipping: {
       firstName: user?.name?.split(' ')[0] || '',
@@ -30,7 +30,7 @@ const Checkout = () => {
       country: 'India'
     },
     payment: {
-      method: 'cod', // default
+      method: 'cod',
       cardNumber: '',
       expiryDate: '',
       cvv: '',
@@ -39,13 +39,11 @@ const Checkout = () => {
     }
   })
 
-  // Computed values
   const subtotal = getCartTotal()
   const tax = Math.round(subtotal * 0.18)
   const shipping = 0
   const total = subtotal + tax + shipping
 
-  // Update nested state cleanly
   const updateShipping = (field, value) => {
     setFormData(prev => ({
       ...prev,
@@ -58,9 +56,11 @@ const Checkout = () => {
       ...prev,
       payment: { ...prev.payment, [field]: value }
     }))
+    if (field === 'method' && value !== 'upi') {
+      setShowQR(false) // Reset QR when switching away from UPI
+    }
   }
 
-  // Navigation with validation
   const goToStep = (nextStep) => {
     if (nextStep === 2 && step === 1) {
       const required = ['firstName', 'lastName', 'email', 'phone', 'address', 'city', 'state', 'pincode']
@@ -80,8 +80,8 @@ const Checkout = () => {
           return
         }
       }
-      if (formData.payment.method === 'upi' && !formData.payment.upiId.trim()) {
-        toast.error('Please enter UPI ID')
+      if (formData.payment.method === 'upi' && !formData.payment.upiId.trim() && !showQR) {
+        toast.error('Please enter UPI ID or generate QR code')
         return
       }
     }
@@ -96,8 +96,8 @@ const Checkout = () => {
     try {
       const orderData = {
         items: cartItems.map(item => ({
-          product: item.productId || item._id,
-          quantity: item.quantity,
+          product: item.productId || item._id || item.product?._id,
+          quantity: item.customization?.quantity || item.quantity || 1,
           price: item.price,
           customization: item.customization || {},
           tier: item.tier || "base"
@@ -112,16 +112,16 @@ const Checkout = () => {
           pincode: formData.shipping.pincode,
           country: formData.shipping.country,
         },
-        paymentMethod: formData.payment.method.toLowerCase(),           // ← FIX 1
+        paymentMethod: formData.payment.method.toLowerCase(),
         paymentStatus: formData.payment.method === 'cod' ? 'pending' : 'paid',
         paymentId: formData.payment.method === 'cod' ? null : `TXN-${Date.now()}`,
         paymentDetails: {
           cardLast4: formData.payment.method === 'card'
             ? formData.payment.cardNumber.replace(/\s/g, '').slice(-4)
-            : null,                                                     // ← FIX 3
+            : null,
           upiId: formData.payment.method === 'upi'
             ? formData.payment.upiId.trim().toLowerCase()
-            : null,                                                     // ← FIX 2
+            : null,
         },
         totalAmount: total
       }
@@ -131,7 +131,7 @@ const Checkout = () => {
       })
 
       clearCart()
-      toast.success('Order placed successfully! 🚀')
+      toast.success('Order placed successfully!')
       navigate('/profile?tab=orders')
     } catch (err) {
       toast.error(err.response?.data?.message || 'Order failed. Try again.')
@@ -155,6 +155,10 @@ const Checkout = () => {
       </div>
     )
   }
+
+  // UPI QR Code URL (Free & Reliable)
+  // YOUR REAL UPI ID → 7492936645@ybl (PhonePe)
+const upiQRUrl = `https://quickchart.io/qr?text=upi://pay?pa=7492936645@ybl&pn=TrendyTees&am=${total}&cu=INR&tn=Order+Payment+₹${total}&size=420&margin=20`;
 
   return (
     <div className="min-h-screen bg-black text-white py-12">
@@ -232,7 +236,7 @@ const Checkout = () => {
                   <div className="space-y-4">
                     {[
                       { value: 'cod', label: 'Cash on Delivery', icon: TruckIcon },
-                      { value: 'upi', label: 'UPI (Google Pay, PhonePe, etc.)', icon: null }, // null = no Heroicon
+                      { value: 'upi', label: 'UPI (Google Pay, PhonePe, etc.)', icon: null },
                       { value: 'card', label: 'Credit / Debit Card', icon: CreditCardIcon },
                     ].map(({ value, label, icon: IconComponent }) => (
                       <label
@@ -250,14 +254,11 @@ const Checkout = () => {
                           onChange={(e) => updatePayment('method', e.target.value)}
                           className="sr-only"
                         />
-
-                        {/* Smart Icon Rendering */}
                         {value === 'upi' ? (
                           <span className="text-4xl mr-5 font-bold text-red-500">UPI</span>
                         ) : (
                           IconComponent && <IconComponent className="h-9 w-9 mr-5 text-red-500" />
                         )}
-
                         <span className="text-lg font-semibold">{label}</span>
                       </label>
                     ))}
@@ -266,53 +267,61 @@ const Checkout = () => {
                   {/* Card Details */}
                   {formData.payment.method === 'card' && (
                     <div className="space-y-5 mt-8 p-6 bg-black/40 rounded-2xl border border-red-900/30">
-                      <input
-                        type="text"
-                        placeholder="Card Number • 1234 5678 9012 3456"
-                        value={formData.payment.cardNumber}
-                        onChange={(e) => updatePayment('cardNumber', e.target.value)}
-                        className="w-full bg-black/60 border border-red-900/50 rounded-xl px-5 py-4 focus:border-red-500 outline-none transition"
-                      />
+                      <input type="text" placeholder="Card Number • 1234 5678 9012 3456" value={formData.payment.cardNumber} onChange={(e) => updatePayment('cardNumber', e.target.value)} className="w-full bg-black/60 border border-red-900/50 rounded-xl px-5 py-4 focus:border-red-500 outline-none transition" />
                       <div className="grid grid-cols-2 gap-5">
+                        <input type="text" placeholder="MM/YY" value={formData.payment.expiryDate} onChange={(e) => updatePayment('expiryDate', e.target.value)} className="bg-black/60 border border-red-900/50 rounded-xl px-5 py-4 focus:border-red-500 outline-none" />
+                        <input type="text" placeholder="CVV" value={formData.payment.cvv} onChange={(e) => updatePayment('cvv', e.target.value)} className="bg-black/60 border border-red-900/50 rounded-xl px-5 py-4 focus:border-red-500 outline-none" />
+                      </div>
+                      <input type="text" placeholder="Name on Card" value={formData.payment.cardName} onChange={(e) => updatePayment('cardName', e.target.value)} className="w-full bg-black/60 border border-red-900/50 rounded-xl px-5 py-4 focus:border-red-500 outline-none" />
+                    </div>
+                  )}
+
+                  {/* UPI with QR Code */}
+                  {formData.payment.method === 'upi' && (
+                    <div className="mt-8 space-y-6">
+                      <div>
+                        <label className="block text-lg font-bold text-red-500 mb-3">
+                          Enter UPI ID (Optional if scanning QR)
+                        </label>
                         <input
                           type="text"
-                          placeholder="MM/YY"
-                          value={formData.payment.expiryDate}
-                          onChange={(e) => updatePayment('expiryDate', e.target.value)}
-                          className="bg-black/60 border border-red-900/50 rounded-xl px-5 py-4 focus:border-red-500 outline-none"
-                        />
-                        <input
-                          type="text"
-                          placeholder="CVV"
-                          value={formData.payment.cvv}
-                          onChange={(e) => updatePayment('cvv', e.target.value)}
-                          className="bg-black/60 border border-red-900/50 rounded-xl px-5 py-4 focus:border-red-500 outline-none"
+                          placeholder="example@oksbi • example@ybl • example@paytm"
+                          value={formData.payment.upiId}
+                          onChange={(e) => updatePayment('upiId', e.target.value)}
+                          className="w-full bg-black/50 border border-red-900/50 rounded-xl px-6 py-5 text-lg focus:border-red-600 outline-none transition placeholder-gray-500"
                         />
                       </div>
-                      <input
-                        type="text"
-                        placeholder="Name on Card"
-                        value={formData.payment.cardName}
-                        onChange={(e) => updatePayment('cardName', e.target.value)}
-                        className="w-full bg-black/60 border border-red-900/50 rounded-xl px-5 py-4 focus:border-red-500 outline-none"
-                      />
+
+                      <div className="text-center">
+                        <button
+                          onClick={() => setShowQR(true)}
+                          className="px-8 py-4 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl transition shadow-lg"
+                        >
+                          Generate QR Code for Payment
+                        </button>
+                      </div>
+
+                      {showQR && (
+                        <div className="bg-white p-10 rounded-3xl shadow-2xl max-w-sm mx-auto text-center">
+                          <p className="text-4xl font-black text-red-600 mb-2">₹{total.toLocaleString()}</p>
+                          <p className="text-gray-700 font-medium mb-6">Scan with any UPI App</p>
+                          <img
+                            src={upiQRUrl}
+                            alt="UPI QR Code"
+                            className="mx-auto rounded-xl border-4 border-gray-200"
+                          />
+                          <div className="mt-6 flex justify-center gap-4 flex-wrap">
+                            {['Google Pay', 'PhonePe', 'Paytm', 'BHIM'].map(app => (
+                              <span key={app} className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">
+                                {app}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
 
-                  {/* UPI ID Input */}
-                  {formData.payment.method === 'upi' && (
-                    <div className="mt-8">
-                      <input
-                        type="text"
-                        placeholder="Enter your UPI ID • example@oksbi • example@paytm • example@ybl"
-                        value={formData.payment.upiId}
-                        onChange={(e) => updatePayment('upiId', e.target.value)}
-                        className="w-full bg-black/50 border border-red-900/50 rounded-xl px-6 py-5 text-lg focus:border-red-600 outline-none transition placeholder-gray-500"
-                      />
-                    </div>
-                  )}
-
-                  {/* Continue Button */}
                   <button
                     onClick={() => goToStep(3)}
                     className="w-full mt-10 py-6 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-black text-xl uppercase tracking-wider rounded-2xl shadow-2xl transition-all duration-300"
@@ -340,7 +349,11 @@ const Checkout = () => {
                     </div>
                     <div>
                       <h3 className="font-bold text-red-400">Payment Method</h3>
-                      <p className="text-gray-300 mt-2 capitalize">{formData.payment.method === 'cod' ? 'Cash on Delivery' : formData.payment.method === 'upi' ? `UPI (${formData.payment.upiId})` : `Card ending **** ${formData.payment.cardNumber.slice(-4)}`}</p>
+                      <p className="text-gray-300 mt-2 capitalize">
+                        {formData.payment.method === 'cod' ? 'Cash on Delivery' :
+                         formData.payment.method === 'upi' ? `UPI${formData.payment.upiId ? ` (${formData.payment.upiId})` : ' (QR Code)'}` :
+                         `Card ending **** ${formData.payment.cardNumber.slice(-4)}`}
+                      </p>
                     </div>
                   </div>
 
@@ -361,15 +374,16 @@ const Checkout = () => {
             <div className="bg-zinc-900/80 border border-red-900/40 rounded-2xl p-8 sticky top-6 shadow-2xl">
               <h3 className="text-2xl font-black mb-6">Order Summary</h3>
               <div className="space-y-4 max-h-96 overflow-y-auto">
-                {cartItems.map(item => (
-                  <div key={item.id} className="flex gap-4">
-                    <img src={item.image || item.images?.[0]?.url} alt={item.name} className="w-20 h-20 rounded-xl object-cover border border-red-900/30" />
+                {cartItems.map((item, i) => (
+                  <div key={i} className="flex gap-4">
+                    <img src={item.image || item.images?.[0]?.url || item.product?.images?.[0]?.url} alt={item.name} className="w-20 h-20 rounded-xl object-cover border border-red-900/30" />
                     <div className="flex-1">
-                      <p className="font-semibold text-white">{item.name}</p>
-                      <p className="text-sm text-gray-400">Qty: {item.quantity}</p>
+                      <p className="font-semibold text-white">{item.name || item.product?.name}</p>
+                      <p className="text-sm text-gray-400">Qty: {item.customization?.quantity || item.quantity || 1}</p>
                       {item.customization?.color && <p className="text-xs text-red-400">Color: {item.customization.color}</p>}
+                      {item.customization?.size && <p className="text-xs text-red-400">Size: {item.customization.size}</p>}
                     </div>
-                    <p className="font-bold">₹{(item.price * item.quantity).toLocaleString()}</p>
+                    <p className="font-bold">₹{((item.price || item.product?.price) * (item.customization?.quantity || item.quantity || 1)).toLocaleString()}</p>
                   </div>
                 ))}
               </div>
