@@ -203,46 +203,46 @@ const CustomDesignOrder = () => {
   ]
 
   return (
-    <div className="min-h-screen bg-black text-white py-10">
+    <div className="min-h-screen bg-white text-gray-900 py-10">
       <div className="max-w-4xl mx-auto px-4">
-        <div className="rounded-2xl overflow-hidden shadow-[0_0_25px_rgba(255,0,0,0.3)] border border-red-900/40">
+        <div className="rounded-2xl overflow-hidden shadow-[0_0_25px_rgba(255,69,0,0.3)] border border-orange-300">
 
           {/* Header */}
-          <div className="bg-gradient-to-r from-red-700 via-red-800 to-black px-6 py-8">
+          <div className="bg-gradient-to-r from-orange-500 to-red-600 px-6 py-8">
             <h1 className="text-3xl font-bold text-white">Custom Design Order</h1>
-            <p className="text-gray-300 mt-2">Upload your design and personalize your product</p>
+            <p className="text-orange-100 mt-2">Upload your design and personalize your product</p>
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="p-6 space-y-8 bg-zinc-900/60 backdrop-blur-md">
+          <form onSubmit={handleSubmit} className="p-6 space-y-8 bg-gray-50/60 backdrop-blur-md">
 
             {/* Upload Section */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Upload Design File *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Upload Design File *</label>
               <div
                 {...getRootProps()}
                 className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-all ${isDragActive
-                  ? 'border-red-500 bg-red-900/20'
-                  : 'border-red-900/40 hover:border-red-600 hover:bg-red-900/10'
+                  ? 'border-orange-500 bg-orange-50'
+                  : 'border-orange-300 hover:border-orange-500 hover:bg-orange-50'
                   }`}
               >
                 <input {...getInputProps()} />
                 {previewUrl ? (
                   <div className="space-y-4">
                     <img src={previewUrl} alt="Preview" className="max-h-48 mx-auto rounded-lg" />
-                    <p className="text-sm text-gray-400">{designFile?.name}</p>
+                    <p className="text-sm text-gray-600">{designFile?.name}</p>
                     <button
                       type="button"
                       onClick={() => { setDesignFile(null); setPreviewUrl('') }}
-                      className="text-red-400 hover:text-red-600"
+                      className="text-orange-600 hover:text-orange-700"
                     >
                       Remove
                     </button>
                   </div>
                 ) : (
                   <div className="space-y-2">
-                    <CloudArrowUpIcon className="h-12 w-12 text-red-500 mx-auto" />
-                    <p className="text-gray-400">Drop your design file here or click to browse</p>
+                    <CloudArrowUpIcon className="h-12 w-12 text-orange-600 mx-auto" />
+                    <p className="text-gray-700">Drop your design file here or click to browse</p>
                     <p className="text-xs text-gray-500">PNG, JPG, SVG, PDF up to 10MB</p>
                   </div>
                 )}
@@ -251,12 +251,12 @@ const CustomDesignOrder = () => {
 
             {/* Product Selection */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Select Product *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Select Product *</label>
               <select
                 name="product"
                 value={formData.product}
                 onChange={handleProductSelect}
-                className="w-full bg-black border border-red-900/40 text-gray-200 rounded-md px-3 py-2 focus:border-red-500"
+                className="w-full bg-white border border-orange-300 text-gray-900 rounded-md px-3 py-2 focus:border-orange-500 focus:ring-2 focus:ring-orange-100"
               >
                 <option value="">Choose a product...</option>
                 {products.map(product => (
@@ -269,26 +269,26 @@ const CustomDesignOrder = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {['color', 'size', 'material'].map(opt => (
                 <div key={opt}>
-                  <label className="block text-sm font-medium text-gray-300 mb-2 capitalize">{opt}</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2 capitalize">{opt}</label>
                   <input
                     type="text"
                     name={`productOptions.${opt}`}
                     value={formData.productOptions[opt]}
                     onChange={handleInputChange}
                     placeholder={`Enter ${opt}`}
-                    className="w-full bg-black border border-red-900/40 text-gray-200 rounded-md px-3 py-2 focus:border-red-500"
+                    className="w-full bg-white border border-orange-300 text-gray-900 rounded-md px-3 py-2 focus:border-orange-500 focus:ring-2 focus:ring-orange-100"
                   />
                 </div>
               ))}
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Quantity</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Quantity</label>
                 <input
                   type="number"
                   name="quantity"
                   value={formData.quantity}
                   onChange={handleInputChange}
                   min="1"
-                  className="w-full bg-black border border-red-900/40 text-gray-200 rounded-md px-3 py-2 focus:border-red-500"
+                  className="w-full bg-white border border-orange-300 text-gray-900 rounded-md px-3 py-2 focus:border-orange-500 focus:ring-2 focus:ring-orange-100"
                 />
               </div>
             </div>
@@ -296,21 +296,21 @@ const CustomDesignOrder = () => {
             {/* Design Placements */}
             <div>
               <div className="flex justify-between items-center mb-4">
-                <label className="block text-sm font-medium text-gray-300">Design Placements</label>
+                <label className="block text-sm font-medium text-gray-700">Design Placements</label>
                 <button
                   type="button"
                   onClick={addPlacement}
-                  className="flex items-center text-red-400 hover:text-red-600"
+                  className="flex items-center text-orange-600 hover:text-orange-700"
                 >
                   <PlusIcon className="h-4 w-4 mr-1" /> Add
                 </button>
               </div>
               {formData.designPlacements.map((placement, i) => (
-                <div key={i} className="bg-black/40 border border-red-900/40 rounded-lg p-4 mb-3">
+                <div key={i} className="bg-white/70 border border-orange-300 rounded-lg p-4 mb-3">
                   <div className="flex justify-between items-center mb-3">
-                    <h4 className="font-medium text-gray-200">Placement {i + 1}</h4>
+                    <h4 className="font-medium text-gray-900">Placement {i + 1}</h4>
                     {formData.designPlacements.length > 1 && (
-                      <button onClick={() => removePlacement(i)} className="text-red-500 hover:text-red-700">
+                      <button onClick={() => removePlacement(i)} className="text-orange-600 hover:text-orange-700">
                         <XMarkIcon className="h-4 w-4" />
                       </button>
                     )}
@@ -319,7 +319,7 @@ const CustomDesignOrder = () => {
                     <select
                       value={placement.position}
                       onChange={(e) => updatePlacement(i, 'position', e.target.value)}
-                      className="bg-black border border-red-900/40 text-gray-200 rounded-md px-3 py-2 focus:border-red-500"
+                      className="bg-white border border-orange-300 text-gray-900 rounded-md px-3 py-2 focus:border-orange-500 focus:ring-2 focus:ring-orange-100"
                     >
                       {placementOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                     </select>
@@ -327,14 +327,14 @@ const CustomDesignOrder = () => {
                       type="number"
                       value={placement.dimensions.width}
                       onChange={(e) => updatePlacement(i, 'dimensions', { ...placement.dimensions, width: e.target.value })}
-                      className="bg-black border border-red-900/40 text-gray-200 rounded-md px-3 py-2 focus:border-red-500"
+                      className="bg-white border border-orange-300 text-gray-900 rounded-md px-3 py-2 focus:border-orange-500 focus:ring-2 focus:ring-orange-100"
                       placeholder="Width (cm)"
                     />
                     <input
                       type="number"
                       value={placement.dimensions.height}
                       onChange={(e) => updatePlacement(i, 'dimensions', { ...placement.dimensions, height: e.target.value })}
-                      className="bg-black border border-red-900/40 text-gray-200 rounded-md px-3 py-2 focus:border-red-500"
+                      className="bg-white border border-orange-300 text-gray-900 rounded-md px-3 py-2 focus:border-orange-500 focus:ring-2 focus:ring-orange-100"
                       placeholder="Height (cm)"
                     />
                   </div>
@@ -344,13 +344,13 @@ const CustomDesignOrder = () => {
 
             {/* Special Instructions */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Special Instructions</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Special Instructions</label>
               <textarea
                 name="specialInstructions"
                 value={formData.specialInstructions}
                 onChange={handleInputChange}
                 rows={4}
-                className="w-full bg-black border border-red-900/40 text-gray-200 rounded-md px-3 py-2 focus:border-red-500"
+                className="w-full bg-white border border-orange-300 text-gray-900 rounded-md px-3 py-2 focus:border-orange-500 focus:ring-2 focus:ring-orange-100"
                 placeholder="Any custom requests or notes..."
               />
             </div>
@@ -360,14 +360,14 @@ const CustomDesignOrder = () => {
               <button
                 type="button"
                 onClick={() => navigate(-1)}
-                className="px-6 py-2 border border-gray-600 text-gray-300 rounded-md hover:bg-red-900/20 transition"
+                className="px-6 py-2 border border-gray-400 text-gray-700 rounded-md hover:bg-orange-50 transition"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={loading}
-                className="px-6 py-2 bg-gradient-to-r from-red-600 to-black text-white font-medium rounded-md hover:from-red-700 hover:to-red-900 shadow-[0_0_10px_rgba(255,0,0,0.4)] transition disabled:opacity-50"
+                className="px-6 py-2 bg-gradient-to-r from-orange-500 to-red-600 text-white font-medium rounded-md hover:from-orange-600 hover:to-red-700 shadow-[0_0_10px_rgba(255,69,0,0.4)] transition disabled:opacity-50"
               >
                 {loading ? 'Submitting...' : 'Submit Order'}
               </button>

@@ -125,22 +125,22 @@ const CustomLogoDesign = () => {
 
   if (loading)
     return (
-      <div className="min-h-screen flex justify-center items-center bg-black">
-        <div className="animate-spin h-16 w-16 border-4 border-red-600 border-t-transparent rounded-full"></div>
+      <div className="min-h-screen flex justify-center items-center bg-white">
+        <div className="animate-spin h-16 w-16 border-4 border-orange-600 border-t-transparent rounded-full"></div>
       </div>
     )
 
   return (
-    <div className="min-h-screen bg-black text-white py-12">
+    <div className="min-h-screen bg-white text-gray-900 py-12">
       <div className="max-w-7xl mx-auto px-6 flex flex-col lg:flex-row gap-8">
 
         {/* Sidebar */}
-        <aside className="lg:w-80 bg-zinc-900/70 border border-red-900/40 rounded-2xl p-6 shadow-[0_0_20px_rgba(255,0,0,0.15)] sticky top-8">
-          <h3 className="text-xl font-bold mb-6 text-red-500">Filters</h3>
+        <aside className="lg:w-80 bg-gray-50/70 border border-orange-300 rounded-2xl p-6 shadow-[0_0_20px_rgba(255,69,0,0.15)] sticky top-8">
+          <h3 className="text-xl font-bold mb-6 text-orange-600">Filters</h3>
 
           {/* Search */}
           <div className="mb-6">
-            <label className="text-sm text-gray-400 mb-2 block">Search</label>
+            <label className="text-sm text-gray-600 mb-2 block">Search</label>
             <div className="relative">
               <MagnifyingGlassIcon className="absolute left-3 top-3 h-5 w-5 text-gray-500" />
               <input
@@ -148,7 +148,7 @@ const CustomLogoDesign = () => {
                 placeholder="Search designs..."
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
-                className="w-full bg-black border border-red-900/40 text-gray-200 rounded-lg pl-10 pr-3 py-2 focus:outline-none focus:border-red-500"
+                className="w-full bg-white border border-orange-300 text-gray-900 rounded-lg pl-10 pr-3 py-2 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-100"
               />
             </div>
           </div>
@@ -159,11 +159,11 @@ const CustomLogoDesign = () => {
           ['Price Range', priceRanges, priceRange, setPriceRange],
           ['Sort By', sortOptions, sortBy, setSortBy]].map(([label, opts, val, setVal], i) => (
             <div key={i} className="mb-6">
-              <label className="text-sm text-gray-400 mb-2 block">{label}</label>
+              <label className="text-sm text-gray-600 mb-2 block">{label}</label>
               <select
                 value={val}
                 onChange={e => setVal(e.target.value)}
-                className="w-full bg-black border border-red-900/40 text-gray-200 rounded-lg px-3 py-2 focus:border-red-500"
+                className="w-full bg-white border border-orange-300 text-gray-900 rounded-lg px-3 py-2 focus:border-orange-500 focus:ring-2 focus:ring-orange-100"
               >
                 {opts.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
@@ -174,12 +174,12 @@ const CustomLogoDesign = () => {
         {/* Main */}
         <main className="flex-1">
           {/* Upload */}
-          <section className="bg-zinc-900/70 rounded-2xl border border-red-900/40 p-6 mb-10 shadow-[0_0_25px_rgba(255,0,0,0.15)]">
+          <section className="bg-gray-50/70 rounded-2xl border border-orange-300 p-6 mb-10 shadow-[0_0_25px_rgba(255,69,0,0.15)]">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold text-red-500">Upload Reference Images</h3>
+              <h3 className="text-lg font-semibold text-orange-600">Upload Reference Images</h3>
               <button
                 onClick={() => setShowReferenceUpload(!showReferenceUpload)}
-                className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg transition"
+                className="px-4 py-2 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white rounded-lg transition"
               >
                 {showReferenceUpload ? 'Hide' : 'Upload'}
               </button>
@@ -190,15 +190,15 @@ const CustomLogoDesign = () => {
                 onDrop={handleDrop}
                 onDragOver={e => e.preventDefault()}
                 className={`p-8 border-2 border-dashed rounded-lg text-center transition-colors ${dragActive
-                  ? 'border-red-500 bg-red-900/20'
-                  : 'border-red-900/40 hover:border-red-500 hover:bg-red-900/10'
+                  ? 'border-orange-500 bg-orange-50'
+                  : 'border-orange-300 hover:border-orange-500 hover:bg-orange-50'
                   }`}
               >
-                <CloudArrowUpIcon className="h-10 w-10 text-red-500 mx-auto mb-3" />
-                <p className="text-gray-300">Drag & drop reference images or click below</p>
+                <CloudArrowUpIcon className="h-10 w-10 text-orange-600 mx-auto mb-3" />
+                <p className="text-gray-700">Drag & drop reference images or click below</p>
                 <button
                   onClick={() => fileInputRef.current.click()}
-                  className="mt-4 px-6 py-2 bg-red-600 hover:bg-red-500 rounded-lg font-medium"
+                  className="mt-4 px-6 py-2 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white rounded-lg font-medium"
                 >
                   Browse Files
                 </button>
@@ -222,7 +222,7 @@ const CustomLogoDesign = () => {
                       onClick={() =>
                         setReferenceImages(prev => prev.filter(i => i.id !== img.id))
                       }
-                      className="absolute top-2 right-2 bg-red-600 p-1 rounded-full opacity-0 group-hover:opacity-100 transition"
+                      className="absolute top-2 right-2 bg-orange-600 p-1 rounded-full opacity-0 group-hover:opacity-100 transition"
                     >
                       <XMarkIcon className="h-4 w-4 text-white" />
                     </button>
@@ -237,7 +237,7 @@ const CustomLogoDesign = () => {
             {designs.map(design => (
               <div
                 key={design._id}
-                className="bg-zinc-900/70 border border-red-900/40 rounded-xl overflow-hidden hover:-translate-y-2 hover:shadow-[0_0_25px_rgba(255,0,0,0.25)] transition-all"
+                className="bg-white border border-orange-300 rounded-xl overflow-hidden hover:-translate-y-2 hover:shadow-[0_0_25px_rgba(255,69,0,0.25)] transition-all"
               >
                 <div className="relative">
                   <img
@@ -245,14 +245,14 @@ const CustomLogoDesign = () => {
                     alt={design.title}
                     className="w-full h-48 object-cover hover:scale-105 transition-transform duration-500"
                   />
-                  <span className="absolute top-2 right-2 bg-red-600 text-xs px-2 py-1 rounded-full">₹{design.pricing.basePrice}</span>
+                  <span className="absolute top-2 right-2 bg-orange-600 text-white text-xs px-2 py-1 rounded-full">₹{design.pricing.basePrice}</span>
                 </div>
                 <div className="p-4">
-                  <h3 className="text-white font-semibold mb-2 line-clamp-1">{design.title}</h3>
-                  <p className="text-gray-400 text-sm line-clamp-2 mb-3">{design.description}</p>
+                  <h3 className="text-gray-900 font-semibold mb-2 line-clamp-1">{design.title}</h3>
+                  <p className="text-gray-600 text-sm line-clamp-2 mb-3">{design.description}</p>
                   <div className="flex justify-between items-center mb-3">
-                    <div className="flex items-center text-sm text-gray-400">
-                      <StarIcon className="h-4 w-4 text-yellow-400 mr-1" />
+                    <div className="flex items-center text-sm text-gray-500">
+                      <StarIcon className="h-4 w-4 text-orange-500 mr-1" />
                       {design.rating?.average || 0}
                     </div>
                     <span className="text-xs text-gray-500">{design.pricing.deliveryTime} days</span>
@@ -260,13 +260,13 @@ const CustomLogoDesign = () => {
                   <div className="flex gap-2">
                     <Link
                       to={`/custom-logo-designs/${design._id}`}
-                      className="flex-1 bg-transparent border border-red-600 text-red-500 hover:bg-red-600 hover:text-white text-center rounded-lg py-2 text-sm transition"
+                      className="flex-1 bg-transparent border border-orange-600 text-orange-600 hover:bg-orange-600 hover:text-white text-center rounded-lg py-2 text-sm transition"
                     >
                       View
                     </Link>
                     <button
                       onClick={() => handleAddToCart(design)}
-                      className="bg-red-600 hover:bg-red-500 rounded-lg p-2 transition"
+                      className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 rounded-lg p-2 transition"
                     >
                       <ShoppingCartIcon className="h-4 w-4 text-white" />
                     </button>
@@ -278,7 +278,7 @@ const CustomLogoDesign = () => {
 
           {designs.length === 0 && (
             <div className="text-center py-12 text-gray-500">
-              <FunnelIcon className="h-10 w-10 mx-auto mb-2 text-red-500" />
+              <FunnelIcon className="h-10 w-10 mx-auto mb-2 text-orange-600" />
               No designs found.
               <p className="text-gray-600">
                 Try adjusting your filters or search terms
@@ -287,21 +287,21 @@ const CustomLogoDesign = () => {
           )}
 
           {/* 🚀 Call to Action */}
-          <div className="mt-16 bg-gradient-to-r from-red-700 via-red-800 to-black rounded-2xl p-10 text-center text-white shadow-[0_0_30px_rgba(255,0,0,0.3)]">
+          <div className="mt-16 bg-gradient-to-r from-orange-500 to-red-600 rounded-2xl p-10 text-center text-white shadow-[0_0_30px_rgba(255,69,0,0.3)]">
             <h2 className="text-3xl font-bold mb-4">Need a Custom Logo Design?</h2>
-            <p className="text-lg mb-6 text-gray-200 max-w-2xl mx-auto">
+            <p className="text-lg mb-6 text-orange-100 max-w-2xl mx-auto">
               Can’t find what you’re looking for? Let our expert designers craft a unique logo that defines your brand identity.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
                 to="/custom-logo-request"
-                className="inline-block bg-white text-red-600 font-semibold px-8 py-3 rounded-lg hover:bg-gray-100 shadow-[0_0_10px_rgba(255,0,0,0.4)] transition-all"
+                className="inline-block bg-white text-orange-600 font-semibold px-8 py-3 rounded-lg hover:bg-gray-100 shadow-[0_0_10px_rgba(255,69,0,0.4)] transition-all"
               >
                 Submit Custom Request
               </Link>
               <Link
                 to="/contact"
-                className="inline-block border-2 border-white text-white font-semibold px-8 py-3 rounded-lg hover:bg-white hover:text-red-700 transition-all"
+                className="inline-block border-2 border-white text-white font-semibold px-8 py-3 rounded-lg hover:bg-white hover:text-orange-600 transition-all"
               >
                 Contact Us
               </Link>

@@ -104,13 +104,13 @@ const Contact = () => {
     {
       icon: MapPin,
       title: 'Visit Us',
-      details: ['Mountain View Society, Radhyeswari Nagari,', 'Bakori Road, Wagholi, Pune - 412207'],
+      details: ['First Floor, Survey No. 21, Ganesham Commercial -A, Office No. 102-A, Aundh - Ravet BRTS Rd, Pimple Saudagar, Pune, Maharashtra 411027'],
       description: 'Mon–Sat: 10 AM – 6 PM'
     },
     {
       icon: Clock,
       title: 'Business Hours',
-      details: ['Mon - Fri: 9:00 AM - 6:00 PM', 'Saturday: 10:00 AM - 4:00 PM'],
+      details: ['Mon - Sat: 10:00 AM - 6:00 PM'],
       description: 'Sunday Closed'
     }
   ]
