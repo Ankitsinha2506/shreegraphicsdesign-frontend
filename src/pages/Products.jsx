@@ -76,7 +76,7 @@ const Products = () => {
   const priceRanges = [
     { value: 'all', label: 'All Prices' },
     { value: '0-500', label: '₹0 - ₹500' },
-    { value: '500-1001000', label: '₹500 - ₹1000' },
+    { value: '500-1000', label: '₹500 - ₹1000' },
     { value: '1000-2000', label: '₹1000 - ₹2000' },
     { value: '2000+', label: '₹2000+' }
   ]
@@ -120,7 +120,7 @@ const Products = () => {
     if (priceRange !== 'all') {
       const [min, max] = priceRange === '2000+' ? [2000, Infinity] : priceRange.split('-').map(Number)
       const price = product.price?.base || product.price || 0
-      matchesPrice = price >= min && (max === undefined || price <= max)
+      matchesPrice = price >= min && (max === Infinity || price <= max)
     }
     return matchesSearch && matchesCategory && matchesSubcategory && matchesPrice
   })
@@ -139,29 +139,29 @@ const Products = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="animate-spin h-12 w-12 border-4 border-red-600 border-t-transparent rounded-full"></div>
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="animate-spin h-12 w-12 border-4 border-orange-600 border-t-transparent rounded-full"></div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-white text-gray-900">
       <div className="max-w-7xl mx-auto px-4 lg:px-8 py-10">
 
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-extrabold text-white uppercase tracking-tight">
+          <h1 className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-red-600 uppercase tracking-tight">
             Premium Industrial Collection
           </h1>
-          <p className="text-lg text-gray-400 mt-3">Corporate Uniforms • Custom Branding • Bulk Orders</p>
+          <p className="text-lg text-gray-600 mt-3">Corporate Uniforms • Custom Branding • Bulk Orders</p>
         </div>
 
         {/* Mobile Filter Button */}
         <div className="lg:hidden mb-8">
           <button
             onClick={() => setIsFilterOpen(!isFilterOpen)}
-            className="w-full bg-zinc-900 border border-red-900/40 rounded-xl py-4 flex items-center justify-center gap-3 text-base font-semibold"
+            className="w-full bg-gray-50 border border-orange-300 rounded-xl py-4 flex items-center justify-center gap-3 text-base font-semibold text-gray-700 hover:bg-orange-50 transition"
           >
             <FunnelIcon className="h-5 w-5" />
             Filters {isFilterOpen ? 'Close' : 'Open'}
@@ -171,9 +171,9 @@ const Products = () => {
         <div className="flex flex-col lg:flex-row gap-8">
 
           {/* ==================== FULL FILTER SIDEBAR (NOW VISIBLE) ==================== */}
-          <aside className={`${isFilterOpen ? 'block' : 'hidden lg:block'} lg:w-72 bg-zinc-900/90 border border-red-900/30 rounded-xl p-6 space-y-6 sticky top-24 h-fit`}>
-            <div className="flex justify-between items-center pb-4 border-b border-red-900/20">
-              <h3 className="text-lg font-bold text-red-500 flex items-center gap-2">
+          <aside className={`${isFilterOpen ? 'block' : 'hidden lg:block'} lg:w-72 bg-white/95 backdrop-blur-md border border-orange-300 rounded-xl p-6 space-y-6 sticky top-24 h-fit shadow-lg`}>
+            <div className="flex justify-between items-center pb-4 border-b border-orange-200">
+              <h3 className="text-lg font-bold text-orange-600 flex items-center gap-2">
                 <FunnelIcon className="h-6 w-6" /> FILTERS
               </h3>
               <button onClick={() => setIsFilterOpen(false)} className="lg:hidden">
@@ -189,21 +189,21 @@ const Products = () => {
                 placeholder="Search products..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full bg-black/50 border border-red-900/40 rounded-lg pl-10 py-3 text-sm focus:border-red-500 outline-none"
+                className="w-full bg-gray-50 border border-gray-300 rounded-lg pl-10 py-3 text-sm focus:border-orange-500 focus:ring-2 focus:ring-orange-100 outline-none text-gray-900"
               />
             </div>
 
             {/* Categories */}
             <div className="space-y-2">
-              <h4 className="text-xs font-bold text-red-400 uppercase tracking-wider">Category</h4>
+              <h4 className="text-xs font-bold text-orange-600 uppercase tracking-wider">Category</h4>
               {categories.map(cat => (
                 <button
                   key={cat.value}
                   onClick={() => { setSelectedCategory(cat.value); setSelectedSubcategory('all') }}
                   className={`w-full text-left px-4 py-2.5 rounded-lg text-sm transition ${selectedCategory === cat.value
-                    ? 'bg-red-600 text-white font-medium'
-                    : 'text-gray-300 hover:bg-zinc-800'
-                  }`}
+                    ? 'bg-orange-600 text-white font-medium'
+                    : 'text-gray-700 hover:bg-orange-50'
+                    }`}
                 >
                   {cat.label}
                 </button>
@@ -213,12 +213,12 @@ const Products = () => {
             {/* Subcategories */}
             {selectedCategory !== 'all' && subcategories[selectedCategory] && (
               <div className="space-y-2">
-                <h4 className="text-xs font-bold text-red-400 uppercase">Type</h4>
+                <h4 className="text-xs font-bold text-orange-600 uppercase">Type</h4>
                 {subcategories[selectedCategory].map(sub => (
                   <button
                     key={sub.value}
                     onClick={() => setSelectedSubcategory(sub.value)}
-                    className={`block w-full text-left px-4 py-2 text-xs ${selectedSubcategory === sub.value ? 'text-red-400 font-medium' : 'text-gray-400'}`}
+                    className={`block w-full text-left px-4 py-2 text-xs ${selectedSubcategory === sub.value ? 'text-orange-600 font-medium' : 'text-gray-500'}`}
                   >
                     {sub.label}
                   </button>
@@ -227,16 +227,16 @@ const Products = () => {
             )}
 
             {/* Price & Sort */}
-            <div className="space-y-4 pt-4 border-t border-red-900/20">
+            <div className="space-y-4 pt-4 border-t border-orange-200">
               <div>
-                <h4 className="text-xs font-bold text-red-400 uppercase mb-2">Price Range</h4>
-                <select value={priceRange} onChange={(e) => setPriceRange(e.target.value)} className="w-full bg-black/50 border border-red-900/40 rounded-lg px-4 py-2.5 text-sm">
+                <h4 className="text-xs font-bold text-orange-600 uppercase mb-2">Price Range</h4>
+                <select value={priceRange} onChange={(e) => setPriceRange(e.target.value)} className="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:border-orange-500 focus:ring-2 focus:ring-orange-100 outline-none text-gray-900">
                   {priceRanges.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
                 </select>
               </div>
               <div>
-                <h4 className="text-xs font-bold text-red-400 uppercase mb-2">Sort By</h4>
-                <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="w-full bg-black/50 border border-red-900/40 rounded-lg px-4 py-2.5 text-sm">
+                <h4 className="text-xs font-bold text-orange-600 uppercase mb-2">Sort By</h4>
+                <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:border-orange-500 focus:ring-2 focus:ring-orange-100 outline-none text-gray-900">
                   {sortOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
                 </select>
               </div>
@@ -250,7 +250,7 @@ const Products = () => {
                 setPriceRange('all')
                 setSortBy('newest')
               }}
-              className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-3 rounded-lg text-sm transition"
+              className="w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white font-medium py-3 rounded-lg text-sm transition"
             >
               Clear All Filters
             </button>
@@ -268,10 +268,10 @@ const Products = () => {
                 {sortedProducts.map(product => (
                   <div
                     key={product._id}
-                    className="group relative bg-zinc-900/80 rounded-2xl overflow-hidden border border-red-900/30 hover:border-red-900/50 shadow-xl hover:shadow-2xl hover:shadow-red-900/40 transition-all duration-500 flex flex-col"
+                    className="group relative bg-white rounded-2xl overflow-hidden border border-gray-200 hover:border-orange-300 shadow-lg hover:shadow-2xl hover:shadow-orange-200/50 transition-all duration-500 flex flex-col"
                   >
                     <Link to={`/products/${product._id}`} className="block relative">
-                      <div className="aspect-square bg-gradient-to-br from-zinc-900 to-black">
+                      <div className="aspect-square bg-gray-50">
                         <div className="absolute inset-0 flex items-center justify-center p-4">
                           <img
                             src={product.images?.[0]?.url || '/placeholder.jpg'}
@@ -282,7 +282,7 @@ const Products = () => {
                         </div>
                       </div>
 
-                      <div className="absolute top-4 right-4 bg-black/90 backdrop-blur-md border border-red-800/60 text-white px-5 py-3 rounded-xl text-xl font-bold shadow-2xl">
+                      <div className="absolute top-4 right-4 bg-black/80 backdrop-blur-md text-white px-5 py-3 rounded-xl text-xl font-bold shadow-2xl">
                         ₹{product.price?.base || product.price || 0}
                       </div>
 
@@ -293,20 +293,20 @@ const Products = () => {
                       )}
                     </Link>
 
-                    <div className="p-6 space-y-4 flex-1 flex flex-col justify-between bg-gradient-to-b from-zinc-900/95 to-black">
+                    <div className="p-6 space-y-4 flex-1 flex flex-col justify-between bg-white">
                       <div>
-                        <h3 className="text-xl font-bold text-white line-clamp-2 leading-tight">
+                        <h3 className="text-xl font-bold text-gray-900 line-clamp-2 leading-tight">
                           {product.name}
                         </h3>
                         <div className="flex items-center gap-1 mt-3">
                           {[...Array(5)].map((_, i) => (
-                            <StarIcon key={i} className={`w-5 h-5 ${i < 4.7 ? 'text-yellow-400 fill-current' : 'text-gray-700'}`} />
+                            <StarIcon key={i} className={`w-5 h-5 ${i < 4.7 ? 'text-orange-500 fill-current' : 'text-gray-300'}`} />
                           ))}
-                          <span className="text-sm text-gray-400 ml-2">({product.rating?.count || 0})</span>
+                          <span className="text-sm text-gray-500 ml-2">({product.rating?.count || 0})</span>
                         </div>
                       </div>
 
-                      <div className="text-sm font-semibold text-red-400 uppercase tracking-wider">
+                      <div className="text-sm font-semibold text-orange-600 uppercase tracking-wider">
                         {product.category?.replace(/-/g, ' ') || 'Corporate'}
                       </div>
                     </div>
@@ -317,7 +317,7 @@ const Products = () => {
                         addToCart(product)
                         toast.success('Added to cart!')
                       }}
-                      className="bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-bold py-4 text-base uppercase tracking-wider transition-all duration-300 shadow-lg"
+                      className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white font-bold py-4 text-base uppercase tracking-wider transition-all duration-300 shadow-lg hover:shadow-orange-500/50"
                     >
                       Add to Cart
                     </button>

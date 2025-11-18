@@ -19,27 +19,27 @@ const Footer = () => {
 
           {/* Logo + About */}
           <div className="lg:col-span-1">
-            <div className="flex items-center gap-4 mb-6">
+            <div className="flex items-center justify-center gap-4 mb-6">
               <img
                 src={ShreeGraphicsLogo}
                 alt="Shree Graphics Design"
                 className="h-20 w-auto drop-shadow-2xl"
               />
             </div>
-            <h3 className="text-2xl font-extrabold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
-              Shree Graphics
+            <h3 className="text-2xl font-extrabold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent text-center">
+              Shree Graphics Design
             </h3>
-            <p className="text-xs text-orange-600 font-bold tracking-widest mt-1">
+            <p className="text-xs text-orange-600 font-bold tracking-widest mt-1 text-center">
               YOUR IMAGINATION • OUR STITCHES
             </p>
 
-            <p className="text-gray-600 text-sm leading-relaxed mt-5 max-w-xs">
+            <p className="text-gray-600 text-sm leading-relaxed mt-5 max-w-xs text-center">
               Premium custom embroidery, logo design & corporate branding solutions since 2015.
               Trusted by 500+ brands across India.
             </p>
 
             {/* Social Icons */}
-            <div className="flex gap-4 mt-6">
+            <div className="flex gap-4 mt-6 justify-center">
               <a
                 href="https://facebook.com"
                 target="_blank"
@@ -100,7 +100,6 @@ const Footer = () => {
           </div>
 
           {/* Contact Info */}
-          {/* Contact Info */}
           <div>
             <h4 className="text-xl font-bold text-gray-800 mb-6 relative inline-block after:content-[''] after:absolute after:left-0 after:-bottom-2 after:w-16 after:h-1 after:bg-gradient-to-r after:from-orange-500 after:to-red-600 after:rounded-full">
               Get in Touch
@@ -139,16 +138,6 @@ const Footer = () => {
                   India
                 </p>
               </div>
-
-              {/* BUSINESS HOURS */}
-              {/* <div className="flex items-start gap-3">
-                <MapPin className="h-5 w-5 text-orange-600 mt-0.5" />
-                <div>
-                  <p className="font-semibold text-gray-800">Business Hours</p>
-                  <p className="text-orange-600">Mon–Fri: 9:00 AM – 6:00 PM</p>
-                  <p className="text-orange-600">Saturday: 10:00 AM – 4:00 PM</p>
-                </div>
-              </div> */}
 
             </div>
           </div>

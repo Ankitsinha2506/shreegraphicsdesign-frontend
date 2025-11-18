@@ -12,6 +12,7 @@ const Contact = () => {
     message: '',
     projectType: ''
   })
+  const [errors, setErrors] = useState({})
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleChange = (e) => {
@@ -19,10 +20,52 @@ const Contact = () => {
       ...formData,
       [e.target.name]: e.target.value
     })
+    // Clear error for the field being changed
+    if (errors[e.target.name]) {
+      setErrors({
+        ...errors,
+        [e.target.name]: ''
+      })
+    }
+  }
+
+  const validateForm = () => {
+    const newErrors = {}
+    if (!formData.name.trim()) {
+      newErrors.name = 'Full name is required'
+    } else if (formData.name.trim().length < 2) {
+      newErrors.name = 'Name must be at least 2 characters'
+    }
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required'
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email address'
+    }
+    if (!formData.phone.trim()) {
+      newErrors.phone = 'Phone number is required'
+    } else if (!/^[6-9]\d{9}$/.test(formData.phone.replace(/\s|-/g, ''))) {
+      newErrors.phone = 'Please enter a valid 10-digit Indian phone number'
+    }
+    if (!formData.subject.trim()) {
+      newErrors.subject = 'Subject is required'
+    }
+    if (!formData.message.trim()) {
+      newErrors.message = 'Message is required'
+    } else if (formData.message.trim().length < 10) {
+      newErrors.message = 'Message must be at least 10 characters'
+    }
+    if (!formData.projectType) {
+      newErrors.projectType = 'Please select a project type'
+    }
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    if (!validateForm()) {
+      return
+    }
     setIsSubmitting(true)
     try {
       const res = await fetch(`${API_URL}/api/contact`, {
@@ -34,6 +77,7 @@ const Contact = () => {
       if (result.success) {
         toast.success('Thank you! We\'ll get back to you within 24 hours!')
         setFormData({ name: '', email: '', phone: '', subject: '', message: '', projectType: '' })
+        setErrors({})
       } else {
         toast.error(result.message || 'Failed to send message')
       }
@@ -167,69 +211,81 @@ const Contact = () => {
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <input
-                  type="text"
-                  name="name"
-                  required
-                  value={formData.name}
-                  onChange={handleChange}
-                  placeholder="Your Full Name *"
-                  className="w-full px-6 py-4 rounded-xl border border-gray-300 focus:border-orange-500 focus:ring-4 focus:ring-orange-100 transition-all text-gray-800 placeholder-gray-400"
-                />
-                <input
-                  type="email"
-                  name="email"
-                  required
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="Your Email *"
-                  className="w-full px-6 py-4 rounded-xl border border-gray-300 focus:border-orange-500 focus:ring-4 focus:ring-orange-100 transition-all text-gray-800 placeholder-gray-400"
-                />
+                <div>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    placeholder="Your Full Name *"
+                    className={`w-full px-6 py-4 rounded-xl border ${errors.name ? 'border-red-500' : 'border-gray-300'} focus:border-orange-500 focus:ring-4 focus:ring-orange-100 transition-all text-gray-800 placeholder-gray-400`}
+                  />
+                  {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
+                </div>
+                <div>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    placeholder="Your Email *"
+                    className={`w-full px-6 py-4 rounded-xl border ${errors.email ? 'border-red-500' : 'border-gray-300'} focus:border-orange-500 focus:ring-4 focus:ring-orange-100 transition-all text-gray-800 placeholder-gray-400`}
+                  />
+                  {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <input
-                  type="tel"
-                  name="phone"
-                  required
-                  value={formData.phone}
-                  onChange={handleChange}
-                  placeholder="Phone Number *"
-                  className="w-full px-6 py-4 rounded-xl border border-gray-300 focus:border-orange-500 focus:ring-4 focus:ring-orange-100 transition-all text-gray-800 placeholder-gray-400"
-                />
-                <select
-                  name="projectType"
-                  required
-                  value={formData.projectType}
-                  onChange={handleChange}
-                  className="w-full px-6 py-4 rounded-xl border border-gray-300 focus:border-orange-500 focus:ring-4 focus:ring-orange-100 transition-all text-gray-800"
-                >
-                  <option value="">Select Project Type *</option>
-                  {services.map((s) => (
-                    <option key={s} value={s}>{s}</option>
-                  ))}
-                </select>
+                <div>
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    placeholder="Phone Number *"
+                    className={`w-full px-6 py-4 rounded-xl border ${errors.phone ? 'border-red-500' : 'border-gray-300'} focus:border-orange-500 focus:ring-4 focus:ring-orange-100 transition-all text-gray-800 placeholder-gray-400`}
+                  />
+                  {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
+                </div>
+                <div>
+                  <select
+                    name="projectType"
+                    value={formData.projectType}
+                    onChange={handleChange}
+                    className={`w-full px-6 py-4 rounded-xl border ${errors.projectType ? 'border-red-500' : 'border-gray-300'} focus:border-orange-500 focus:ring-4 focus:ring-orange-100 transition-all text-gray-800`}
+                  >
+                    <option value="">Select Project Type *</option>
+                    {services.map((s) => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
+                  </select>
+                  {errors.projectType && <p className="text-red-500 text-sm mt-1">{errors.projectType}</p>}
+                </div>
               </div>
 
-              <input
-                type="text"
-                name="subject"
-                required
-                value={formData.subject}
-                onChange={handleChange}
-                placeholder="Subject *"
-                className="w-full px-6 py-4 rounded-xl border border-gray-300 focus:border-orange-500 focus:ring-4 focus:ring-orange-100 transition-all text-gray-800 placeholder-gray-400"
-              />
+              <div>
+                <input
+                  type="text"
+                  name="subject"
+                  value={formData.subject}
+                  onChange={handleChange}
+                  placeholder="Subject *"
+                  className={`w-full px-6 py-4 rounded-xl border ${errors.subject ? 'border-red-500' : 'border-gray-300'} focus:border-orange-500 focus:ring-4 focus:ring-orange-100 transition-all text-gray-800 placeholder-gray-400`}
+                />
+                {errors.subject && <p className="text-red-500 text-sm mt-1">{errors.subject}</p>}
+              </div>
 
-              <textarea
-                name="message"
-                required
-                rows={6}
-                value={formData.message}
-                onChange={handleChange}
-                placeholder="Tell us about your project... *"
-                className="w-full px-6 py-4 rounded-xl border border-gray-300 focus:border-orange-500 focus:ring-4 focus:ring-orange-100 transition-all text-gray-800 placeholder-gray-400 resize-none"
-              />
+              <div>
+                <textarea
+                  name="message"
+                  rows={6}
+                  value={formData.message}
+                  onChange={handleChange}
+                  placeholder="Tell us about your project... *"
+                  className={`w-full px-6 py-4 rounded-xl border ${errors.message ? 'border-red-500' : 'border-gray-300'} focus:border-orange-500 focus:ring-4 focus:ring-orange-100 transition-all text-gray-800 placeholder-gray-400 resize-none`}
+                />
+                {errors.message && <p className="text-red-500 text-sm mt-1">{errors.message}</p>}
+              </div>
 
               <button
                 type="submit"
