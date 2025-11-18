@@ -166,7 +166,7 @@ const Contact = () => {
 
       {/* Contact Info Cards */}
       <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-6">
+        <div className="w-full px-4">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-red-600 mb-4">
               Get in Touch
@@ -201,7 +201,7 @@ const Contact = () => {
 
       {/* Contact Form + Sidebar */}
       <section id="contact-form" className="py-24 bg-gradient-to-b from-gray-50 to-white">
-        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-16">
+        <div className="w-full px-4 grid grid-cols-1 lg:grid-cols-2 gap-16">
 
           {/* Form */}
           <div className="bg-white rounded-3xl shadow-2xl border border-orange-100 p-10 lg:p-12">

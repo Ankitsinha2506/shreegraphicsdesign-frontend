@@ -132,7 +132,7 @@ const CustomLogoDesign = () => {
 
   return (
     <div className="min-h-screen bg-white text-gray-900 py-12">
-      <div className="max-w-7xl mx-auto px-6 flex flex-col lg:flex-row gap-8">
+      <div className="w-full px-4 flex flex-col lg:flex-row gap-8">
 
         {/* Sidebar */}
         <aside className="lg:w-80 bg-gray-50/70 border border-orange-300 rounded-2xl p-6 shadow-[0_0_20px_rgba(255,69,0,0.15)] sticky top-8">

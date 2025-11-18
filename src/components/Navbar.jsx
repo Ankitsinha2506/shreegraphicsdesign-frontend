@@ -145,7 +145,7 @@ const Navbar = () => {
 
   return (
     <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-orange-300 shadow-[0_2px_10px_rgba(255,69,0,0.2)]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full px-4sm:px-6 lg:px-8">
         <div className="flex items-center justify-between py-3">
           {/* Logo */}
           <Link to="/" onClick={closeMobileMenu} className="flex items-center gap-3 group">

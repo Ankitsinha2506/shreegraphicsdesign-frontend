@@ -118,7 +118,7 @@ const About = () => {
 
       {/* STATS - Staggered Animation */}
       <section className="py-20 bg-[#FAFAFA]">
-        <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+        <div className="w-full px-4 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
           {stats.map((stat, i) => (
             <motion.div
               key={i}
@@ -139,7 +139,7 @@ const About = () => {
 
       {/* OUR STORY - Slide In */}
       <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center">
+        <div className="w-full px-4 grid lg:grid-cols-2 gap-12 items-center">
           <motion.div
             initial={{ x: -100, opacity: 0 }}
             whileInView={{ x: 0, opacity: 1 }}
@@ -178,7 +178,7 @@ const About = () => {
 
       {/* CORE VALUES - Fade Up */}
       <section className="py-20 bg-[#FAFAFA]">
-        <div className="max-w-7xl mx-auto px-6 text-center">
+        <div className="w-full px-4 text-center">
           <motion.h2
             initial={{ y: 40, opacity: 0 }}
             whileInView={{ y: 0, opacity: 1 }}
@@ -213,7 +213,7 @@ const About = () => {
 
       {/* TEAM - Scale In + Hover Lift */}
       <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-6 text-center">
+        <div className="w-full px-4 text-center">
           <motion.h2
             initial={{ y: 40, opacity: 0 }}
             whileInView={{ y: 0, opacity: 1 }}

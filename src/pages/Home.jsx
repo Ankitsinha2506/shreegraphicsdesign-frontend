@@ -70,7 +70,7 @@ const Home = () => {
 
       {/* Products Section */}
       <section className="py-24 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-6">
+        <div className="w-full px-4">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-red-600 mb-4">
               Our Premium Products
@@ -159,7 +159,7 @@ const Home = () => {
 
       {/* Services */}
       <section className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-6 text-center">
+        <div className="w-full px-4 text-center">
           <h2 className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-red-600 mb-12">
             Our Services
           </h2>
@@ -210,7 +210,7 @@ const Home = () => {
 
       {/* Testimonials */}
       <section className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-6 text-center">
+        <div className="w-full px-4 text-center">
           <h2 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-red-600 mb-12">
             Loved by Our Clients
           </h2>

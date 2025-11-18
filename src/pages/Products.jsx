@@ -147,7 +147,7 @@ const Products = () => {
 
   return (
     <div className="min-h-screen bg-white text-gray-900">
-      <div className="max-w-7xl mx-auto px-4 lg:px-8 py-10">
+      <div className="w-full px-4 lg:px-8 py-10">
 
         {/* Header */}
         <div className="text-center mb-12">

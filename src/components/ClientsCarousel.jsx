@@ -45,7 +45,7 @@ const ClientsCarousel = () => {
 
   return (
     <section className="py-20 bg-transparent">
-      <div className="max-w-7xl mx-auto px-6 sm:px-8">
+      <div className="w-full px-4 sm:px-8">
         {/* Header */}
         <div className="text-center mb-10">
           <h2 className="text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-red-400 mb-3">
