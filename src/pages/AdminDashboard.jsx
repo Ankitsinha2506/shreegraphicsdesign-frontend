@@ -28,17 +28,27 @@ import {
   CreditCardIcon,
   UserIcon,
 } from '@heroicons/react/24/outline'
+
+import {
+  Chart as ChartJS,
+  Filler
+} from "chart.js";
+
+// Register Filler plugin (required for area chart)
+ChartJS.register(Filler);
+
 import { useAuth } from '../context/AuthContext'
 import toast from 'react-hot-toast'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
-import DashboardCharts from '../components/charts/DashboardCharts'
-import imageCompression from 'browser-image-compression'; // ✅ New import
+import imageCompression from 'browser-image-compression'
 import AdminContactMessages from '../components/AdminContactMessages'
+import DashboardCharts from '../components/analytics/DashboardCharts'
 import { API_URL } from '../config/api'
 
+
 const AdminDashboard = () => {
-  const { user, logout } = useAuth()
+  const { user, token, logout } = useAuth();
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState('overview')
   const [loading, setLoading] = useState(false)
@@ -103,13 +113,71 @@ const AdminDashboard = () => {
   const [reviewsLoading, setReviewsLoading] = useState(false)
   const [reviewStats, setReviewStats] = useState({})
 
-  // Chart data states
+  /// Chart data states
+  // ======================= CHART STATES ==========================
   const [chartData, setChartData] = useState({
-    ordersData: null,
-    revenueData: null,
-    usersData: null
-  })
-  const [chartsLoading, setChartsLoading] = useState(true)
+    ordersData: [],
+    revenueData: [],
+    usersData: []
+  });
+
+  const [chartsLoading, setChartsLoading] = useState(false);
+
+  // ======================= FETCH ANALYTICS ==========================
+ const fetchAnalytics = async () => {
+  try {
+    setChartsLoading(true);
+
+    const res = await axios.get(`${API_URL}/api/admin/analytics`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    console.log("🔥 RAW DATA:", res.data);
+
+    const charts = res.data.charts;   // backend structure
+
+    // ===== TRANSFORM BACKEND → FRONTEND =====
+    const ordersData = charts.ordersDaily.map(item => ({
+      date: item._id,      // e.g. "2025-02-01"
+      count: item.count    // number
+    }));
+
+    const revenueData = charts.revenueMonthly.map(item => ({
+      month: item._id,     // e.g. "Jan 2025"
+      total: item.total    // rupees
+    }));
+
+    const usersData = charts.usersDaily.map(item => ({
+      day: item._id,       // e.g. "2025-02-14"
+      count: item.count
+    }));
+
+    setChartData({
+      ordersData,
+      revenueData,
+      usersData
+    });
+
+  } catch (err) {
+    console.error("Analytics Fetch Error:", err);
+  } finally {
+    setChartsLoading(false);
+  }
+};
+
+
+
+  // ======================= RUN ON MOUNT ==========================
+  useEffect(() => {
+    if (token) {
+      fetchAnalytics();
+    } else {
+      console.log("⛔ Token missing – analytics not fetched");
+    }
+  }, [token]);
+
+
+
 
   // Categories and subcategories data
   const categories = {
@@ -1644,6 +1712,7 @@ const AdminDashboard = () => {
                     loading={chartsLoading}
                   />
                 </div>
+
               </div>
             )}
 
