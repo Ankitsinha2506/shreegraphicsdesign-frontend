@@ -1,6 +1,6 @@
-// Finally, the updated Profile.jsx that imports and calls these components
+// src/pages/Profile.jsx - INDUSTRIAL GRADE PROFESSIONAL (2025)
 import { useState, useEffect } from 'react';
-import { useSearchParams, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import {
   UserIcon,
   ShoppingBagIcon,
@@ -10,8 +10,8 @@ import {
   SwatchIcon,
   PhotoIcon
 } from '@heroicons/react/24/outline';
-
 import { useAuth } from '../context/AuthContext';
+
 import ProfileInfo from '../components/ProfileInfo';
 import OrdersList from '../components/OrdersList';
 import LogoRequestsList from '../components/LogoRequestsList';
@@ -22,21 +22,11 @@ import Settings from '../components/Settings';
 
 const Profile = () => {
   const { user } = useAuth();
-  const [searchParams] = useSearchParams();
   const location = useLocation();
-  const [activeTab, setActiveTab] = useState(
-    location.state?.activeTab || searchParams.get('tab') || 'profile'
-  );
 
-  const tabs = [
-    { id: 'profile', name: 'Profile', icon: UserIcon },
-    { id: 'orders', name: 'Orders', icon: ShoppingBagIcon },
-    { id: 'logo-requests', name: 'Logo Requests', icon: PaintBrushIcon },
-    { id: 'embroidery-requests', name: 'Embroidery Requests', icon: SwatchIcon },
-    { id: 'custom-design-orders', name: 'Custom Design Orders', icon: PhotoIcon },
-    { id: 'favorites', name: 'Favorites', icon: HeartIcon },
-    { id: 'settings', name: 'Settings', icon: CogIcon }
-  ];
+  const [activeTab, setActiveTab] = useState(
+    location.state?.activeTab || 'profile'
+  );
 
   useEffect(() => {
     if (location.state?.activeTab) {
@@ -44,51 +34,86 @@ const Profile = () => {
     }
   }, [location.state]);
 
-  const panelBase = 'bg-zinc-950 border border-red-900/30 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.6)] p-6';
+  const tabs = [
+    { id: 'profile', label: 'Profile', icon: UserIcon },
+    { id: 'orders', label: 'My Orders', icon: ShoppingBagIcon },
+    { id: 'logo-requests', label: 'Logo Design', icon: PaintBrushIcon },
+    { id: 'embroidery-requests', label: 'Embroidery', icon: SwatchIcon },
+    { id: 'custom-design-orders', label: 'Custom Orders', icon: PhotoIcon },
+    { id: 'favorites', label: 'Wishlist', icon: HeartIcon },
+    { id: 'settings', label: 'Settings', icon: CogIcon },
+  ];
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'profile': return <ProfileInfo />;
+      case 'orders': return <OrdersList />;
+      case 'logo-requests': return <LogoRequestsList />;
+      case 'embroidery-requests': return <EmbroideryRequestsList />;
+      case 'custom-design-orders': return <CustomDesignOrdersList />;
+      case 'favorites': return <FavoritesList />;
+      case 'settings': return <Settings />;
+      default: return <ProfileInfo />;
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-black/80 py-10 text-gray-100">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Page header */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-extrabold text-red-400">Your Account</h1>
-              <p className="text-sm text-gray-400">Manage profile, orders and requests</p>
-            </div>
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 py-8 md:py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        {/* Header */}
+        <div className="text-center mb-10">
+          <h1 className="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+            Welcome back, {user?.name?.split(' ')[0] || 'Shopper'}!
+          </h1>
+          <p className="mt-3 text-lg text-gray-600">Manage your account, orders & creative requests</p>
         </div>
 
-        <div className={panelBase}>
-          {/* Tabs */}
-          <div className="border-b border-red-900/20 pb-3 mb-6">
-            <nav className="flex gap-3 overflow-auto">
-              {tabs.map(tab => {
-                const Icon = tab.icon;
-                const active = activeTab === tab.id;
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all text-sm font-medium ${active ? 'bg-gradient-to-r from-red-800/40 to-red-900/40 text-red-200 shadow-[0_6px_20px_rgba(255,0,0,0.12)]' : 'text-gray-400 hover:bg-red-900/10'}`}
-                  >
-                    <Icon className={`h-5 w-5 ${active ? 'text-red-300' : 'text-gray-400'}`} />
-                    <span>{tab.name}</span>
-                  </button>
-                );
-              })}
-            </nav>
+        {/* Main Container */}
+        <div className="bg-white rounded-3xl shadow-2xl border-2 border-orange-200 overflow-hidden">
+
+          {/* Tab Bar - Fixed & Beautiful */}
+          <div className="border-b border-gray-200 bg-gray-50/80 backdrop-blur">
+            <div className="max-w-5xl mx-auto">
+              <nav className="flex overflow-x-auto scrollbar-hide px-4 py-2 -mb-px">
+                {tabs.map((tab) => {
+                  const Icon = tab.icon;
+                  const isActive = activeTab === tab.id;
+
+                  return (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActiveTab(tab.id)}
+                      className={`flex items-center gap-3 px-6 py-4 text-sm font-medium whitespace-nowrap transition-all duration-300 border-b-3 ${
+                        isActive
+                          ? 'text-orange-600 border-orange-600'
+                          : 'text-gray-500 border-transparent hover:text-gray-700'
+                      }`}
+                    >
+                      <Icon className="w-5 h-5" />
+                      <span>{tab.label}</span>
+                      {isActive && (
+                        <span className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-orange-500 to-red-600 rounded-t-full" />
+                      )}
+                    </button>
+                  );
+                })}
+              </nav>
+            </div>
           </div>
 
-          <div>
-            {activeTab === 'profile' && <ProfileInfo />}
-            {activeTab === 'orders' && <OrdersList />}
-            {activeTab === 'logo-requests' && <LogoRequestsList />}
-            {activeTab === 'embroidery-requests' && <EmbroideryRequestsList />}
-            {activeTab === 'custom-design-orders' && <CustomDesignOrdersList />}
-            {activeTab === 'favorites' && <FavoritesList />}
-            {activeTab === 'settings' && <Settings />}
+          {/* Content Area */}
+          <div className="p-6 md:p-10 bg-gradient-to-b from-orange-50/30 to-white min-h-screen">
+            <div className="max-w-5xl mx-auto">
+              {renderContent()}
+            </div>
           </div>
+
+        </div>
+
+        {/* Footer */}
+        <div className="text-center mt-12 text-sm text-gray-500">
+          © 2025 YourBrand • Made with <span className="text-red-600">❤️</span> in India
         </div>
       </div>
     </div>
