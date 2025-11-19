@@ -30,7 +30,7 @@ const CUSTOMIZATION_OPTIONS = {
 const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { addToCart, clearCart, setCartItems } = useCart(); // Make sure setCartItems is available
+  const { addToCart, clearCart, setCartItems } = useCart();  // Make sure setCartItems is available
   const { isAuthenticated } = useAuth();
 
   const [product, setProduct] = useState(null);

@@ -142,7 +142,8 @@ export const CartProvider = ({ children }) => {
     getShipping,
     getFinalTotal,
     toggleCart,
-    setCartOpen
+    setCartOpen,
+    setCartItems,
   }
 
   return (
