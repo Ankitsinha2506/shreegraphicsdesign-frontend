@@ -124,46 +124,54 @@ const AdminDashboard = () => {
   const [chartsLoading, setChartsLoading] = useState(false);
 
   // ======================= FETCH ANALYTICS ==========================
- const fetchAnalytics = async () => {
-  try {
-    setChartsLoading(true);
+  const fetchAnalytics = async () => {
+    try {
+      setChartsLoading(true);
 
-    const res = await axios.get(`${API_URL}/api/admin/analytics`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+      const res = await axios.get(`${API_URL}/api/admin/analytics`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
 
-    console.log("🔥 RAW DATA:", res.data);
+      console.log("🔥 RAW DATA:", res.data);
 
-    const charts = res.data.charts;   // backend structure
+      // ------------------ 1. DAILY ORDERS ------------------
+      const ordersData = res.data.charts.ordersDaily.map(item => ({
+        date: item._id,      // "2025-01-01"
+        count: item.count    // number of orders
+      }));
 
-    // ===== TRANSFORM BACKEND → FRONTEND =====
-    const ordersData = charts.ordersDaily.map(item => ({
-      date: item._id,      // e.g. "2025-02-01"
-      count: item.count    // number
-    }));
+      // ------------------ 2. MONTHLY REVENUE ------------------
+      const revenueData = res.data.charts.revenueMonthly.map(item => ({
+        month: item._id,         // "2025-01"
+        total: item.totalAmount  // ✔ backend field!
+      }));
 
-    const revenueData = charts.revenueMonthly.map(item => ({
-      month: item._id,     // e.g. "Jan 2025"
-      total: item.total    // rupees
-    }));
+      // ------------------ 3. NEW USERS DAILY ------------------
+      const usersData = res.data.charts.usersDaily.map(item => ({
+        day: item._id,       // "2025-01-01"
+        count: item.count
+      }));
 
-    const usersData = charts.usersDaily.map(item => ({
-      day: item._id,       // e.g. "2025-02-14"
-      count: item.count
-    }));
+      console.log("📌 TRANSFORMED DATA:", {
+        ordersData,
+        revenueData,
+        usersData
+      });
 
-    setChartData({
-      ordersData,
-      revenueData,
-      usersData
-    });
+      // ------------------ SET STATE ------------------
+      setChartData({
+        ordersData,
+        revenueData,
+        usersData
+      });
 
-  } catch (err) {
-    console.error("Analytics Fetch Error:", err);
-  } finally {
-    setChartsLoading(false);
-  }
-};
+    } catch (err) {
+      console.error("Analytics Fetch Error:", err);
+    } finally {
+      setChartsLoading(false);
+    }
+  };
+
 
 
 

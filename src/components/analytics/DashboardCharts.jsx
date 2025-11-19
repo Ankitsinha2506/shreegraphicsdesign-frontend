@@ -35,7 +35,7 @@ export default function DashboardCharts({ ordersData, revenueData, usersData, lo
         );
     }
 
-    // ---------------- DAILY ORDERS (LINE) ----------------
+    // ---------------- DAILY ORDERS ----------------
     const ordersLineChart = {
         labels: ordersData.map(d => d.date),
         datasets: [
@@ -51,21 +51,22 @@ export default function DashboardCharts({ ordersData, revenueData, usersData, lo
         ]
     };
 
-    // ---------------- MONTHLY REVENUE (BAR) ----------------
+    // ---------------- MONTHLY REVENUE ----------------
     const revenueBarChart = {
         labels: revenueData.map(d => d.month),
         datasets: [
             {
-                label: "Revenue",
+                label: "Revenue (₹)",
                 data: revenueData.map(d => d.total),
                 backgroundColor: "#F97316",
                 borderColor: "#EA580C",
-                borderWidth: 1
+                borderWidth: 2,
+                borderRadius: 6
             }
         ]
     };
 
-    // ---------------- NEW USERS (AREA) ----------------
+    // ---------------- NEW USERS ----------------
     const usersAreaChart = {
         labels: usersData.map(d => d.day),
         datasets: [
@@ -93,65 +94,58 @@ export default function DashboardCharts({ ordersData, revenueData, usersData, lo
     };
 
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+            {/* ---------------- ROW 1 ---------------- */}
 
             {/* DAILY ORDERS */}
-            <div className="bg-white p-4 rounded-xl shadow">
+            <div className="bg-white p-5 rounded-xl shadow-md">
                 <h3 className="font-semibold mb-3 text-gray-900">Daily Orders</h3>
-                <Line height={130} data={ordersLineChart} />
+                <Line height={120} data={ordersLineChart} />
             </div>
 
             {/* MONTHLY REVENUE */}
-            <div className="bg-white p-4 rounded-xl shadow">
+            <div className="bg-white p-5 rounded-xl shadow-md">
                 <h3 className="font-semibold mb-3 text-gray-900">Monthly Revenue</h3>
-                <Bar height={130} data={revenueBarChart} />
+                <Bar height={120} data={revenueBarChart} />
             </div>
+
+            {/* ---------------- ROW 2 ---------------- */}
 
             {/* NEW USERS */}
-            <div className="bg-white p-4 rounded-xl shadow">
+            <div className="bg-white p-5 rounded-xl shadow-md">
                 <h3 className="font-semibold mb-3 text-gray-900">New Users</h3>
-                <Line height={130} data={usersAreaChart} />
+                <Line height={120} data={usersAreaChart} />
             </div>
 
-            {/* PIE CHART */}
-            {/* ORDER SUMMARY (Premium UI) */}
-<div className="bg-gradient-to-r from-indigo-50 to-white border border-indigo-100 p-6 rounded-2xl shadow-xl col-span-1 lg:col-span-3">
+            {/* ORDER SUMMARY */}
+            <div className="bg-white p-6 rounded-xl shadow-md flex flex-col justify-center">
+                <h3 className="text-lg font-bold text-gray-900 mb-4 text-center">Order Summary</h3>
 
-  {/* Title */}
-  <h3 className="text-xl font-bold text-gray-800 text-center mb-6 tracking-tight">
-    📊 Order Summary Overview
-  </h3>
+                <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
 
-  {/* Chart + Info */}
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                    {/* Pie Chart */}
+                    <div className="w-48 h-48 mx-auto md:mx-0">
+                        <Pie data={pieChart} />
+                    </div>
 
-    {/* Pie Chart */}
-    <div className="flex justify-center">
-      <div className="w-60 h-60">
-        <Pie data={pieChart} />
-      </div>
-    </div>
+                    {/* Summary Text */}
+                    <div className="flex flex-col gap-2 text-center md:text-left">
+                        <p className="text-3xl font-bold text-indigo-600">
+                            {ordersData.reduce((t, x) => t + x.count, 0)}
+                        </p>
+                        <p className="text-gray-700 text-md font-medium">Total Orders</p>
 
-    {/* Stats Text */}
-    <div className="space-y-4 text-center md:text-left">
-      <p className="text-4xl font-bold text-indigo-600">
-        {ordersData.reduce((t, x) => t + x.count, 0)}
-      </p>
-      <p className="text-gray-700 text-lg font-medium">Total Orders Received</p>
+                        <p className="text-gray-600 text-sm leading-relaxed">
+                            Shows overall order volume based on daily logs.
+                        </p>
 
-      <p className="text-sm text-gray-600 leading-relaxed">
-        This chart shows the cumulative number of orders placed across all dates.
-        It helps you understand overall customer activity and order traffic at a glance.
-      </p>
-
-      <div className="mt-3 p-3 bg-indigo-100 text-indigo-800 rounded-lg text-sm font-medium">
-        Updated in real-time based on daily order logs.
-      </div>
-    </div>
-
-  </div>
-</div>
-
+                        <div className="mt-2 px-3 py-2 bg-indigo-100 text-indigo-800 rounded-md text-xs">
+                            Updated daily from system records
+                        </div>
+                    </div>
+                </div>
+            </div>
 
         </div>
     );
