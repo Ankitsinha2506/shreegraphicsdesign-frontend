@@ -512,12 +512,19 @@ const OrdersList = () => {
                       )}
                       <p className="flex items-start gap-2 text-xs text-gray-700">
                         <MapPinIcon className="h-4 w-4 text-gray-500 mt-0.5" />
-                        {formatAddress(selectedOrder.shippingAddress)}
+                        <span>
+                          {selectedOrder.shippingAddress?.street}
+                          <br />
+                          {selectedOrder.shippingAddress?.city}, {selectedOrder.shippingAddress?.state}
+                          {selectedOrder.shippingAddress?.zipCode ? ` – ${selectedOrder.shippingAddress.zipCode}` : ""}
+                        </span>
                       </p>
+
+
                     </div>
                   </div>
 
-                  {/* Payment */}
+
                   {/* Payment */}
                   <div>
                     <h3 className="text-xs font-semibold text-gray-700 uppercase tracking-wide mb-2">
@@ -554,7 +561,7 @@ const OrdersList = () => {
                 </div>
 
                 {/* Summary */}
-                {/* <div className="border-t border-gray-200 pt-4">
+                <div className="border-t border-gray-200 pt-4">
                   <div className="flex justify-between text-sm text-gray-700 mb-1">
                     <span>Subtotal</span>
                     <span>
@@ -579,7 +586,7 @@ const OrdersList = () => {
                       ₹{safeAmount(selectedOrder.totalAmount).toLocaleString('en-IN')}
                     </span>
                   </div>
-                </div> */}
+                </div>
 
                 {/* Close */}
                 <div className="pt-3">

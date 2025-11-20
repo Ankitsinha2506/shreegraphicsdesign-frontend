@@ -116,16 +116,20 @@ const Checkout = () => {
           quantity: item.customization?.quantity || item.quantity || 1,
           customization: item.customization || {}
         })),
-        shippingAddress: {
+        sshippingAddress: {
           fullName: `${formData.shipping.firstName} ${formData.shipping.lastName}`.trim(),
           email: formData.shipping.email,
           phone: formData.shipping.phone,
-          address: formData.shipping.address,
+
+          // FIXED FIELD NAMES
+          street: formData.shipping.address,     // frontend "address" → backend "street"
           city: formData.shipping.city,
           state: formData.shipping.state,
-          pincode: formData.shipping.pincode,
+          zipCode: formData.shipping.pincode,    // frontend "pincode" → backend "zipCode"
+
           country: "India"
         },
+
         paymentMethod: formData.payment.method,
         paymentStatus: 'pending',   // ← ALWAYS send 'pending' for both COD & UPI        manualTransactionId: formData.payment.method === 'upi' ? transactionId.trim() : null,
         // Just send a note that screenshot was uploaded manually
@@ -133,6 +137,9 @@ const Checkout = () => {
           ? `Screenshot uploaded by customer (Txn ID: ${transactionId})`
           : null
       };
+
+      console.log("🚀 DEBUG — Shipping Data:", formData.shipping);
+      console.log("🚀 DEBUG — Order Data Sending to Backend:", orderData);
 
       await axios.post(`${API_URL}/api/orders`, orderData, {
         headers: {
@@ -404,7 +411,18 @@ const Checkout = () => {
                     <img src={getProductImage(item)} alt={item.name || item.product?.name} className="w-14 h-14 rounded-md object-cover border border-gray-200" />
                     <div className="flex-1">
                       <p className="text-sm font-medium text-gray-900 line-clamp-2">{item.name || item.product?.name}</p>
-                      <p className="text-xs text-gray-500">Qty: {item.customization?.quantity || item.quantity || 1}</p>
+                      <p className="text-xs text-gray-500">
+                        {item.customization?.color && (
+                          <span className="capitalize">{item.customization.color}</span>
+                        )}
+                        {item.customization?.size && (
+                          <span className="ml-1">• Size: {item.customization.size}</span>
+                        )}
+                      </p>
+
+                      <p className="text-xs text-gray-500">
+                        Qty: {item.customization?.quantity || item.quantity || 1}
+                      </p>
                     </div>
                     <p className="text-sm font-medium text-gray-900">
                       ₹{((item.price || item.product?.price) * (item.customization?.quantity || item.quantity || 1)).toLocaleString()}
