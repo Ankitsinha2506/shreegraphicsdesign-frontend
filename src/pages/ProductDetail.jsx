@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   StarIcon,
@@ -30,7 +30,7 @@ const CUSTOMIZATION_OPTIONS = {
 const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { addToCart, setCartItems } = useCart();
+  const { addToCart, clearCart, setCartItems } = useCart();  // Make sure setCartItems is available
   const { isAuthenticated } = useAuth();
 
   const [product, setProduct] = useState(null);
@@ -38,7 +38,10 @@ const ProductDetail = () => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [isFavorite, setIsFavorite] = useState(false);
-  const [customization, setCustomization] = useState({ color: "", size: "" });
+  const [customization, setCustomization] = useState({
+    color: "",
+    size: "",
+  });
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
@@ -56,15 +59,14 @@ const ProductDetail = () => {
     fetchProduct();
   }, [id, navigate]);
 
-  const sizeOptions = useMemo(() => {
-    if (!product) return [];
-    const sub = product.subcategory?.toLowerCase();
+  const getSizeOptions = () => {
+    const sub = product?.subcategory?.toLowerCase();
     return (
       CUSTOMIZATION_OPTIONS.size[sub] ||
-      CUSTOMIZATION_OPTIONS.size[product.category?.toLowerCase()] ||
+      CUSTOMIZATION_OPTIONS.size[product?.category?.toLowerCase()] ||
       CUSTOMIZATION_OPTIONS.size.default
     );
-  }, [product]);
+  };
 
   const validateCustomization = () => {
     const newErrors = {};
@@ -88,30 +90,36 @@ const ProductDetail = () => {
     toast.success("Added to cart!");
   };
 
+  // FIXED BUY NOW FUNCTION
   const handleBuyNow = () => {
     if (!isAuthenticated) {
       toast.error("Please login to place order");
       navigate("/login");
       return;
     }
+
     if (!validateCustomization()) {
       toast.error("Please select color and size");
       return;
     }
+
     const buyNowItem = {
       ...product,
       customization: { ...customization, quantity },
-      quantity,
+      quantity: customization.quantity || quantity,
       price: product.price?.base || product.price,
       productId: product._id,
     };
-    setCartItems([buyNowItem]);
+
+    setCartItems([buyNowItem]);   // ← This line is the key!
+
+    // toast.success("Redirecting to checkout...");
     navigate("/checkout");
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white overflow-x-hidden">
+      <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="h-14 w-14 border-4 border-orange-500 border-t-transparent animate-spin rounded-full"></div>
       </div>
     );
@@ -120,9 +128,8 @@ const ProductDetail = () => {
   if (!product) return null;
 
   return (
-    <div className="min-h-screen bg-white text-black py-8 md:py-10 overflow-x-hidden">
-      <div className="w-full px-4 sm:px-6 md:px-8 max-w-6xl mx-auto">
-
+    <div className="min-h-screen bg-white text-black py-10">
+      <div className="w-full px-4 lg:px-8">
         <button
           onClick={() => navigate(-1)}
           className="mb-6 px-5 py-2 rounded-md bg-gray-100 hover:bg-gray-200"
@@ -130,189 +137,136 @@ const ProductDetail = () => {
           ← Back
         </button>
 
-        {/* GRID THAT WORKS ON ALL DEVICES */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-10">
-
-          {/* LEFT: IMAGES */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+          {/* LEFT: Images */}
           <div className="space-y-4">
-
-            {/* Main Image */}
             <div className="flex items-center justify-center">
-              <div className="w-full max-w-full sm:max-w-[420px] mx-auto">
+              <div className="w-full max-w-[420px] mx-auto">
                 <ImageZoomAmazon
                   src={product.images[selectedImage]?.url || product.images[selectedImage]}
                   width={420}
                   height={420}
                   zoom={2.3}
+                  gap={40}
+                  topOffset={30}
                 />
               </div>
             </div>
-
-            {/* Thumbnails — Fully Responsive */}
-            <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-3">
+            <div className="grid grid-cols-5 gap-3">
               {product.images.map((img, i) => (
                 <button
                   key={i}
                   onClick={() => setSelectedImage(i)}
-                  className={`h-16 sm:h-20 md:h-24 rounded-lg bg-white flex items-center justify-center transition-all
-                    ${
-                      selectedImage === i
-                        ? "ring-2 ring-[#FF4500] shadow-md"
-                        : "ring-1 ring-gray-200 hover:ring-[#FF4500]"
+                  className={`h-16 rounded-lg bg-white flex items-center justify-center transition-all
+                    ${selectedImage === i
+                      ? "ring-2 ring-[#FF4500] shadow-md"
+                      : "ring-1 ring-gray-200 hover:ring-[#FF4500]"
                     }`}
                 >
-                  <img
-                    src={img?.url || img}
-                    className="w-full h-full object-contain p-1"
-                  />
+                  <img src={img?.url || img} className="w-full h-full object-contain p-1" alt={`Thumbnail ${i + 1}`} />
                 </button>
               ))}
             </div>
           </div>
 
-          {/* RIGHT: INFO */}
+          {/* RIGHT: Info */}
           <div className="space-y-4 self-start pt-1">
+            <h1 className="text-2xl font-bold text-gray-900 leading-snug">{product.name}</h1>
 
-            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
-              {product.name}
-            </h1>
-
-            {/* Rating */}
             <div className="flex items-center gap-2">
               {[...Array(5)].map((_, i) => (
                 <StarIconSolid
                   key={i}
-                  className={`h-4 w-4 ${
-                    i < Math.round(product.rating?.average || 0)
-                      ? "text-yellow-400"
-                      : "text-gray-300"
-                  }`}
+                  className={`h-4 w-4 ${i < Math.round(product.rating?.average || 0) ? "text-yellow-400" : "text-gray-300"}`}
                 />
               ))}
-              <span className="text-gray-500 text-xs sm:text-sm">
+              <span className="text-gray-500 text-xs">
                 {product.rating?.average || 0} ({product.rating?.count || 0} reviews)
               </span>
             </div>
 
-            {/* Price */}
-            <div className="text-2xl sm:text-3xl font-bold text-[#FF4500]">
+            <div className="text-3xl font-bold text-[#FF4500]">
               ₹{product.price?.base || product.price}
             </div>
 
-            {/* Desc */}
-            <p className="text-gray-700 text-sm leading-relaxed">
-              {product.description}
-            </p>
+            <p className="text-gray-700 text-sm leading-relaxed">{product.description}</p>
 
             {/* Customization */}
-            <div className="bg-gray-100 p-4 sm:p-5 rounded-xl space-y-5">
-
-              {/* COLOR */}
+            <div className="bg-gray-100 p-5 rounded-xl space-y-5">
               <div>
                 <label className="block font-medium text-sm mb-2">Color *</label>
                 <select
                   value={customization.color}
-                  onChange={(e) =>
-                    setCustomization({ ...customization, color: e.target.value })
-                  }
+                  onChange={(e) => setCustomization({ ...customization, color: e.target.value })}
                   className="w-full border rounded-lg px-4 py-3 bg-white text-sm"
                 >
                   <option value="">Select Color</option>
                   {CUSTOMIZATION_OPTIONS.color.map((c) => (
-                    <option key={c} value={c}>
-                      {c}
-                    </option>
+                    <option key={c} value={c}>{c}</option>
                   ))}
                 </select>
-                {errors.color && (
-                  <p className="text-red-500 text-xs mt-1">{errors.color}</p>
-                )}
+                {errors.color && <p className="text-red-500 text-xs mt-1">{errors.color}</p>}
               </div>
 
-              {/* SIZE */}
               <div>
                 <label className="block font-medium text-sm mb-2">Size *</label>
                 <select
                   value={customization.size}
-                  onChange={(e) =>
-                    setCustomization({ ...customization, size: e.target.value })
-                  }
+                  onChange={(e) => setCustomization({ ...customization, size: e.target.value })}
                   className="w-full border rounded-lg px-4 py-3 bg-white text-sm"
                 >
                   <option value="">Select Size</option>
-                  {sizeOptions.map((s) => (
-                    <option key={s} value={s}>
-                      {s}
-                    </option>
+                  {getSizeOptions().map((s) => (
+                    <option key={s} value={s}>{s}</option>
                   ))}
                 </select>
-                {errors.size && (
-                  <p className="text-red-500 text-xs mt-1">{errors.size}</p>
-                )}
+                {errors.size && <p className="text-red-500 text-xs mt-1">{errors.size}</p>}
               </div>
 
-              {/* QUANTITY */}
               <div>
                 <label className="block font-medium text-sm mb-2">Quantity</label>
-
                 <div className="flex items-center gap-4">
                   <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
                     className="w-10 h-10 border rounded-lg text-lg hover:bg-gray-100"
-                  >
-                    −
-                  </button>
-
-                  <span className="w-14 text-center font-semibold text-lg">
-                    {quantity}
-                  </span>
-
+                  >−</button>
+                  <span className="w-12 text-center font-semibold text-lg">{quantity}</span>
                   <button
                     onClick={() => setQuantity(quantity + 1)}
                     className="w-10 h-10 border rounded-lg text-lg hover:bg-gray-100"
-                  >
-                    +
-                  </button>
+                  >+</button>
                 </div>
               </div>
             </div>
 
-            {/* Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4">
+            {/* Action Buttons */}
+            <div className="flex gap-4">
               <button
                 onClick={handleAddToCart}
                 className="flex-1 bg-gray-200 text-black py-3.5 rounded-lg text-base font-bold hover:bg-gray-300 transition"
               >
                 Add to Cart
               </button>
-
               <button
                 onClick={handleBuyNow}
                 className="flex-1 bg-[#FF4500] text-white py-3.5 rounded-lg text-base font-bold hover:bg-orange-600 transition shadow-lg"
               >
                 Buy Now
               </button>
-
               <button
                 onClick={() => setIsFavorite(!isFavorite)}
-                className="p-3 border rounded-lg hover:bg-gray-50 flex justify-center"
+                className="p-3 border rounded-lg hover:bg-gray-50"
               >
-                {isFavorite ? (
-                  <HeartIconSolid className="h-6 w-6 text-red-500" />
-                ) : (
-                  <HeartIcon className="h-6 w-6 text-gray-500" />
-                )}
+                {isFavorite ? <HeartIconSolid className="h-6 w-6 text-red-500" /> : <HeartIcon className="h-6 w-6 text-gray-500" />}
               </button>
             </div>
 
-            {/* DELIVERY */}
             <div className="bg-green-50 border border-green-200 text-green-800 p-4 rounded-lg text-sm">
               Delivery in {product.deliveryTime?.base || "5-7"} days • Free Shipping • COD Available
             </div>
           </div>
         </div>
 
-        {/* REVIEWS */}
         <div className="mt-20">
           <ReviewSection productId={product._id} />
         </div>
