@@ -629,6 +629,7 @@ const AdminDashboard = () => {
 
   const fetchOrders = async (page = 1) => {
     setOrdersLoading(true)
+
     try {
       const params = new URLSearchParams({
         page: page.toString(),
@@ -643,12 +644,15 @@ const AdminDashboard = () => {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       })
 
-      setOrders(response.data.orders || [])
+      const data = response.data
+
+      setOrders(data.orders || [])
+
       setOrdersPagination({
-        currentPage: response.data.currentPage || 1,
-        totalPages: response.data.totalPages || 1,
-        total: response.data.total || 0,
-        limit: response.data.limit || 10
+        currentPage: data.currentPage || data.page || page,
+        totalPages: data.totalPages || data.pages || 1,
+        total: data.total || data.count || (data.orders?.length || 0),
+        limit: data.limit || ordersPagination.limit || 10
       })
     } catch (error) {
       console.error('Error fetching orders:', error)
@@ -658,17 +662,26 @@ const AdminDashboard = () => {
     }
   }
 
-  const detectPaymentMethod = () => {
-    const m = selectedOrder.paymentMethod;
 
-    if (m) return m.replace(/_/g, " ");
+  const detectPaymentMethod = (order) => {
+    if (!order?.paymentInfo) return "Unknown";
 
-    // fallback if method missing
-    if (selectedOrder.paymentDetails?.cardLast4) return "card";
-    if (selectedOrder.paymentDetails?.upiId) return "upi";
+    const info = order.paymentInfo;
+    const method = info.method?.toLowerCase() || "";
 
-    return "cod"; // final fallback
+    // UPI with manual txn ID
+    if (info.manualTransactionId) return "UPI Payment";
+
+    if (method === "upi") return "UPI Payment";
+
+    if (method === "cod" || method === "cash-on-delivery")
+      return "Cash on Delivery";
+
+    return "Cash on Delivery";
   };
+
+
+
 
 
   const fetchLogoRequests = async () => {
@@ -766,51 +779,71 @@ const AdminDashboard = () => {
 
   const handleOrderStatusChange = async (orderId, newStatus) => {
     try {
-      // Find the current order to get its current status
-      const currentOrder = orders.find(order => order._id === orderId)
+      // Find current order
+      const currentOrder = orders.find(order => order._id === orderId);
       if (!currentOrder) {
-        toast.error('Order not found')
-        return
+        toast.error('Order not found');
+        return;
       }
 
-      const currentStatus = currentOrder.status
+      const currentStatus = currentOrder.status;
 
-      // Validate status transitions
+      // Invalid transitions
       const invalidTransitions = {
         'completed': ['pending', 'confirmed', 'in-progress'],
         'cancelled': ['pending', 'confirmed', 'in-progress', 'completed']
+      };
+
+      if (invalidTransitions[currentStatus]?.includes(newStatus)) {
+        toast.error(`Cannot change status from ${currentStatus} to ${newStatus}`);
+        return;
       }
 
-      if (invalidTransitions[currentStatus] && invalidTransitions[currentStatus].includes(newStatus)) {
-        toast.error(`Cannot change status from ${currentStatus} to ${newStatus}`)
-        return
-      }
-
-      // Confirm critical status changes
+      // Confirm important transitions
       if ((newStatus === 'cancelled' || newStatus === 'completed') && currentStatus !== newStatus) {
-        const confirmMessage = newStatus === 'cancelled'
-          ? 'Are you sure you want to cancel this order?'
-          : 'Are you sure you want to mark this order as completed?'
+        const msg =
+          newStatus === 'cancelled'
+            ? 'Are you sure you want to cancel this order?'
+            : 'Are you sure you want to mark this order as completed?';
 
-        if (!window.confirm(confirmMessage)) {
-          return
-        }
+        if (!window.confirm(msg)) return;
       }
 
-      await axios.put(`/api/orders/${orderId}/status`,
+      // API Update
+      await axios.put(
+        `/api/orders/${orderId}/status`,
         { status: newStatus },
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-        }
-      )
-      toast.success('Order status updated successfully')
-      fetchOrders()
+        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+      );
+
+      toast.success('Order status updated successfully');
+
+      // -----------------------------------------------------
+      // 🔥 INSTANT UI UPDATE — LIST + MODAL (NO DELAY)
+      // -----------------------------------------------------
+
+      // Update Orders List Immediately
+      setOrders(prev =>
+        prev.map(order =>
+          order._id === orderId ? { ...order, status: newStatus } : order
+        )
+      );
+
+      // Update Modal Immediately
+      setSelectedOrder(prev =>
+        prev && prev._id === orderId ? { ...prev, status: newStatus } : prev
+      );
+
+      // Fetch fresh backend data in background (optional)
+      fetchOrders();
+
     } catch (error) {
-      console.error('Error updating order status:', error)
-      const errorMessage = error.response?.data?.message || 'Failed to update order status'
-      toast.error(errorMessage)
+      console.error('Error updating order status:', error);
+      const msg = error.response?.data?.message || 'Failed to update order status';
+      toast.error(msg);
     }
-  }
+  };
+
 
   const handleReviewStatusChange = async (reviewId, newStatus) => {
     try {
@@ -2416,6 +2449,58 @@ const AdminDashboard = () => {
                   </>
                 )}
 
+                {/* Pagination Controls */}
+                {ordersPagination.totalPages > 1 && (
+                  <div className="flex justify-center items-center mt-6 gap-2 flex-wrap">
+
+                    {/* Previous */}
+                    <button
+                      disabled={ordersPagination.currentPage === 1}
+                      onClick={() =>
+                        handleOrdersPageChange(ordersPagination.currentPage - 1)
+                      }
+                      className={`px-4 py-2 rounded-md border text-sm ${ordersPagination.currentPage === 1
+                        ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                        : "bg-white text-gray-700 hover:bg-gray-100"
+                        }`}
+                    >
+                      Prev
+                    </button>
+
+                    {/* Page Numbers */}
+                    {Array.from({ length: ordersPagination.totalPages }, (_, i) => i + 1).map(
+                      (page) => (
+                        <button
+                          key={page}
+                          onClick={() => handleOrdersPageChange(page)}
+                          className={`px-3 py-2 rounded-md border text-sm ${page === ordersPagination.currentPage
+                            ? "bg-blue-600 text-white border-blue-600"
+                            : "bg-white text-gray-700 hover:bg-gray-100"
+                            }`}
+                        >
+                          {page}
+                        </button>
+                      )
+                    )}
+
+                    {/* Next */}
+                    <button
+                      disabled={ordersPagination.currentPage === ordersPagination.totalPages}
+                      onClick={() =>
+                        handleOrdersPageChange(ordersPagination.currentPage + 1)
+                      }
+                      className={`px-4 py-2 rounded-md border text-sm ${ordersPagination.currentPage === ordersPagination.totalPages
+                        ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                        : "bg-white text-gray-700 hover:bg-gray-100"
+                        }`}
+                    >
+                      Next
+                    </button>
+                  </div>
+                )}
+
+
+
                 {/* ==================== ORDER DETAILS MODAL (inside same file) ==================== */}
                 {showOrderDetailsModal && selectedOrder && (
                   <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
@@ -2552,7 +2637,7 @@ const AdminDashboard = () => {
                                   selectedOrder.shippingAddress?.address || selectedOrder.shippingAddress?.street,
                                   selectedOrder.shippingAddress?.city,
                                   selectedOrder.shippingAddress?.state,
-                                  selectedOrder.shippingAddress?.pincode,
+                                  selectedOrder.shippingAddress?.zipCode,
                                   selectedOrder.shippingAddress?.country,
                                 ]
                                   .filter(Boolean)
@@ -2568,57 +2653,113 @@ const AdminDashboard = () => {
                             <CreditCardIcon className="h-5 w-5 text-blue-600" />
                             Payment Details
                           </h3>
+
                           <div className="bg-gray-50 p-4 rounded-lg space-y-2 text-sm">
+
+                            {/* PAYMENT METHOD */}
                             <p className="flex justify-between text-gray-700">
                               <span className="font-medium">Method:</span>
                               <span className="capitalize">
-                                {detectPaymentMethod()}
+                                {detectPaymentMethod(selectedOrder)}
                               </span>
                             </p>
+
+                            {/* PAYMENT STATUS */}
                             <p className="flex justify-between text-gray-700">
                               <span className="font-medium">Status:</span>
                               <span
-                                className={`capitalize font-medium ${selectedOrder.paymentStatus === 'paid' ? 'text-green-600' : 'text-yellow-600'
+                                className={`capitalize font-medium ${selectedOrder.paymentInfo?.paymentStatus === 'completed'
+                                  ? 'text-green-600'
+                                  : selectedOrder.paymentInfo?.paymentStatus === 'failed'
+                                    ? 'text-red-600'
+                                    : 'text-yellow-600'
                                   }`}
                               >
-                                {selectedOrder.paymentStatus || 'Pending'}
+                                {selectedOrder.paymentInfo?.paymentStatus || 'Pending'}
                               </span>
                             </p>
+
+                            {/* TRANSACTION ID */}
                             <p className="flex justify-between text-gray-700">
                               <span className="font-medium">Transaction ID:</span>
                               <span className="font-mono text-xs">
-                                {selectedOrder.paymentId || 'N/A'}
+
+                                {selectedOrder.paymentInfo?.manualTransactionId ||
+                                  selectedOrder.paymentInfo?.transactionId ||
+                                  'N/A'}
+
                               </span>
                             </p>
+
+                            {/* PAYMENT SCREENSHOT */}
+                            {selectedOrder.paymentInfo?.paymentScreenshot && (
+                              <div className="pt-2">
+                                <span className="font-medium text-gray-700">Screenshot:</span>
+                                <img
+                                  src={selectedOrder.paymentInfo.paymentScreenshot}
+                                  alt="Payment Screenshot"
+                                  className="mt-2 rounded-md border h-32 object-cover"
+                                />
+                              </div>
+                            )}
+
                           </div>
                         </div>
+
+
+
+                        {/* ---- CALCULATE TOTALS ---- */}
+                        {(() => {
+                          if (!selectedOrder) return;
+
+                          selectedOrder._itemsTotal = (selectedOrder.items || []).reduce(
+                            (sum, item) => sum + (item.price || 0) * (item.quantity || 1),
+                            0
+                          );
+
+                          // GST 18%
+                          selectedOrder._gst = Math.round(selectedOrder._itemsTotal * 0.18);
+
+                          // SHIPPING (backend sometimes uses shippingCost or shippingAmount)
+                          selectedOrder._shipping = Number(
+                            selectedOrder.shippingAmount ||
+                            selectedOrder.shippingCost ||
+                            0
+                          );
+
+                          // GRAND TOTAL
+                          selectedOrder._grandTotal =
+                            selectedOrder._itemsTotal +
+                            selectedOrder._gst +
+                            selectedOrder._shipping;
+                        })()}
+
 
                         {/* Price Breakdown */}
                         <div className="space-y-1 text-sm text-gray-600">
                           <div className="flex justify-between">
                             <span>Items Total</span>
-                            <span>
-                              ₹{(selectedOrder.items || []).reduce((s, i) => s + (i.price || 0) * (i.quantity || 1), 0).toLocaleString('en-IN')}
-                            </span>
+                            <span>₹{selectedOrder._itemsTotal.toLocaleString('en-IN')}</span>
                           </div>
+
                           <div className="flex justify-between">
-                            <span>Tax</span>
-                            <span>₹{(selectedOrder.taxAmount || 0).toLocaleString('en-IN')}</span>
+                            <span>GST (18%)</span>
+                            <span>₹{selectedOrder._gst.toLocaleString('en-IN')}</span>
                           </div>
+
                           <div className="flex justify-between">
                             <span>Shipping</span>
-                            <span>₹{(selectedOrder.shippingCost || 0).toLocaleString('en-IN')}</span>
+                            <span>₹{selectedOrder._shipping.toLocaleString('en-IN')}</span>
                           </div>
+
                           <div className="flex justify-between font-semibold text-gray-900 pt-1 border-t border-gray-300">
                             <span>Total</span>
                             <span className="text-green-600">
-                              ₹{(() => {
-                                const items = (selectedOrder.items || []).reduce((s, i) => s + (i.price || 0) * (i.quantity || 1), 0);
-                                return (items + (selectedOrder.taxAmount || 0) + (selectedOrder.shippingCost || 0)).toLocaleString('en-IN');
-                              })()}
+                              ₹{selectedOrder._grandTotal.toLocaleString('en-IN')}
                             </span>
                           </div>
                         </div>
+
 
                         {/* Close Button */}
                         <div className="flex justify-end pt-4">

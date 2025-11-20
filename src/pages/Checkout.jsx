@@ -116,7 +116,7 @@ const Checkout = () => {
           quantity: item.customization?.quantity || item.quantity || 1,
           customization: item.customization || {}
         })),
-        sshippingAddress: {
+        shippingAddress: {
           fullName: `${formData.shipping.firstName} ${formData.shipping.lastName}`.trim(),
           email: formData.shipping.email,
           phone: formData.shipping.phone,
