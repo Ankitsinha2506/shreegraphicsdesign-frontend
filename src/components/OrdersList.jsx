@@ -11,12 +11,36 @@ import {
   MapPinIcon,
   PhoneIcon,
   CreditCardIcon,
-  CurrencyRupeeIcon,
   UserIcon,
   XMarkIcon,
   TruckIcon,
   QrCodeIcon,
 } from '@heroicons/react/24/outline';
+
+// ---------- PURE HELPERS (outside component) ----------
+
+// Calculate subtotal from order items
+const calculateSubtotal = (order) => {
+  if (!order?.items) return 0;
+
+  return order.items.reduce((sum, item) => {
+    const price = item?.price ?? item?.product?.price ?? 0;
+    const qty = item?.quantity ?? 1;
+    return sum + price * qty;
+  }, 0);
+};
+
+// Calculate one item's total
+const safeItemTotal = (item) => {
+  const price = item?.price ?? item?.product?.price ?? 0;
+  const qty = item?.quantity ?? 1;
+  return Number(price) * Number(qty);
+};
+
+// Safe number cast
+const safeAmount = (value) => Number(value || 0);
+
+// ---------- COMPONENT ----------
 
 const OrdersList = () => {
   const [orders, setOrders] = useState([]);
@@ -38,48 +62,36 @@ const OrdersList = () => {
 
   // ---------- Helpers ----------
 
-  // ---------- UPDATED HELPERS (Replace these) ----------
+  // Only COD + UPI (based on new backend paymentInfo)
   const getPaymentMethod = (order) => {
-    if (!order) return 'Unknown';
+    if (!order?.paymentInfo) return 'Unknown';
 
-    // PRIORITY 1: Check if manualTransactionId exists → UPI
-    if (order.manualTransactionId) {
+    const info = order.paymentInfo;
+
+    // If customer entered a manual UPI transaction ID
+    if (info.manualTransactionId) {
       return 'UPI Payment';
     }
 
-    // PRIORITY 2: Check paymentMethod field
-    const method = (order.paymentMethod || '').toString().trim().toLowerCase();
-    if (method === 'upi') return 'UPI Payment';
-    if (method === 'cod' || method.includes('cod')) return 'Cash on Delivery';
+    const method = (info.method || '').toLowerCase();
 
-    // Fallback
+    if (method === 'upi') return 'UPI Payment';
+    if (method === 'cod' || method === 'cash-on-delivery') return 'Cash on Delivery';
+
+    // Fallback (you only really use COD/UPI)
     return 'Cash on Delivery';
   };
 
-  const getPaymentIcon = (methodLabel) => {
-    const method = (methodLabel || '').toLowerCase();
-    if (method.includes('upi')) {
+  const getPaymentIcon = (order) => {
+    const label = getPaymentMethod(order).toLowerCase();
+
+    if (label.includes('upi')) {
       return <QrCodeIcon className="h-5 w-5 text-orange-500" />;
     }
-    if (method.includes('cash') || method.includes('cod')) {
-      return <TruckIcon className="h-5 w-5 text-orange-500" />;
-    }
-    return <CreditCardIcon className="h-5 w-5 text-gray-400" />;
-  };
 
-  // const getPaymentIcon = (methodLabel) => {
-  //   const method = (methodLabel || '').toLowerCase();
-  //   if (method.includes('cash')) {
-  //     return <TruckIcon className="h-5 w-5 text-orange-500" />;
-  //   }
-  //   if (method.includes('upi')) {
-  //     return <QrCodeIcon className="h-5 w-5 text-orange-500" />;
-  //   }
-  //   if (method.includes('card')) {
-  //     return <CreditCardIcon className="h-5 w-5 text-orange-500" />;
-  //   }
-  //   return <CreditCardIcon className="h-5 w-5 text-gray-400" />;
-  // };
+    // Default → COD
+    return <TruckIcon className="h-5 w-5 text-orange-500" />;
+  };
 
   const getStatusPillClass = (status) => {
     const s = (status || '').toLowerCase();
@@ -88,25 +100,6 @@ const OrdersList = () => {
     if (s.includes('shipped')) return 'bg-purple-100 text-purple-800 border-purple-200';
     if (s.includes('cancelled')) return 'bg-red-100 text-red-800 border-red-200';
     return 'bg-orange-100 text-orange-800 border-orange-200';
-  };
-
-  const formatAddress = (addr) => {
-    if (!addr) return 'Not provided';
-    const parts = [
-      addr.address || addr.street,
-      addr.city,
-      addr.state,
-      addr.pincode,
-    ].filter(Boolean);
-    return parts.length ? parts.join(', ') : 'Not provided';
-  };
-
-  const safeAmount = (value) => Number(value || 0);
-
-  const safeItemTotal = (item) => {
-    const price = item?.price ?? item?.product?.price ?? 0;
-    const qty = item?.quantity ?? 1;
-    return Number(price) * Number(qty);
   };
 
   // ---------- Data Fetch ----------
@@ -253,8 +246,7 @@ const OrdersList = () => {
             {/* Orders grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
               {orders.map((order) => {
-                const methodLabel = getPaymentMethod(order);
-                const total = safeAmount(order.totalAmount).toLocaleString('en-IN');
+                const totalLabel = safeAmount(order.totalAmount).toLocaleString('en-IN');
 
                 return (
                   <div
@@ -305,8 +297,21 @@ const OrdersList = () => {
                             <p className="text-xs font-medium text-gray-900 line-clamp-1">
                               {item.product?.name || 'Product'}
                             </p>
+
+                            {/* Color + Size preview (if exists) */}
+                            {(item.customization?.color || item.customization?.size) && (
+                              <p className="text-[11px] text-gray-500">
+                                {item.customization?.color && (
+                                  <span className="capitalize">{item.customization.color}</span>
+                                )}
+                                {item.customization?.size && (
+                                  <span className="ml-1">• {item.customization.size}</span>
+                                )}
+                              </p>
+                            )}
+
                             <p className="text-[11px] text-gray-500">
-                              Qty: {item.quantity ?? 1}
+                              Qty: {item.customization?.quantity || item.quantity || 1}
                             </p>
                           </div>
                         </div>
@@ -322,10 +327,11 @@ const OrdersList = () => {
                     {/* Bottom row */}
                     <div className="flex justify-between items-center mt-2">
                       <div className="flex items-center gap-2 text-xs text-gray-700">
-                        {getPaymentIcon(methodLabel)}
-                        <span>{methodLabel}</span>
+                        {getPaymentIcon(order)}
+                        <span>{getPaymentMethod(order)}</span>
                       </div>
-                      {/* <p className="text-base font-semibold text-gray-900">₹{total}</p> */}
+                      {/* If you want to show card total, uncomment below */}
+                      {/* <p className="text-base font-semibold text-gray-900">₹{totalLabel}</p> */}
                     </div>
 
                     <button
@@ -367,7 +373,7 @@ const OrdersList = () => {
                         key={page}
                         onClick={() => handleOrdersPageChange(page)}
                         className={`px-3 py-1 rounded-md border text-xs font-medium ${page === ordersPagination.currentPage
-                          ? 'bg-orange-500 text-white border-orange-500'
+                          ? 'bg-orange-500 text:white border-orange-500'
                           : 'border-gray-300 text-gray-700 hover:bg-gray-100'
                           }`}
                       >
@@ -392,6 +398,19 @@ const OrdersList = () => {
         {/* ORDER DETAILS MODAL */}
         {selectedOrder && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-6">
+            {/* ---- CALCULATE TOTAL FOR MODAL ---- */}
+            {(() => {
+              const modalSubtotal = calculateSubtotal(selectedOrder);
+              const modalTax = Math.round(modalSubtotal * 0.18);
+              const modalShipping = Number(selectedOrder.shippingAmount ?? 0);
+              const modalTotal = modalSubtotal + modalTax + modalShipping;
+
+              // Save these values into the selectedOrder object (so you can use it anywhere)
+              selectedOrder._modalSubtotal = modalSubtotal;
+              selectedOrder._modalTax = modalTax;
+              selectedOrder._modalShipping = modalShipping;
+              selectedOrder._modalTotal = modalTotal;
+            })()}
             <div className="bg-white rounded-lg shadow-lg border border-gray-300 w-full max-w-3xl max-h-full overflow-y-auto">
               {/* Modal header */}
               <div className="flex items-center justify-between px-4 py-3 border-b bg-gray-50">
@@ -425,7 +444,7 @@ const OrdersList = () => {
                       Total amount
                     </p>
                     <p className="text-sm font-medium text-gray-900 mt-1">
-                      ₹{safeAmount(selectedOrder.totalAmount).toLocaleString('en-IN')}
+                      ₹{selectedOrder._modalTotal.toLocaleString('en-IN')}
                     </p>
                   </div>
                   <div className="bg-gray-50 border border-gray-200 rounded-md p-3">
@@ -470,19 +489,21 @@ const OrdersList = () => {
                           <p className="text-sm font-medium text-gray-900">
                             {item.product?.name || 'Product'}
                           </p>
-                          <p className="text-xs text-gray-500 mt-0.5">
-                            Qty: {item.quantity ?? 1}
+
+                          {(item.customization?.color || item.customization?.size) && (
+                            <p className="text-xs text-gray-500 mt-0.5">
+                              {item.customization?.color && (
+                                <span className="capitalize">{item.customization.color}</span>
+                              )}
+                              {item.customization?.size && (
+                                <span className="ml-1">• Size: {item.customization.size}</span>
+                              )}
+                            </p>
+                          )}
+
+                          <p className="text-xs text-gray-500">
+                            Qty: {item.customization?.quantity || item.quantity || 1}
                           </p>
-                          {item.customization?.size && (
-                            <p className="text-xs text-gray-500">
-                              Size: {item.customization.size}
-                            </p>
-                          )}
-                          {item.customization?.color && (
-                            <p className="text-xs text-gray-500">
-                              Color: {item.customization.color}
-                            </p>
-                          )}
                         </div>
                         <p className="text-sm font-medium text-gray-900">
                           ₹{safeItemTotal(item).toLocaleString('en-IN')}
@@ -515,15 +536,15 @@ const OrdersList = () => {
                         <span>
                           {selectedOrder.shippingAddress?.street}
                           <br />
-                          {selectedOrder.shippingAddress?.city}, {selectedOrder.shippingAddress?.state}
-                          {selectedOrder.shippingAddress?.zipCode ? ` – ${selectedOrder.shippingAddress.zipCode}` : ""}
+                          {selectedOrder.shippingAddress?.city},{' '}
+                          {selectedOrder.shippingAddress?.state}
+                          {selectedOrder.shippingAddress?.zipCode
+                            ? ` – ${selectedOrder.shippingAddress.zipCode}`
+                            : ''}
                         </span>
                       </p>
-
-
                     </div>
                   </div>
-
 
                   {/* Payment */}
                   <div>
@@ -532,24 +553,26 @@ const OrdersList = () => {
                     </h3>
                     <div className="bg-gray-50 border border-gray-200 rounded-md p-3 space-y-2 text-sm">
                       <p className="flex items-center gap-2">
-                        {getPaymentIcon(getPaymentMethod(selectedOrder))}
+                        {getPaymentIcon(selectedOrder)}
                         <span className="font-medium">{getPaymentMethod(selectedOrder)}</span>
                       </p>
                       <p className="text-xs text-gray-600">
                         Status:{' '}
                         <span className="font-medium text-gray-800">
-                          {(selectedOrder.paymentStatus || 'pending').toString().toUpperCase()}
+                          {(selectedOrder.paymentInfo?.paymentStatus || 'pending')
+                            .toString()
+                            .toUpperCase()}
                         </span>
                       </p>
 
                       {/* SHOW UPI TRANSACTION ID IF EXISTS */}
-                      {selectedOrder.manualTransactionId && (
+                      {selectedOrder.paymentInfo?.manualTransactionId && (
                         <div className="mt-3 p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
                           <p className="text-[11px] font-semibold text-emerald-800 uppercase tracking-wider">
                             UPI Transaction ID
                           </p>
                           <p className="text-xs font-mono font-bold text-emerald-900 mt-1 break-all">
-                            {selectedOrder.manualTransactionId}
+                            {selectedOrder.paymentInfo.manualTransactionId}
                           </p>
                           <p className="text-[10px] text-emerald-700 mt-1">
                             Payment under verification
@@ -560,32 +583,40 @@ const OrdersList = () => {
                   </div>
                 </div>
 
-                {/* Summary */}
+
+
+                {/* Summary (Subtotal + GST + Shipping + Total) */}
                 <div className="border-t border-gray-200 pt-4">
-                  <div className="flex justify-between text-sm text-gray-700 mb-1">
-                    <span>Subtotal</span>
-                    <span>
-                      ₹{safeAmount(selectedOrder.safeItemTotal).toLocaleString('en-IN') || '—'}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-sm text-gray-700 mb-1">
-                    <span>Tax</span>
-                    <span>
-                      ₹{safeAmount(selectedOrder.taxAmount).toLocaleString('en-IN')}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-sm text-gray-700 mb-1">
-                    <span>Shipping</span>
-                    <span>
-                      ₹{safeAmount(selectedOrder.shippingAmount).toLocaleString('en-IN')}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-sm font-semibold text-gray-900 mt-2">
-                    <span>Total paid</span>
-                    <span>
-                      ₹{safeAmount(selectedOrder.totalAmount).toLocaleString('en-IN')}
-                    </span>
-                  </div>
+                  {(() => {
+                    const subtotal = calculateSubtotal(selectedOrder);
+                    const tax = Math.round(subtotal * 0.18); // 18% GST
+                    const shipping = Number(selectedOrder.shippingAmount ?? 0);
+                    const total = subtotal + tax + shipping;
+
+                    return (
+                      <>
+                        <div className="flex justify-between text-sm text-gray-700 mb-1">
+                          <span>Subtotal</span>
+                          <span>₹{subtotal.toLocaleString('en-IN')}</span>
+                        </div>
+
+                        <div className="flex justify-between text-sm text-gray-700 mb-1">
+                          <span>GST (18%)</span>
+                          <span>₹{tax.toLocaleString('en-IN')}</span>
+                        </div>
+
+                        <div className="flex justify-between text-sm text-gray-700 mb-1">
+                          <span>Shipping</span>
+                          <span>₹{shipping.toLocaleString('en-IN')}</span>
+                        </div>
+
+                        <div className="flex justify-between text-sm font-semibold text-gray-900 mt-2">
+                          <span>Total paid</span>
+                          <span>₹{total.toLocaleString('en-IN')}</span>
+                        </div>
+                      </>
+                    );
+                  })()}
                 </div>
 
                 {/* Close */}
