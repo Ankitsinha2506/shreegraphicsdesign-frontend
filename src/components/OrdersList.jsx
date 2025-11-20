@@ -38,33 +38,48 @@ const OrdersList = () => {
 
   // ---------- Helpers ----------
 
+  // ---------- UPDATED HELPERS (Replace these) ----------
   const getPaymentMethod = (order) => {
     if (!order) return 'Unknown';
+
+    // PRIORITY 1: Check if manualTransactionId exists → UPI
+    if (order.manualTransactionId) {
+      return 'UPI Payment';
+    }
+
+    // PRIORITY 2: Check paymentMethod field
     const method = (order.paymentMethod || '').toString().trim().toLowerCase();
+    if (method === 'upi') return 'UPI Payment';
+    if (method === 'cod' || method.includes('cod')) return 'Cash on Delivery';
 
-    if (method.includes('cod')) return 'Cash on Delivery';
-    if (method.includes('upi')) return 'UPI Payment';
-    if (method.includes('card')) return 'Card Payment';
-
-    if (order.paymentDetails?.cardLast4) return 'Card Payment';
-    if (order.paymentDetails?.upiId || order.transactionId) return 'UPI Payment';
-
-    return order.paymentStatus === 'paid' ? 'Prepaid' : 'Cash on Delivery';
+    // Fallback
+    return 'Cash on Delivery';
   };
 
   const getPaymentIcon = (methodLabel) => {
     const method = (methodLabel || '').toLowerCase();
-    if (method.includes('cash')) {
-      return <TruckIcon className="h-5 w-5 text-orange-500" />;
-    }
     if (method.includes('upi')) {
       return <QrCodeIcon className="h-5 w-5 text-orange-500" />;
     }
-    if (method.includes('card')) {
-      return <CreditCardIcon className="h-5 w-5 text-orange-500" />;
+    if (method.includes('cash') || method.includes('cod')) {
+      return <TruckIcon className="h-5 w-5 text-orange-500" />;
     }
     return <CreditCardIcon className="h-5 w-5 text-gray-400" />;
   };
+
+  // const getPaymentIcon = (methodLabel) => {
+  //   const method = (methodLabel || '').toLowerCase();
+  //   if (method.includes('cash')) {
+  //     return <TruckIcon className="h-5 w-5 text-orange-500" />;
+  //   }
+  //   if (method.includes('upi')) {
+  //     return <QrCodeIcon className="h-5 w-5 text-orange-500" />;
+  //   }
+  //   if (method.includes('card')) {
+  //     return <CreditCardIcon className="h-5 w-5 text-orange-500" />;
+  //   }
+  //   return <CreditCardIcon className="h-5 w-5 text-gray-400" />;
+  // };
 
   const getStatusPillClass = (status) => {
     const s = (status || '').toLowerCase();
@@ -255,10 +270,10 @@ const OrdersList = () => {
                         <p className="text-xs text-gray-500 mt-0.5">
                           {order.createdAt
                             ? new Date(order.createdAt).toLocaleDateString('en-IN', {
-                                day: '2-digit',
-                                month: 'short',
-                                year: 'numeric',
-                              })
+                              day: '2-digit',
+                              month: 'short',
+                              year: 'numeric',
+                            })
                             : '—'}
                         </p>
                       </div>
@@ -310,7 +325,7 @@ const OrdersList = () => {
                         {getPaymentIcon(methodLabel)}
                         <span>{methodLabel}</span>
                       </div>
-                      <p className="text-base font-semibold text-gray-900">₹{total}</p>
+                      {/* <p className="text-base font-semibold text-gray-900">₹{total}</p> */}
                     </div>
 
                     <button
@@ -342,8 +357,8 @@ const OrdersList = () => {
                       ordersPagination.currentPage <= 3
                         ? i + 1
                         : ordersPagination.currentPage >= ordersPagination.pages - 2
-                        ? ordersPagination.pages - 4 + i
-                        : ordersPagination.currentPage - 2 + i;
+                          ? ordersPagination.pages - 4 + i
+                          : ordersPagination.currentPage - 2 + i;
 
                     if (page < 1 || page > ordersPagination.pages) return null;
 
@@ -351,11 +366,10 @@ const OrdersList = () => {
                       <button
                         key={page}
                         onClick={() => handleOrdersPageChange(page)}
-                        className={`px-3 py-1 rounded-md border text-xs font-medium ${
-                          page === ordersPagination.currentPage
-                            ? 'bg-orange-500 text-white border-orange-500'
-                            : 'border-gray-300 text-gray-700 hover:bg-gray-100'
-                        }`}
+                        className={`px-3 py-1 rounded-md border text-xs font-medium ${page === ordersPagination.currentPage
+                          ? 'bg-orange-500 text-white border-orange-500'
+                          : 'border-gray-300 text-gray-700 hover:bg-gray-100'
+                          }`}
                       >
                         {page}
                       </button>
@@ -425,8 +439,8 @@ const OrdersList = () => {
                     >
                       {selectedOrder.status
                         ? selectedOrder.status
-                            .replace(/-/g, ' ')
-                            .replace(/\b\w/g, (l) => l.toUpperCase())
+                          .replace(/-/g, ' ')
+                          .replace(/\b\w/g, (l) => l.toUpperCase())
                         : 'Pending'}
                     </span>
                   </div>
@@ -504,6 +518,7 @@ const OrdersList = () => {
                   </div>
 
                   {/* Payment */}
+                  {/* Payment */}
                   <div>
                     <h3 className="text-xs font-semibold text-gray-700 uppercase tracking-wide mb-2">
                       Payment
@@ -511,21 +526,26 @@ const OrdersList = () => {
                     <div className="bg-gray-50 border border-gray-200 rounded-md p-3 space-y-2 text-sm">
                       <p className="flex items-center gap-2">
                         {getPaymentIcon(getPaymentMethod(selectedOrder))}
-                        <span>{getPaymentMethod(selectedOrder)}</span>
+                        <span className="font-medium">{getPaymentMethod(selectedOrder)}</span>
                       </p>
                       <p className="text-xs text-gray-600">
                         Status:{' '}
                         <span className="font-medium text-gray-800">
-                          {(selectedOrder.paymentStatus || 'pending')
-                            .toString()
-                            .toUpperCase()}
+                          {(selectedOrder.paymentStatus || 'pending').toString().toUpperCase()}
                         </span>
                       </p>
-                      {(selectedOrder.transactionId || selectedOrder.paymentId) && (
-                        <div className="mt-2 border border-gray-300 rounded-md px-2 py-1.5 bg-white">
-                          <p className="text-[11px] text-gray-500">Transaction ID</p>
-                          <p className="text-xs font-mono text-gray-900 mt-0.5 break-all">
-                            {selectedOrder.transactionId || selectedOrder.paymentId}
+
+                      {/* SHOW UPI TRANSACTION ID IF EXISTS */}
+                      {selectedOrder.manualTransactionId && (
+                        <div className="mt-3 p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
+                          <p className="text-[11px] font-semibold text-emerald-800 uppercase tracking-wider">
+                            UPI Transaction ID
+                          </p>
+                          <p className="text-xs font-mono font-bold text-emerald-900 mt-1 break-all">
+                            {selectedOrder.manualTransactionId}
+                          </p>
+                          <p className="text-[10px] text-emerald-700 mt-1">
+                            Payment under verification
                           </p>
                         </div>
                       )}
@@ -534,11 +554,11 @@ const OrdersList = () => {
                 </div>
 
                 {/* Summary */}
-                <div className="border-t border-gray-200 pt-4">
+                {/* <div className="border-t border-gray-200 pt-4">
                   <div className="flex justify-between text-sm text-gray-700 mb-1">
                     <span>Subtotal</span>
                     <span>
-                      ₹{safeAmount(selectedOrder.subtotal).toLocaleString('en-IN') || '—'}
+                      ₹{safeAmount(selectedOrder.safeItemTotal).toLocaleString('en-IN') || '—'}
                     </span>
                   </div>
                   <div className="flex justify-between text-sm text-gray-700 mb-1">
@@ -559,7 +579,7 @@ const OrdersList = () => {
                       ₹{safeAmount(selectedOrder.totalAmount).toLocaleString('en-IN')}
                     </span>
                   </div>
-                </div>
+                </div> */}
 
                 {/* Close */}
                 <div className="pt-3">
