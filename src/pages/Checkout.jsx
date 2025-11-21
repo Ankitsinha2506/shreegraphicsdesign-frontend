@@ -1,4 +1,4 @@
-// components/Checkout.jsx → 100% WORKING + NO DESIGN CHANGE
+// components/Checkout.jsx → UPDATED WITH VALIDATION + PINCODE AUTOFILL + SCREENSHOT
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { TruckIcon, QrCodeIcon, ShieldCheckIcon } from '@heroicons/react/24/outline'
@@ -18,7 +18,7 @@ const Checkout = () => {
 
   const [loading, setLoading] = useState(false)
   const [step, setStep] = useState(1)
-  const [showQR, setShowQR] = useState(false)
+  const [showQR, setShowQR] = useState(false) // kept for future use (no design change)
   const [transactionId, setTransactionId] = useState('')
   const [paymentScreenshot, setPaymentScreenshot] = useState(null)
   const [previewScreenshot, setPreviewScreenshot] = useState(null)
@@ -46,6 +46,7 @@ const Checkout = () => {
   const shipping = 0
   const total = subtotal + tax + shipping
 
+  // ⭐ Helper: update shipping fields
   const updateShipping = (field, value) => {
     setFormData(prev => ({
       ...prev,
@@ -53,6 +54,7 @@ const Checkout = () => {
     }))
   }
 
+  // ⭐ Helper: update payment fields
   const updatePayment = (field, value) => {
     setFormData(prev => ({
       ...prev,
@@ -66,30 +68,98 @@ const Checkout = () => {
     }
   }
 
-  const generateQRCode = () => {
-    const note = `TrendyTees Order - ₹${total}`
-    const upiLink = `upi://pay?pa=${MERCHANT_UPI_ID}&pn=${encodeURIComponent(MERCHANT_NAME)}&am=${total}&cu=INR&tn=${encodeURIComponent(note)}`
-    return `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(upiLink)}&size=560x560&bgcolor=FFFFFF&color=FF4500&margin=30&qzone=6`
+  // ⭐ NEW: Pincode → Auto-fill City & State
+  const fetchPincodeDetails = async (pincode) => {
+    if (!/^\d{6}$/.test(pincode)) return // only when 6 digits
+
+    try {
+      const res = await fetch(`https://api.postalpincode.in/pincode/${pincode}`)
+      const data = await res.json()
+
+      if (Array.isArray(data) && data[0]?.Status === 'Success') {
+        const po = data[0].PostOffice?.[0]
+        setFormData(prev => ({
+          ...prev,
+          shipping: {
+            ...prev.shipping,
+            city: po?.District || prev.shipping.city,
+            state: po?.State || prev.shipping.state
+          }
+        }))
+        toast.success('City & State auto-filled from pincode')
+      } else {
+        toast.error('Invalid pincode')
+      }
+    } catch (err) {
+      console.error('Pincode fetch error:', err)
+      toast.error('Could not fetch pincode details')
+    }
   }
 
+  // ⭐ Helper: convert File → base64 (for payment screenshot)
+  const fileToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => resolve(reader.result)
+      reader.onerror = reject
+      reader.readAsDataURL(file)
+    })
+  }
+
+  // ⭐ STEP CLICK HANDLER (progress header)
+  const handleStepClick = (targetStep) => {
+    // forward → validate
+    if (targetStep > step) {
+      goToStep(targetStep)
+      return
+    }
+    // backward → always allowed
+    setStep(targetStep)
+  }
+
+  // ⭐ VALIDATION + STEP FLOW
   const goToStep = (nextStep) => {
-    if (nextStep === 2 && step === 1) {
+    const s = formData.shipping
+
+    // Going to Payment (Step 2) → validate shipping
+    if (nextStep === 2) {
       const required = ['firstName', 'lastName', 'email', 'phone', 'address', 'city', 'state', 'pincode']
-      const missing = required.filter(f => !formData.shipping[f].trim())
+      const missing = required.filter(f => !String(s[f] || '').trim())
       if (missing.length > 0) {
         toast.error('Please fill all shipping details')
         return
       }
+
+      // Email validation
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      if (!emailPattern.test(s.email)) {
+        toast.error('Please enter a valid email')
+        return
+      }
+
+      // Phone validation (10 digits)
+      const phoneDigits = s.phone.replace(/\D/g, '')
+      if (phoneDigits.length !== 10) {
+        toast.error('Please enter a valid 10-digit phone number')
+        return
+      }
+
+      // Pincode validation (6 digits)
+      if (!/^\d{6}$/.test(s.pincode)) {
+        toast.error('Please enter a valid 6-digit pincode')
+        return
+      }
     }
 
-    if (nextStep === 3 && step === 2) {
+    // Going to Review (Step 3) → validate payment if UPI
+    if (nextStep === 3) {
       if (formData.payment.method === 'upi') {
         if (!transactionId.trim()) {
-          toast.error("Please enter your UPI Transaction ID")
+          toast.error('Please enter your UPI Transaction ID')
           return
         }
         if (!paymentScreenshot) {
-          toast.error("Please upload payment screenshot")
+          toast.error('Please upload payment screenshot')
           return
         }
       }
@@ -98,74 +168,86 @@ const Checkout = () => {
     setStep(nextStep)
   }
 
+  // ⭐ PLACE ORDER WITH SCREENSHOT → BACKEND
   const handlePlaceOrder = async () => {
-    if (loading) return;
-    setLoading(true);
+    if (loading) return
+    setLoading(true)
 
     try {
       if (!cartItems || cartItems.length === 0) {
-        toast.error("Your cart is empty");
-        return;
+        toast.error('Your cart is empty')
+        return
       }
 
-      // NO UPLOAD CALL — NO /api/uploads — NO 500 ERROR
+      // Convert screenshot to base64 (if UPI)
+      let paymentScreenshotBase64 = null
+      if (formData.payment.method === 'upi' && paymentScreenshot) {
+        try {
+          paymentScreenshotBase64 = await fileToBase64(paymentScreenshot)
+        } catch (err) {
+          console.error('Screenshot convert error:', err)
+          toast.error('Could not read payment screenshot')
+          return
+        }
+      }
+
+      const shippingPayload = {
+        fullName: `${formData.shipping.firstName} ${formData.shipping.lastName}`.trim(),
+        email: formData.shipping.email,
+        phone: formData.shipping.phone,
+        // send both address & street / pincode & zipCode (safe for both backend versions)
+        address: formData.shipping.address,
+        street: formData.shipping.address,
+        city: formData.shipping.city,
+        state: formData.shipping.state,
+        pincode: formData.shipping.pincode,
+        zipCode: formData.shipping.pincode,
+        country: formData.shipping.country || 'India'
+      }
+
       const orderData = {
         items: cartItems.map(item => ({
           product: item.product?._id || item._id,
-          tier: item.tier || "base",
+          tier: item.tier || 'base',
           quantity: item.customization?.quantity || item.quantity || 1,
           customization: item.customization || {}
         })),
-        shippingAddress: {
-          fullName: `${formData.shipping.firstName} ${formData.shipping.lastName}`.trim(),
-          email: formData.shipping.email,
-          phone: formData.shipping.phone,
-
-          // FIXED FIELD NAMES
-          street: formData.shipping.address,     // frontend "address" → backend "street"
-          city: formData.shipping.city,
-          state: formData.shipping.state,
-          zipCode: formData.shipping.pincode,    // frontend "pincode" → backend "zipCode"
-
-          country: "India"
-        },
-
+        shippingAddress: shippingPayload, // ⭐ CORRECT KEY
         paymentMethod: formData.payment.method,
-        paymentStatus: 'pending',   // ← ALWAYS send 'pending' for both COD & UPI        manualTransactionId: formData.payment.method === 'upi' ? transactionId.trim() : null,
-        // Just send a note that screenshot was uploaded manually
-        paymentScreenshotNote: formData.payment.method === 'upi'
-          ? `Screenshot uploaded by customer (Txn ID: ${transactionId})`
-          : null
-      };
+        paymentStatus: 'pending',
+        manualTransactionId: formData.payment.method === 'upi' ? transactionId.trim() : null,
+        paymentScreenshot: paymentScreenshotBase64
+      }
 
-      console.log("🚀 DEBUG — Shipping Data:", formData.shipping);
-      console.log("🚀 DEBUG — Order Data Sending to Backend:", orderData);
+      console.log('🚀 DEBUG — Shipping Data:', formData.shipping)
+      console.log('🚀 DEBUG — Order Data Sending to Backend:', orderData)
 
       await axios.post(`${API_URL}/api/orders`, orderData, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-          "Content-Type": "application/json"
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json'
         }
-      });
+      })
 
-      clearCart();
-      toast.success("Order placed successfully! We'll verify your payment shortly.");
-      navigate("/profile?tab=orders");
-
+      clearCart()
+      toast.success("Order placed successfully! We'll verify your payment shortly.")
+      navigate('/profile?tab=orders')
     } catch (err) {
-      console.error("Order error:", err);
-      toast.error(err.response?.data?.message || "Failed to place order. Try again.");
+      console.error('Order error:', err)
+      toast.error(err.response?.data?.message || 'Failed to place order. Try again.')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const getProductImage = (item) => {
-    return item.image ||
+    return (
+      item.image ||
       item.product?.images?.[0]?.url ||
       item.product?.image ||
       item.images?.[0]?.url ||
       '/placeholder.jpg'
+    )
   }
 
   if (cartItems.length === 0) {
@@ -187,28 +269,54 @@ const Checkout = () => {
     )
   }
 
+  const generateQRCode = () => {
+    const note = `TrendyTees Order - ₹${total}`
+    const upiLink = `upi://pay?pa=${MERCHANT_UPI_ID}&pn=${encodeURIComponent(
+      MERCHANT_NAME
+    )}&am=${total}&cu=INR&tn=${encodeURIComponent(note)}`
+    return `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(
+      upiLink
+    )}&size=560x560&bgcolor=FFFFFF&color=FF4500&margin=30&qzone=6`
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-
         {/* Progress Steps */}
         <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-8 mb-8">
           {['Shipping', 'Payment', 'Review'].map((label, i) => (
-            <div key={i} className="flex items-center">
+            <div
+              key={i}
+              className="flex items-center cursor-pointer"
+              onClick={() => handleStepClick(i + 1)} // ⭐ CLICKABLE STEPS
+            >
               <div
                 className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-sm font-semibold transition
-                ${step > i + 1 ? 'bg-orange-500 text-white'
-                    : step === i + 1 ? 'bg-white text-orange-600 border border-orange-400'
+                  ${
+                    step > i + 1
+                      ? 'bg-orange-500 text-white'
+                      : step === i + 1
+                      ? 'bg-white text-orange-600 border border-orange-400'
                       : 'bg-gray-200 text-gray-500'
                   }`}
               >
                 {i + 1}
               </div>
-              <span className={`ml-2 text-xs sm:text-sm font-medium ${step >= i + 1 ? 'text-gray-900' : 'text-gray-500'}`}>
+
+              <span
+                className={`ml-2 text-xs sm:text-sm font-medium ${
+                  step >= i + 1 ? 'text-gray-900' : 'text-gray-500'
+                }`}
+              >
                 {label}
               </span>
+
               {i < 2 && (
-                <div className={`hidden sm:block w-16 h-px mx-4 ${step > i + 1 ? 'bg-orange-500' : 'bg-gray-300'}`} />
+                <div
+                  className={`hidden sm:block w-16 h-px mx-4 ${
+                    step > i + 1 ? 'bg-orange-500' : 'bg-gray-300'
+                  }`}
+                />
               )}
             </div>
           ))}
@@ -218,41 +326,74 @@ const Checkout = () => {
           {/* Main Form */}
           <div className="lg:col-span-2 order-2 lg:order-1">
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sm:p-7">
-
               {/* Step 1: Shipping */}
               {step === 1 && (
                 <div className="space-y-6">
                   <div>
                     <h2 className="text-xl font-semibold text-gray-900">Shipping address</h2>
-                    <p className="text-sm text-gray-500 mt-1">We’ll deliver your order to this address.</p>
+                    <p className="text-sm text-gray-500 mt-1">
+                      We’ll deliver your order to this address.
+                    </p>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {['firstName', 'lastName', 'email', 'phone', 'address', 'city', 'state', 'pincode'].map(field => (
-                      <div key={field} className={field === 'address' ? 'sm:col-span-2' : ''}>
-                        <label className="block text-xs font-medium text-gray-700 mb-1.5">
-                          {field === 'pincode' ? 'Pincode' : field.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase())} *
-                        </label>
-                        {field === 'address' ? (
-                          <textarea
-                            rows={3}
-                            value={formData.shipping[field]}
-                            onChange={e => updateShipping(field, e.target.value)}
-                            className="w-full bg-white border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
-                            placeholder="House no, street, landmark"
-                          />
-                        ) : (
-                          <input
-                            type={field === 'email' ? 'email' : field === 'phone' || field === 'pincode' ? 'tel' : 'text'}
-                            value={formData.shipping[field]}
-                            onChange={e => updateShipping(field, e.target.value)}
-                            className="w-full bg-white border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
-                          />
-                        )}
-                      </div>
-                    ))}
+                    {['firstName', 'lastName', 'email', 'phone', 'address', 'city', 'state', 'pincode'].map(
+                      (field) => (
+                        <div key={field} className={field === 'address' ? 'sm:col-span-2' : ''}>
+                          <label className="block text-xs font-medium text-gray-700 mb-1.5">
+                            {field === 'pincode'
+                              ? 'Pincode'
+                              : field
+                                  .replace(/([A-Z])/g, ' $1')
+                                  .replace(/^./, (s) => s.toUpperCase())}{' '}
+                            *
+                          </label>
+
+                          {field === 'address' ? (
+                            <textarea
+                              rows={3}
+                              value={formData.shipping[field]}
+                              onChange={(e) => updateShipping(field, e.target.value)}
+                              className="w-full bg-white border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
+                              placeholder="House no, street, landmark"
+                            />
+                          ) : field === 'pincode' ? (
+                            // ⭐ PINCODE FIELD WITH AUTOFILL
+                            <input
+                              type="tel"
+                              maxLength={6}
+                              value={formData.shipping.pincode}
+                              onChange={(e) => {
+                                const val = e.target.value.replace(/\D/g, '')
+                                updateShipping('pincode', val)
+                                if (val.length === 6) {
+                                  fetchPincodeDetails(val)
+                                }
+                              }}
+                              className="w-full bg-white border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
+                            />
+                          ) : (
+                            <input
+                              type={
+                                field === 'email'
+                                  ? 'email'
+                                  : field === 'phone'
+                                  ? 'tel'
+                                  : 'text'
+                              }
+                              value={formData.shipping[field]}
+                              onChange={(e) => updateShipping(field, e.target.value)}
+                              className="w-full bg-white border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
+                            />
+                          )}
+                        </div>
+                      )
+                    )}
                   </div>
                   <div className="flex justify-end">
-                    <button onClick={() => goToStep(2)} className="inline-flex items-center justify-center px-5 py-2.5 rounded-md bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium transition">
+                    <button
+                      onClick={() => goToStep(2)}
+                      className="inline-flex items-center justify-center px-5 py-2.5 rounded-md bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium transition"
+                    >
                       Continue to payment
                     </button>
                   </div>
@@ -265,29 +406,64 @@ const Checkout = () => {
                   <div className="flex justify-between items-start gap-4">
                     <div>
                       <h2 className="text-xl font-semibold text-gray-900">Payment method</h2>
-                      <p className="text-sm text-gray-500 mt-1">Choose how you want to pay for your order.</p>
+                      <p className="text-sm text-gray-500 mt-1">
+                        Choose how you want to pay for your order.
+                      </p>
                     </div>
-                    <button onClick={() => setStep(1)} className="text-xs text-orange-600 hover:text-orange-700 hover:underline font-medium">
+                    <button
+                      onClick={() => setStep(1)}
+                      className="text-xs text-orange-600 hover:text-orange-700 hover:underline font-medium"
+                    >
                       Edit address
                     </button>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <label className={`p-4 border rounded-lg cursor-pointer transition flex flex-col items-start gap-2 ${formData.payment.method === 'cod' ? 'border-orange-500 bg-orange-50' : 'border-gray-200 hover:border-gray-300'}`}>
-                      <input type="radio" name="payment" value="cod" checked={formData.payment.method === 'cod'} onChange={e => updatePayment('method', e.target.value)} className="sr-only" />
+                    <label
+                      className={`p-4 border rounded-lg cursor-pointer transition flex flex-col items-start gap-2 ${
+                        formData.payment.method === 'cod'
+                          ? 'border-orange-500 bg-orange-50'
+                          : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="payment"
+                        value="cod"
+                        checked={formData.payment.method === 'cod'}
+                        onChange={(e) => updatePayment('method', e.target.value)}
+                        className="sr-only"
+                      />
                       <TruckIcon className="h-6 w-6 text-orange-500" />
                       <div>
                         <p className="text-sm font-semibold text-gray-900">Cash on delivery</p>
-                        <p className="text-xs text-gray-500 mt-0.5">Pay in cash when your order arrives.</p>
+                        <p className="text-xs text-gray-500 mt-0.5">
+                          Pay in cash when your order arrives.
+                        </p>
                       </div>
                     </label>
 
-                    <label className={`p-4 border rounded-lg cursor-pointer transition flex flex-col items-start gap-2 ${formData.payment.method === 'upi' ? 'border-orange-500 bg-orange-50' : 'border-gray-200 hover:border-gray-300'}`}>
-                      <input type="radio" name="payment" value="upi" checked={formData.payment.method === 'upi'} onChange={e => updatePayment('method', e.target.value)} className="sr-only" />
+                    <label
+                      className={`p-4 border rounded-lg cursor-pointer transition flex flex-col items-start gap-2 ${
+                        formData.payment.method === 'upi'
+                          ? 'border-orange-500 bg-orange-50'
+                          : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="payment"
+                        value="upi"
+                        checked={formData.payment.method === 'upi'}
+                        onChange={(e) => updatePayment('method', e.target.value)}
+                        className="sr-only"
+                      />
                       <QrCodeIcon className="h-6 w-6 text-orange-500" />
                       <div>
                         <p className="text-sm font-semibold text-gray-900">UPI payment</p>
-                        <p className="text-xs text-gray-500 mt-0.5">Pay securely using any UPI app.</p>
+                        <p className="text-xs text-gray-500 mt-0.5">
+                          Pay securely using any UPI app.
+                        </p>
                       </div>
                     </label>
                   </div>
@@ -296,13 +472,23 @@ const Checkout = () => {
                     <div className="space-y-5 border border-gray-200 rounded-lg p-4 bg-gray-50">
                       <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 max-w-sm">
                         <p className="text-xs text-gray-500 mb-1">Amount to pay</p>
-                        <p className="text-lg font-semibold text-gray-900 mb-2">₹{total.toLocaleString()}</p>
-                        <p className="text-xs text-gray-500 mb-2">Scan with PhonePe, Google Pay, Paytm, BHIM.</p>
-                        <img src={generateQRCode()} alt="UPI QR" className="w-full max-w-xs mx-auto rounded-md border border-gray-200" />
+                        <p className="text-lg font-semibold text-gray-900 mb-2">
+                          ₹{total.toLocaleString()}
+                        </p>
+                        <p className="text-xs text-gray-500 mb-2">
+                          Scan with PhonePe, Google Pay, Paytm, BHIM.
+                        </p>
+                        <img
+                          src={generateQRCode()}
+                          alt="UPI QR"
+                          className="w-full max-w-xs mx-auto rounded-md border border-gray-200"
+                        />
                       </div>
 
                       <div>
-                        <label className="text-xs font-medium text-gray-700">Enter UPI Transaction ID *</label>
+                        <label className="text-xs font-medium text-gray-700">
+                          Enter UPI Transaction ID *
+                        </label>
                         <input
                           type="text"
                           placeholder="Example: T24012513453344"
@@ -313,7 +499,9 @@ const Checkout = () => {
                       </div>
 
                       <div>
-                        <label className="text-xs font-medium text-gray-700">Upload Payment Screenshot *</label>
+                        <label className="text-xs font-medium text-gray-700">
+                          Upload Payment Screenshot *
+                        </label>
                         <input
                           type="file"
                           accept="image/*"
@@ -327,17 +515,29 @@ const Checkout = () => {
                           className="mt-1 w-full text-sm"
                         />
                         {previewScreenshot && (
-                          <img src={previewScreenshot} className="mt-3 w-40 rounded-lg border shadow-sm" alt="Payment proof" />
+                          <img
+                            src={previewScreenshot}
+                            className="mt-3 w-40 rounded-lg border shadow-sm"
+                            alt="Payment proof"
+                          />
                         )}
                       </div>
                     </div>
                   )}
 
                   <div className="flex justify-between items-center pt-2">
-                    <button onClick={() => setStep(1)} className="text-xs text-gray-500 hover:text-gray-700 hover:underline">Back to shipping</button>
+                    <button
+                      onClick={() => setStep(1)}
+                      className="text-xs text-gray-500 hover:text-gray-700 hover:underline"
+                    >
+                      Back to shipping
+                    </button>
                     <button
                       onClick={() => goToStep(3)}
-                      disabled={formData.payment.method === 'upi' && (!transactionId.trim() || !paymentScreenshot)}
+                      disabled={
+                        formData.payment.method === 'upi' &&
+                        (!transactionId.trim() || !paymentScreenshot)
+                      }
                       className="inline-flex items-center justify-center px-5 py-2.5 rounded-md bg-orange-500 hover:bg-orange-600 disabled:bg-gray-300 disabled:text-gray-600 text-white text-sm font-medium transition"
                     >
                       Review order
@@ -351,38 +551,60 @@ const Checkout = () => {
                 <div className="space-y-6">
                   <div>
                     <h2 className="text-xl font-semibold text-gray-900">Review & confirm</h2>
-                    <p className="text-sm text-gray-500 mt-1">Check your details before placing the order.</p>
+                    <p className="text-sm text-gray-500 mt-1">
+                      Check your details before placing the order.
+                    </p>
                   </div>
 
                   <div className="space-y-4">
                     <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
                       <div className="flex justify-between items-center mb-2">
-                        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Delivery address</p>
-                        <button onClick={() => setStep(1)} className="text-xs text-orange-600 hover:text-orange-700 hover:underline">Edit</button>
+                        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                          Delivery address
+                        </p>
+                        <button
+                          onClick={() => setStep(1)}
+                          className="text-xs text-orange-600 hover:text-orange-700 hover:underline"
+                        >
+                          Edit
+                        </button>
                       </div>
-                      <p className="text-sm font-medium text-gray-900">{formData.shipping.firstName} {formData.shipping.lastName}</p>
+                      <p className="text-sm font-medium text-gray-900">
+                        {formData.shipping.firstName} {formData.shipping.lastName}
+                      </p>
                       <p className="text-sm text-gray-700 mt-1">{formData.shipping.address}</p>
-                      <p className="text-sm text-gray-700">{formData.shipping.city}, {formData.shipping.state} - {formData.shipping.pincode}</p>
+                      <p className="text-sm text-gray-700">
+                        {formData.shipping.city}, {formData.shipping.state} -{' '}
+                        {formData.shipping.pincode}
+                      </p>
                       <p className="text-sm text-gray-700 mt-1">{formData.shipping.phone}</p>
                     </div>
 
                     <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
                       <div className="flex justify-between items-center mb-2">
-                        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Payment</p>
-                        <button onClick={() => setStep(2)} className="text-xs text-orange-600 hover:text-orange-700 hover:underline">Edit</button>
+                        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                          Payment
+                        </p>
+                        <button
+                          onClick={() => setStep(2)}
+                          className="text-xs text-orange-600 hover:text-orange-700 hover:underline"
+                        >
+                          Edit
+                        </button>
                       </div>
                       <p className="text-sm font-medium text-gray-900">
                         {formData.payment.method === 'cod' ? 'Cash on delivery' : 'UPI payment'}
                       </p>
-                      {
-                        formData.payment.method === 'upi' && transactionId && (
-                          <div className="text-xs text-gray-600 mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded">
-                            <strong>UPI Payment Submitted</strong><br />
-                            Transaction ID: <span className="font-mono">{transactionId}</span><br />
-                            Screenshot uploaded manually by customer
-                          </div>
-                        )
-                      }
+                      {formData.payment.method === 'upi' && transactionId && (
+                        <div className="text-xs text-gray-600 mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded">
+                          <strong>UPI Payment Submitted</strong>
+                          <br />
+                          Transaction ID:{' '}
+                          <span className="font-mono">{transactionId}</span>
+                          <br />
+                          Screenshot uploaded manually by customer
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -392,7 +614,9 @@ const Checkout = () => {
                       disabled={loading}
                       className="w-full inline-flex items-center justify-center px-5 py-2.5 rounded-md bg-orange-500 hover:bg-orange-600 disabled:bg-gray-300 text-white text-sm font-semibold transition"
                     >
-                      {loading ? 'Placing order…' : `Place order • ₹${total.toLocaleString()}`}
+                      {loading
+                        ? 'Placing order…'
+                        : `Place order • ₹${total.toLocaleString()}`}
                     </button>
                   </div>
                 </div>
@@ -408,9 +632,15 @@ const Checkout = () => {
               <div className="space-y-3 max-h-72 overflow-y-auto border-b border-gray-100 pb-4">
                 {cartItems.map((item, i) => (
                   <div key={i} className="flex gap-3">
-                    <img src={getProductImage(item)} alt={item.name || item.product?.name} className="w-14 h-14 rounded-md object-cover border border-gray-200" />
+                    <img
+                      src={getProductImage(item)}
+                      alt={item.name || item.product?.name}
+                      className="w-14 h-14 rounded-md object-cover border border-gray-200"
+                    />
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900 line-clamp-2">{item.name || item.product?.name}</p>
+                      <p className="text-sm font-medium text-gray-900 line-clamp-2">
+                        {item.name || item.product?.name}
+                      </p>
                       <p className="text-xs text-gray-500">
                         {item.customization?.color && (
                           <span className="capitalize">{item.customization.color}</span>
@@ -425,19 +655,34 @@ const Checkout = () => {
                       </p>
                     </div>
                     <p className="text-sm font-medium text-gray-900">
-                      ₹{((item.price || item.product?.price) * (item.customization?.quantity || item.quantity || 1)).toLocaleString()}
+                      ₹
+                      {(
+                        (item.price || item.product?.price) *
+                        (item.customization?.quantity || item.quantity || 1)
+                      ).toLocaleString()}
                     </p>
                   </div>
                 ))}
               </div>
 
               <div className="mt-4 space-y-2 text-sm">
-                <div className="flex justify-between"><span className="text-gray-600">Subtotal</span><span className="text-gray-900">₹{subtotal.toLocaleString()}</span></div>
-                <div className="flex justify-between"><span className="text-gray-600">GST (18%)</span><span className="text-gray-900">₹{tax.toLocaleString()}</span></div>
-                <div className="flex justify-between"><span className="text-gray-600">Shipping</span><span className="text-green-600 font-medium">Free</span></div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Subtotal</span>
+                  <span className="text-gray-900">₹{subtotal.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">GST (18%)</span>
+                  <span className="text-gray-900">₹{tax.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Shipping</span>
+                  <span className="text-green-600 font-medium">Free</span>
+                </div>
                 <div className="border-t border-gray-200 pt-3 mt-2 flex justify-between items-center">
                   <span className="text-sm font-semibold text-gray-900">Total</span>
-                  <span className="text-lg font-semibold text-gray-900">₹{total.toLocaleString()}</span>
+                  <span className="text-lg font-semibold text-gray-900">
+                    ₹{total.toLocaleString()}
+                  </span>
                 </div>
               </div>
 
