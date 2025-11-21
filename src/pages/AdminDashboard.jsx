@@ -55,6 +55,48 @@ const AdminDashboard = () => {
   const [statsLoading, setStatsLoading] = useState(true)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
 
+  const isAdmin = user?.role === "admin";
+
+  // 🔥 Delete Single Order
+  const handleDeleteOrder = async (orderId) => {
+    if (!window.confirm("Are you sure you want to delete this order permanently?")) return;
+
+    try {
+      await axios.delete(`/api/orders/${orderId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`
+        }
+      });
+
+      toast.success("Order deleted successfully");
+      fetchOrders();
+    } catch (error) {
+      console.error("Delete order error:", error);
+      toast.error(error.response?.data?.message || "Failed to delete order");
+    }
+  };
+
+
+  // 🔥 Delete ALL Orders (Admin only)
+  const handleDeleteAllOrders = async () => {
+    if (!window.confirm("⚠ WARNING: This will delete ALL orders permanently. Continue?")) return;
+
+    try {
+      await axios.delete(`/api/orders`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`
+        }
+      });
+
+      toast.success("All orders deleted successfully");
+      fetchOrders();
+    } catch (error) {
+      console.error("Delete all orders error:", error);
+      toast.error(error.response?.data?.message || "Failed to delete all orders");
+    }
+  };
+
+
 
   // Real data from API
   const [stats, setStats] = useState({
@@ -2227,6 +2269,8 @@ const AdminDashboard = () => {
                     <div className="text-sm text-gray-500">
                       {ordersPagination.total > 0 && `${ordersPagination.total} total orders`}
                     </div>
+
+                    {/* EXPORT CSV */}
                     <button
                       onClick={handleExportOrders}
                       className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
@@ -2234,7 +2278,18 @@ const AdminDashboard = () => {
                       <ArrowDownTrayIcon className="h-5 w-5 inline mr-2" />
                       Export CSV
                     </button>
+
+                    {/* DELETE ALL (Admin Only) */}
+                    {/* {isAdmin && (
+                      <button
+                        onClick={handleDeleteAllOrders}
+                        className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
+                      >
+                        Delete All
+                      </button>
+                    )} */}
                   </div>
+
                 </div>
 
                 {/* Desktop Filters */}
@@ -2339,16 +2394,26 @@ const AdminDashboard = () => {
                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                 {new Date(order.createdAt).toLocaleDateString()}
                               </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium flex items-center gap-3">
+                                {/* VIEW DETAILS */}
                                 <button
                                   onClick={() => {
                                     setSelectedOrder(order);
                                     setShowOrderDetailsModal(true);
                                   }}
-                                  className="text-blue-600 hover:text-blue-900 mr-3"
+                                  className="text-blue-600 hover:text-blue-900"
                                 >
                                   <EyeIcon className="h-4 w-4" />
                                 </button>
+                                {/* DELETE (ADMIN ONLY) */}
+                                {isAdmin && (
+                                  <button
+                                    onClick={() => handleDeleteOrder(order._id)}
+                                    className="text-red-600 hover:text-red-800"
+                                  >
+                                    <TrashIcon className="h-4 w-4" />
+                                  </button>
+                                )}
                               </td>
                             </tr>
                           ))}
