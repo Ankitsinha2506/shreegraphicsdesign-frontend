@@ -166,7 +166,7 @@ const Footer = () => {
             © {currentYear} <span className="font-bold text-orange-600">Shree Graphics Design</span>. All Rights Reserved.
           </p>
           <p className="mt-4 md:mt-0">
-            Crafted with <span className="text-orange-600 text-xl">Heart</span> in India by{" "}
+             Design and Developed by{" "}
             <span className="font-bold text-gray-800">
               Smart Software Services (I) Pvt. Ltd.
             </span>
