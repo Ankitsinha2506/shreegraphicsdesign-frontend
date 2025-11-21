@@ -27,6 +27,7 @@ import {
   PhoneIcon,
   CreditCardIcon,
   UserIcon,
+  PlayCircleIcon
 } from '@heroicons/react/24/outline'
 
 import {
@@ -45,6 +46,7 @@ import imageCompression from 'browser-image-compression'
 import AdminContactMessages from '../components/AdminContactMessages'
 import DashboardCharts from '../components/analytics/DashboardCharts'
 import { API_URL } from '../config/api'
+import AdminPodcasts from '../components/AdminPodcasts';
 
 
 const AdminDashboard = () => {
@@ -432,6 +434,7 @@ const AdminDashboard = () => {
     { id: 'users', name: 'Users', icon: UsersIcon },
     { id: 'products', name: 'Products', icon: PhotoIcon },
     { id: 'orders', name: 'Orders', icon: ShoppingBagIcon },
+    { id: 'podcasts', name: 'Podcasts', icon: PlayCircleIcon },
     { id: 'reviews', name: 'Reviews', icon: ChatBubbleLeftRightIcon },
     { id: 'logo-requests', name: 'Logo Requests', icon: SparklesIcon },
     { id: 'embroidery-requests', name: 'Embroidery Requests', icon: SwatchIcon },
@@ -1994,10 +1997,6 @@ const AdminDashboard = () => {
               </div>
             )}
 
-
-
-
-
             {/* Products Tab */}
             {activeTab === 'products' && (
               <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
@@ -2181,8 +2180,8 @@ const AdminDashboard = () => {
                           {/* Status Badge */}
                           <span
                             className={`absolute top-2 right-2 text-xs font-medium px-2 py-1 rounded-full ${product.isActive
-                                ? "bg-green-100 text-green-700"
-                                : "bg-red-100 text-red-700"
+                              ? "bg-green-100 text-green-700"
+                              : "bg-red-100 text-red-700"
                               }`}
                           >
                             {product.isActive ? "Active" : "Inactive"}
@@ -2267,6 +2266,7 @@ const AdminDashboard = () => {
               </div>
             )}
 
+            {activeTab === 'podcasts' && <AdminPodcasts />}
 
             {/* Orders Tab */}
             {activeTab === 'orders' && (

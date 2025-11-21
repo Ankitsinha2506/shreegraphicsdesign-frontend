@@ -14,6 +14,7 @@ import WhatsappFloat from './components/WhatsappFloat'
 // ✅ Lazy-loaded pages
 const Home = lazy(() => import('./pages/Home'))
 const About = lazy(() => import('./pages/About'))
+const Podcasts = lazy(() => import('./pages/Podcasts'))
 const Contact = lazy(() => import('./pages/Contact'))
 const Products = lazy(() => import('./pages/Products'))
 const ProductDetail = lazy(() => import('./pages/ProductDetail'))
@@ -71,6 +72,7 @@ function App() {
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/about" element={<About />} />
+                <Route path="/proadcasts" element={<Podcasts />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/products" element={<Products />} />
                 <Route path="/products/:id" element={<ProductDetail />} />

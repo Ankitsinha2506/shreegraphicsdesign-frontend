@@ -140,6 +140,7 @@ const Navbar = () => {
       ],
     },
     { name: "About", href: "/about" },
+    { name: "Proadcasts", href: "/proadcasts" },
     { name: "Contact", href: "/contact" },
   ];
 
@@ -177,9 +178,8 @@ const Navbar = () => {
                   <button className="flex items-center gap-1 text-gray-700 hover:text-orange-600 font-medium transition-all">
                     {item.name}
                     <ChevronDownIcon
-                      className={`h-4 w-4 transition-transform ${
-                        openDropdown === item.name ? "rotate-180 text-orange-600" : ""
-                      }`}
+                      className={`h-4 w-4 transition-transform ${openDropdown === item.name ? "rotate-180 text-orange-600" : ""
+                        }`}
                     />
                   </button>
                 ) : (
@@ -328,9 +328,8 @@ const Navbar = () => {
                     >
                       {item.name}
                       <ChevronDownIcon
-                        className={`h-5 w-5 transition-transform ${
-                          openDropdown === item.name ? "rotate-180 text-orange-600" : ""
-                        }`}
+                        className={`h-5 w-5 transition-transform ${openDropdown === item.name ? "rotate-180 text-orange-600" : ""
+                          }`}
                       />
                     </button>
                   ) : (
@@ -352,9 +351,8 @@ const Navbar = () => {
                             >
                               {sub.name}
                               <ChevronDownIcon
-                                className={`h-4 w-4 transition-transform ${
-                                  openSubmenu === sub.name ? "rotate-180" : ""
-                                }`}
+                                className={`h-4 w-4 transition-transform ${openSubmenu === sub.name ? "rotate-180" : ""
+                                  }`}
                               />
                             </button>
                             {openSubmenu === sub.name && (
