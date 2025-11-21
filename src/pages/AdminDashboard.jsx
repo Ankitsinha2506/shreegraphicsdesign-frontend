@@ -2163,23 +2163,32 @@ const AdminDashboard = () => {
                         className="border border-gray-200 rounded-xl p-4 bg-white shadow-sm hover:shadow-md transition"
                       >
                         <div className="relative mb-4">
-                          <img
-                            src={
-                              product.images?.[0]?.url ||
-                              'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=300'
-                            }
-                            className="w-full rounded-lg"
-                          />
 
+                          {/* 🔵 UPDATED – Uniform container size */}
+                          <div className="w-full h-56 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
+
+                            {/* 🔵 UPDATED – Image fully visible, no crop */}
+                            <img
+                              src={
+                                product.images?.[0]?.url ||
+                                "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=300"
+                              }
+                              className="max-w-full max-h-full object-contain rounded-lg"
+                              alt={product.name}
+                            />
+                          </div>
+
+                          {/* Status Badge */}
                           <span
                             className={`absolute top-2 right-2 text-xs font-medium px-2 py-1 rounded-full ${product.isActive
-                              ? 'bg-green-100 text-green-700'
-                              : 'bg-red-100 text-red-700'
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
                               }`}
                           >
-                            {product.isActive ? 'Active' : 'Inactive'}
+                            {product.isActive ? "Active" : "Inactive"}
                           </span>
                         </div>
+
 
                         <div className="space-y-2">
                           <p className="text-xs text-gray-500 uppercase tracking-wide">
