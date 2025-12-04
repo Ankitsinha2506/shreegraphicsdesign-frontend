@@ -100,7 +100,6 @@ function App() {
 export default App
 
 
-
 // import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
 // import { Toaster } from 'react-hot-toast'
 // import Navbar from './components/Navbar'
