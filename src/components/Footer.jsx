@@ -18,59 +18,67 @@ const Footer = () => {
         {/* Max Width Container + Perfect Grid (Option 1) */}
         <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-12">
 
-          {/* About + Logo – Wider & Left Aligned on Large Screens */}
-          <div className="lg:col-span-4 text-center lg:text-left">
+          {/* About + Logo – Perfectly Centered Brand Block on All Screens */}
+          <div className="lg:col-span-4 flex flex-col items-center text-center">
             <img
               src={ShreeGraphicsLogo}
               alt="Shree Graphics Design"
-              className="h-[130px] mx-auto lg:mx-0 drop-shadow-2xl"
+              className="h-[130px] drop-shadow-2xl"
             />
 
-            <h3 className="text-2xl font-extrabold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent mt-4">
+            <h3 className="text-2xl font-extrabold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent mt-5">
               Shree Graphics Design
             </h3>
 
-            <p className="text-[11px] text-orange-600 font-bold tracking-widest mt-1">
+            <p className="text-[9px] text-orange-600 font-bold tracking-widest uppercase mt-1">
               Your Imagination, Our Embroidery Stitches
             </p>
 
-            <p className="text-gray-600 text-sm leading-relaxed mt-6 max-w-xs mx-auto lg:max-w-none lg:mx-0">
-              Premium custom embroidery, logo design & corporate branding solutions since 2015. Trusted by 500+ brands across India.
-            </p>
+            {/* All Content Below Name: Description + Social Icons */}
+            <div className="mt-7 w-full max-w-sm">
+              <p className="text-gray-600 text-sm leading-relaxed mb-6">
+                Premium custom embroidery, logo design  <br /> & corporate branding solutions since 2015. <br /> Trusted by 500+ brands across India.
+              </p>
 
-            {/* Social Icons */}
-            <div className="flex gap-4 mt-8 justify-center lg:justify-start">
-              <a
-                href="#"
-                className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center hover:bg-orange-600 hover:text-white hover:scale-110 transition-all duration-300 shadow-md"
-                aria-label="Facebook"
-              >
-                <Facebook className="h-6 w-6 text-orange-600" />
-              </a>
-              <a
-                href="#"
-                className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center hover:bg-orange-600 hover:text-white hover:scale-110 transition-all duration-300 shadow-md"
-                aria-label="Instagram"
-              >
-                <Instagram className="h-6 w-6 text-orange-600" />
-              </a>
-              <a
-                href="https://wa.me/918888830696"
-                className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center hover:bg-green-500 hover:text-white hover:scale-110 transition-all duration-300 shadow-md"
-                aria-label="WhatsApp"
-              >
-                <MessageCircle className="h-6 w-6 text-orange-600" />
-              </a>
-              <a
-                href="mailto:info@shreegraphics.com"
-                className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center hover:bg-orange-600 hover:text-white hover:scale-110 transition-all duration-300 shadow-md"
-                aria-label="Email"
-              >
-                <Mail className="h-6 w-6 text-orange-600" />
-              </a>
+              {/* Social Icons */}
+              <div className="flex gap-4 justify-center">
+                <a
+                  href="https://facebook.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center hover:bg-orange-600 hover:text-white hover:scale-110 transition-all duration-300 shadow-md"
+                  aria-label="Facebook"
+                >
+                  <Facebook className="h-6 w-6 text-orange-600" />
+                </a>
+                <a
+                  href="https://instagram.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center hover:bg-orange-600 hover:text-white hover:scale-110 transition-all duration-300 shadow-md"
+                  aria-label="Instagram"
+                >
+                  <Instagram className="h-6 w-6 text-orange-600" />
+                </a>
+                <a
+                  href="https://wa.me/918888830696"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center hover:bg-green-500 hover:text-white hover:scale-110 transition-all duration-300 shadow-md"
+                  aria-label="WhatsApp"
+                >
+                  <MessageCircle className="h-6 w-6 text-orange-600" />
+                </a>
+                <a
+                  href="mailto:info@shreegraphics.com"
+                  className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center hover:bg-orange-600 hover:text-white hover:scale-110 transition-all duration-300 shadow-md"
+                  aria-label="Email"
+                >
+                  <Mail className="h-6 w-6 text-orange-600" />
+                </a>
+              </div>
             </div>
           </div>
-
           {/* Quick Links */}
           <div className="lg:col-span-2">
             <h4 className="text-xl font-bold text-gray-800 mb-7 relative inline-block after:absolute after:left-0 after:-bottom-2 after:w-16 after:h-1 after:bg-gradient-to-r after:from-orange-500 after:to-red-600">
