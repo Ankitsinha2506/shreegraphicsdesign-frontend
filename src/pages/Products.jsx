@@ -34,9 +34,9 @@ const Products = () => {
       { value: 'all', label: 'All Apparels' },
       { value: 'cap', label: 'Caps' },
       { value: 'jackets', label: 'Jackets' },
-      { value: 'shirt', label: 'Shirts' },
-      { value: 'tshirt', label: 'T-Shirts' },
-      { value: 'windcheaters', label: 'Windcheaters' }
+      { value: 'Shirt', label: 'Shirts' },
+      { value: 'denim-shirt', label: 'T-Shirts' },
+      // { value: 'windcheaters', label: 'Windcheaters' }
     ],
     travels: [
       { value: 'all', label: 'All Travel Items' },

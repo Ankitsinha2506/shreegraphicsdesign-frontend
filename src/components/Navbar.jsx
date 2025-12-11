@@ -69,8 +69,8 @@ const Navbar = () => {
             { name: "All Apparels", href: "/products?category=apparels" },
             { name: "Cap", href: "/products?category=apparels&subcategory=cap" },
             { name: "Jackets", href: "/products?category=apparels&subcategory=jackets" },
-            { name: "Shirt", href: "/products?category=apparels&subcategory=shirt" },
-            { name: "T-Shirt", href: "/products?category=apparels&subcategory=t-shirt" },
+            { name: "Shirt", href: "/products?category=apparels&subcategory=Shirt" },
+            { name: "T-Shirt", href: "/products?category=apparels&subcategory=denim-shirt" },
           ],
         },
         {
