@@ -56,6 +56,9 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(false)
   const [statsLoading, setStatsLoading] = useState(true)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
+  const [selectedFiles, setSelectedFiles] = useState([]);        // For ADD product
+  const [editSelectedFiles, setEditSelectedFiles] = useState([]); // For EDIT product
+
 
   const isAdmin = user?.role === "admin";
 
@@ -1039,166 +1042,168 @@ const AdminDashboard = () => {
 
 
 
-  // CRUD Handlers for Products
   const handleAddProduct = async () => {
     try {
-      // Validate required fields
-      if (!productFormData.name || !productFormData.description || !productFormData.category || !productFormData.subcategory) {
-        toast.error('Please fill in all required fields')
-        return
+      // Basic validation
+      if (
+        !productFormData.name ||
+        !productFormData.description ||
+        !productFormData.category ||
+        !productFormData.subcategory
+      ) {
+        toast.error("Please fill in all required fields");
+        return;
       }
 
       if (!productFormData.price.base || productFormData.price.base <= 0) {
-        toast.error('Base price must be greater than 0')
-        return
+        toast.error("Base price must be greater than 0");
+        return;
       }
 
-      // Transform the data to match backend expectations
-      const transformedData = {
-        ...productFormData,
-        // Convert imageUrl to images array if imageUrl exists
-        images: productFormData.imageUrl ? [
-          {
-            url: productFormData.imageUrl,
-            alt: productFormData.name || '',
-            isPrimary: true
-          }
-        ] : productFormData.images || [],
-        // Ensure subcategory is not empty string
-        subcategory: productFormData.subcategory || 'other',
-        // Ensure deliveryTime is properly set
-        deliveryTime: {
-          base: Number(productFormData.deliveryTime?.base) || 7,
-          premium: Number(productFormData.deliveryTime?.premium) || 5,
-          enterprise: Number(productFormData.deliveryTime?.enterprise) || 3
+      // Create FormData for Cloudinary + text fields
+      const formData = new FormData();
+
+      // Text fields
+      formData.append("name", productFormData.name);
+      formData.append("description", productFormData.description);
+      formData.append("category", productFormData.category);
+      formData.append("subcategory", productFormData.subcategory);
+
+      formData.append("price.base", Number(productFormData.price.base));
+      formData.append("price.premium", Number(productFormData.price.premium || 0));
+      formData.append("price.enterprise", Number(productFormData.price.enterprise || 0));
+
+      formData.append("deliveryTime.base", Number(productFormData.deliveryTime.base));
+      formData.append("deliveryTime.premium", Number(productFormData.deliveryTime.premium));
+      formData.append("deliveryTime.enterprise", Number(productFormData.deliveryTime.enterprise));
+
+      // ⭐ If admin pasted a direct image URL
+      if (productFormData.imageUrl) {
+        formData.append("imageUrl", productFormData.imageUrl);
+      }
+
+      // ⭐ If admin uploaded files (send to Cloudinary)
+      if (selectedFiles?.length > 0) {
+        selectedFiles.forEach((file) => formData.append("images", file));
+      }
+
+      // API call
+      const response = await axios.post("/api/products", formData, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "multipart/form-data",
         },
-        // Ensure price values are numbers
-        price: {
-          base: Number(productFormData.price.base),
-          premium: Number(productFormData.price.premium) || 0,
-          enterprise: Number(productFormData.price.enterprise) || 0
-        }
-      }
+      });
 
-      // Remove imageUrl from the data being sent
-      delete transformedData.imageUrl
+      toast.success("Product added successfully!");
+      setShowAddProductModal(false);
 
-      console.log('Sending product data:', JSON.stringify(transformedData, null, 2))
-      console.log('Auth token exists:', !!localStorage.getItem('token'))
-
-      const response = await axios.post('/api/products', transformedData, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      })
-      toast.success('Product added successfully')
-      setShowAddProductModal(false)
-
-      // Reset form data and clear image preview states
+      // Reset form
       setProductFormData({
-        name: '',
-        description: '',
-        category: '',
-        subcategory: '',
+        name: "",
+        description: "",
+        category: "",
+        subcategory: "",
         price: { base: 0, premium: 0, enterprise: 0 },
+        imageUrl: "",
+        deliveryTime: { base: 7, premium: 5, enterprise: 3 },
         images: [],
-        imageUrl: '',
-        deliveryTime: { base: 7, premium: 5, enterprise: 3 }
-      })
+      });
 
-      // Clear image preview states (add these lines)
-      setImagePreview('')
-      setSelectedFile(null)
+      setSelectedFiles([]);
+      setImagePreview("");
 
-      // Clear file input
-      const fileInput = document.querySelector('input[type="file"]')
-      if (fileInput) fileInput.value = ''
-
-      fetchProducts()
+      fetchProducts();
     } catch (error) {
-      console.error('Error adding product:', error)
-      console.error('Error response:', error.response?.data)
-      toast.error(error.response?.data?.message || 'Failed to add product')
+      console.error("Error adding product:", error);
+      toast.error(error.response?.data?.message || "Failed to add product");
     }
-  }
+  };
+
+
 
   const handleEditProduct = async () => {
     try {
-      // Validate required fields
-      if (!productFormData.name || !productFormData.description || !productFormData.category || !productFormData.subcategory) {
-        toast.error('Please fill in all required fields')
-        return
+      if (
+        !productFormData.name ||
+        !productFormData.description ||
+        !productFormData.category ||
+        !productFormData.subcategory
+      ) {
+        toast.error("Please fill in all required fields");
+        return;
       }
 
       if (!productFormData.price.base || productFormData.price.base <= 0) {
-        toast.error('Base price must be greater than 0')
-        return
+        toast.error("Base price must be greater than 0");
+        return;
       }
 
-      // Transform the data to match backend expectations
-      const transformedData = {
-        ...productFormData,
-        // Convert imageUrl to images array if imageUrl exists
-        images: productFormData.imageUrl ? [
-          {
-            url: productFormData.imageUrl,
-            alt: productFormData.name || '',
-            isPrimary: true
-          }
-        ] : productFormData.images || [],
-        // Ensure subcategory is not empty string
-        subcategory: productFormData.subcategory && productFormData.subcategory.trim() !== '' ? productFormData.subcategory.trim() : 'other',
-        // Ensure deliveryTime is properly set
-        deliveryTime: {
-          base: Number(productFormData.deliveryTime?.base) || 7,
-          premium: Number(productFormData.deliveryTime?.premium) || 5,
-          enterprise: Number(productFormData.deliveryTime?.enterprise) || 3
-        },
-        // Ensure price values are numbers
-        price: {
-          base: Number(productFormData.price.base),
-          premium: Number(productFormData.price.premium) || 0,
-          enterprise: Number(productFormData.price.enterprise) || 0
+      const formData = new FormData();
+
+      // Text fields
+      formData.append("name", productFormData.name);
+      formData.append("description", productFormData.description);
+      formData.append("category", productFormData.category);
+      formData.append("subcategory", productFormData.subcategory);
+
+      formData.append("price.base", Number(productFormData.price.base));
+      formData.append("price.premium", Number(productFormData.price.premium));
+      formData.append("price.enterprise", Number(productFormData.price.enterprise));
+
+      formData.append("deliveryTime.base", productFormData.deliveryTime.base);
+      formData.append("deliveryTime.premium", productFormData.deliveryTime.premium);
+      formData.append("deliveryTime.enterprise", productFormData.deliveryTime.enterprise);
+
+      // If user typed a new URL
+      if (productFormData.imageUrl) {
+        formData.append("imageUrl", productFormData.imageUrl);
+      }
+
+      // ⭐ Use EDIT UPLOAD FILES STATE
+      if (editSelectedFiles && editSelectedFiles.length > 0) {
+        editSelectedFiles.forEach((file) => formData.append("images", file));
+      }
+
+      const response = await axios.put(
+        `/api/products/${selectedProduct._id}`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            "Content-Type": "multipart/form-data",
+          },
         }
-      }
+      );
 
-      // Remove imageUrl from the data being sent
-      delete transformedData.imageUrl
+      toast.success("Product updated successfully!");
 
-      console.log('Updating product data:', JSON.stringify(transformedData, null, 2))
+      setShowEditProductModal(false);
+      setSelectedProduct(null);
 
-      const response = await axios.put(`/api/products/${selectedProduct._id}`, transformedData, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      })
-      toast.success('Product updated successfully')
-      setShowEditProductModal(false)
-      setSelectedProduct(null)
-
-      // Reset form data and clear image preview states
+      // Reset
       setProductFormData({
-        name: '',
-        description: '',
-        category: '',
-        subcategory: '',
+        name: "",
+        description: "",
+        category: "",
+        subcategory: "",
         price: { base: 0, premium: 0, enterprise: 0 },
+        imageUrl: "",
         images: [],
-        imageUrl: '',
-        deliveryTime: { base: 7, premium: 5, enterprise: 3 }
-      })
+        deliveryTime: { base: 7, premium: 5, enterprise: 3 },
+      });
 
-      // Clear image preview states
-      setImagePreview('')
-      setSelectedFile(null)
+      setEditSelectedFiles([]);
+      setImagePreview("");
 
-      // Clear file input
-      const fileInput = document.querySelector('input[type="file"]')
-      if (fileInput) fileInput.value = ''
-
-      fetchProducts()
+      fetchProducts();
     } catch (error) {
-      console.error('Error updating product:', error)
-      console.error('Error response:', error.response?.data)
-      toast.error(error.response?.data?.message || 'Failed to update product')
+      console.error("Error updating product:", error);
+      toast.error(error.response?.data?.message || "Failed to update product");
     }
-  }
+  };
+
+
 
   const handleDeleteProduct = async (productId) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
