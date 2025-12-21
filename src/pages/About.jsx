@@ -55,7 +55,7 @@ const About = () => {
     },
   ];
 
-  const team = [
+  const maharashtraTeam = [
     {
       name: "Sunil Gopale",
       role: "CEO - Marketing (India Region)",
@@ -87,6 +87,28 @@ const About = () => {
       description: "Manages overall operations and strategic decisions.",
     },
   ];
+
+  const gujaratTeam = [
+    {
+      name: "Amit Patel",
+      role: "Regional Business Head",
+      image: "https://randomuser.me/api/portraits/men/81.jpg",
+      description: "Leads business development and regional growth in Gujarat.",
+    },
+    {
+      name: "Neha Shah",
+      role: "Operations Manager",
+      image: "https://randomuser.me/api/portraits/women/72.jpg",
+      description: "Manages operations and client coordination across Gujarat.",
+    },
+    {
+      name: "Raj Mehta",
+      role: "Technology Lead",
+      image: "https://randomuser.me/api/portraits/men/64.jpg",
+      description: "Oversees technology strategy and execution in the region.",
+    },
+  ];
+
 
   const processSteps = [
     {
@@ -376,7 +398,7 @@ const About = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
             className="mt-16 p-8 bg-white rounded-2xl shadow-xl border-l-8"
-            style={{ borderColor: primary }} 
+            style={{ borderColor: primary }}
           >
             <h3 className="text-2xl font-bold mb-3" style={{ color: primary }}>
               Short Version
@@ -430,6 +452,8 @@ const About = () => {
       {/* TEAM */}
       <section className="py-20 bg-white">
         <div className="w-full px-4 text-center">
+
+          {/* MAIN HEADING */}
           <motion.h2
             initial={{ y: 40, opacity: 0 }}
             whileInView={{ y: 0, opacity: 1 }}
@@ -440,49 +464,104 @@ const About = () => {
             Meet Our Leadership Team
           </motion.h2>
 
-
-          
-
           <motion.p
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
             viewport={{ once: true }}
-            className="text-gray-600 mb-12 max-w-2xl mx-auto"
+            className="text-gray-600 mb-16 max-w-2xl mx-auto"
           >
             A talented group of creative minds leading our design excellence.
           </motion.p>
 
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-10">
-            {team.map((member, i) => (
-              <motion.div
-                key={i}
-                initial={{ scale: 0.8, opacity: 0 }}
-                whileInView={{ scale: 1, opacity: 1 }}
-                transition={{ delay: i * 0.1, duration: 0.5 }}
-                whileHover={{ y: -12, scale: 1.05 }}
-                viewport={{ once: true }}
-                className="bg-white rounded-2xl shadow border border-transparent hover:border-[#FF4500] hover:shadow-2xl transition-all duration-300 cursor-pointer"
-              >
-                <img
-                  src={member.image}
-                  className="w-full h-64 object-cover rounded-t-2xl"
-                  alt={member.name}
-                />
-                <div className="p-5">
-                  <h3 className="text-lg font-bold">{member.name}</h3>
-                  <p className="font-medium" style={{ color: secondary }}>
-                    {member.role}
-                  </p>
-                  <p className="text-gray-600 text-sm mt-2">
-                    {member.description}
-                  </p>
-                </div>
-              </motion.div>
-            ))}
+          {/* ===== MAHARASHTRA REGION ===== */}
+          <div className="mb-20">
+
+            <h3 className="text-3xl font-bold text-gray-800">
+              Maharashtra Region
+            </h3>
+            <div className="w-24 h-1 bg-[#FF4500] mx-auto my-3 rounded-full" />
+            <p className="text-gray-500 max-w-xl mx-auto mb-10">
+              Leadership driving innovation and strategic growth across Maharashtra.
+            </p>
+
+            <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-10">
+              {maharashtraTeam.map((member, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  whileInView={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: i * 0.1 }}
+                  whileHover={{ y: -12, scale: 1.05 }}
+                  viewport={{ once: true }}
+                  className="bg-white rounded-2xl shadow border border-transparent hover:border-[#FF4500] hover:shadow-2xl transition-all duration-300"
+                >
+                  <img
+                    src={member.image}
+                    alt={member.name}
+                    className="w-full h-64 object-cover rounded-t-2xl"
+                  />
+                  <div className="p-5 text-left">
+                    <h3 className="text-lg font-bold">{member.name}</h3>
+                    <p className="font-medium text-[#FF4500]">
+                      {member.role}
+                    </p>
+                    <p className="text-gray-600 text-sm mt-2">
+                      {member.description}
+                    </p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
           </div>
+
+          {/* ===== GUJARAT REGION ===== */}
+          <div>
+
+            <h3 className="text-3xl font-bold text-gray-800">
+              Gujarat Region
+            </h3>
+            <div className="w-24 h-1 bg-[#FF4500] mx-auto my-3 rounded-full" />
+            <p className="text-gray-500 max-w-xl mx-auto mb-10">
+              Strengthening regional partnerships and operational excellence in Gujarat.
+            </p>
+
+            <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-10">
+              {gujaratTeam.map((member, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  whileInView={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: i * 0.1 }}
+                  whileHover={{ y: -12, scale: 1.05 }}
+                  viewport={{ once: true }}
+                  className="bg-white rounded-2xl shadow border border-transparent hover:border-[#FF4500] hover:shadow-2xl transition-all duration-300"
+                >
+                  <img
+                    src={member.image}
+                    alt={member.name}
+                    className="w-full h-64 object-cover rounded-t-2xl"
+                    loading="lazy"
+                  />
+                  <div className="p-5 text-left">
+                    <h3 className="text-lg font-bold">{member.name}</h3>
+                    <p className="font-medium text-[#FF4500]">
+                      {member.role}
+                    </p>
+                    <p className="text-gray-600 text-sm mt-2">
+                      {member.description}
+                    </p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+          </div>
+
         </div>
       </section>
+
 
       {/* CTA */}
       <motion.section

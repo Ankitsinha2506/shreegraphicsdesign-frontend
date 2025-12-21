@@ -322,81 +322,36 @@ const AdminDashboard = () => {
 
 
   const handleImageUpload = async (e) => {
-    let file = e.target.files[0]; // ✅ change 'const' to 'let' for compression
+    let file = e.target.files[0];
     if (!file) return;
 
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      toast.error('Please select a valid image file');
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select a valid image");
       return;
     }
 
-    // =========================
-    // ✅ NEW: Compress the image before upload
-    // =========================
     try {
       const options = {
-        maxSizeMB: 5,             // Max size after compression
-        maxWidthOrHeight: 1920,   // Max dimensions
-        useWebWorker: true
+        maxSizeMB: 5,
+        maxWidthOrHeight: 1920,
+        useWebWorker: true,
       };
-      file = await imageCompression(file, options); // Compress file
-    } catch (err) {
-      console.error('Image compression error:', err);
-      toast.error('Failed to compress image');
+      file = await imageCompression(file, options);
+    } catch {
+      toast.error("Image compression failed");
       return;
     }
 
-    // Validate compressed file size (just in case)
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('Compressed image is still larger than 5MB');
-      return;
-    }
+    // ✅ STORE FILE AS ARRAY (IMPORTANT)
+    setSelectedFiles([file]);
 
-    // Set selected file and create preview immediately
-    setSelectedFile(file);
-    const previewUrl = URL.createObjectURL(file);
-    setImagePreview(previewUrl);
-    setIsUploading(true);
+    // ✅ Preview only
+    setImagePreview(URL.createObjectURL(file));
 
-    // Create a FormData object and append the file
-    const formData = new FormData();
-    formData.append('images', file);
-
-    try {
-      const response = await axios.post('/api/uploads/product', formData, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'multipart/form-data'
-        }
-      });
-
-      console.log('Upload response:', response.data); // Debug log
-
-      // Backend returns an array of files, get the first one
-      if (response.data.success && response.data.files && response.data.files[0]) {
-        const imageUrl = response.data.files[0].url;
-        console.log('Setting imageUrl:', imageUrl); // Debug log
-
-        setProductFormData(prev => ({
-          ...prev,
-          imageUrl: imageUrl
-        }));
-
-        toast.success('Image uploaded successfully!');
-      } else {
-        throw new Error('Invalid response format');
-      }
-    } catch (error) {
-      console.error('Image upload error:', error);
-      toast.error(error.response?.data?.message || 'Image upload failed');
-      // Clear preview on error
-      setImagePreview('');
-      setSelectedFile(null);
-    } finally {
-      setIsUploading(false);
-    }
+    // ❌ DO NOT upload here
+    // ❌ DO NOT call /api/uploads/product
   };
+
 
 
   const clearImage = () => {
@@ -1040,11 +995,9 @@ const AdminDashboard = () => {
   };
 
 
-
-
   const handleAddProduct = async () => {
     try {
-      // Basic validation
+      // 🔹 BASIC VALIDATION
       if (
         !productFormData.name ||
         !productFormData.description ||
@@ -1060,65 +1013,67 @@ const AdminDashboard = () => {
         return;
       }
 
-      // Create FormData for Cloudinary + text fields
+      // 🔥 IMAGE IS MANDATORY FOR ADD PRODUCT
+      if (!selectedFiles || selectedFiles.length === 0) {
+        toast.error("Please upload at least one product image");
+        return;
+      }
+
       const formData = new FormData();
 
-      // Text fields
+      // TEXT FIELDS
       formData.append("name", productFormData.name);
       formData.append("description", productFormData.description);
       formData.append("category", productFormData.category);
       formData.append("subcategory", productFormData.subcategory);
 
-      formData.append("price.base", Number(productFormData.price.base));
-      formData.append("price.premium", Number(productFormData.price.premium || 0));
-      formData.append("price.enterprise", Number(productFormData.price.enterprise || 0));
+      // 🔥 NESTED FIELDS (CRITICAL)
+      formData.append("price[base]", productFormData.price.base);
+      formData.append("price[premium]", productFormData.price.premium || 0);
+      formData.append("price[enterprise]", productFormData.price.enterprise || 0);
 
-      formData.append("deliveryTime.base", Number(productFormData.deliveryTime.base));
-      formData.append("deliveryTime.premium", Number(productFormData.deliveryTime.premium));
-      formData.append("deliveryTime.enterprise", Number(productFormData.deliveryTime.enterprise));
+      formData.append("deliveryTime[base]", productFormData.deliveryTime.base);
+      formData.append("deliveryTime[premium]", productFormData.deliveryTime.premium);
+      formData.append("deliveryTime[enterprise]", productFormData.deliveryTime.enterprise);
 
-      // ⭐ If admin pasted a direct image URL
-      if (productFormData.imageUrl) {
-        formData.append("imageUrl", productFormData.imageUrl);
-      }
+      // 🔥 FILES (THIS FIXES DEFAULT IMAGE ISSUE)
+      selectedFiles.forEach((file) => {
+        formData.append("images", file);
+      });
 
-      // ⭐ If admin uploaded files (send to Cloudinary)
-      if (selectedFiles?.length > 0) {
-        selectedFiles.forEach((file) => formData.append("images", file));
-      }
-
-      // API call
-      const response = await axios.post("/api/products", formData, {
+      await axios.post("/api/products", formData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
-          "Content-Type": "multipart/form-data",
         },
       });
 
       toast.success("Product added successfully!");
       setShowAddProductModal(false);
 
-      // Reset form
       setProductFormData({
         name: "",
         description: "",
         category: "",
         subcategory: "",
         price: { base: 0, premium: 0, enterprise: 0 },
-        imageUrl: "",
         deliveryTime: { base: 7, premium: 5, enterprise: 3 },
         images: [],
       });
 
       setSelectedFiles([]);
       setImagePreview("");
-
       fetchProducts();
+
     } catch (error) {
       console.error("Error adding product:", error);
-      toast.error(error.response?.data?.message || "Failed to add product");
+      toast.error(
+        error.response?.data?.errors?.[0]?.msg ||
+        error.response?.data?.message ||
+        "Failed to add product"
+      );
     }
   };
+
 
 
 
@@ -3720,7 +3675,7 @@ const AdminDashboard = () => {
                       // Clear file preview when typing URL
                       if (e.target.value) {
                         setImagePreview('');
-                        setSelectedFile(null);
+                        setSelectedFiles([]);
                       }
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -3847,7 +3802,7 @@ const AdminDashboard = () => {
         </div>
       )}
 
-      {/* Edit Product Modal */}
+
       {/* Edit Product Modal */}
       {showEditProductModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
