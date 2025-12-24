@@ -241,9 +241,9 @@ const AdminDashboard = () => {
       subcategories: [
         { value: 'cap', label: 'Cap' },
         { value: 'jackets', label: 'Jackets' },
-        { value: 'Shirt', label: 'Shirt' },
+        { value: 'shirt', label: 'Shirt' },
         { value: 'denim-shirt', label: 'T-Shirt' },
-        { value: 'windcheaters', label: 'Windcheaters' }
+        // { value: 'windcheaters', label: 'Windcheaters' }
       ]
     },
     'travels': {
@@ -301,6 +301,43 @@ const AdminDashboard = () => {
       ]
     }
   }
+
+
+  const SUBCATEGORY_ALIASES = {
+    // Apparels
+    shirt: ['shirt'],
+    'denim-shirt': ['tshirt', 't-shirt', 't shirt', 'tee', 'tee-shirt'],
+
+    cap: ['cap', 'caps'],
+    jackets: ['jacket', 'jackets'],
+    windcheaters: ['windcheater', 'wind cheater'],
+
+    // Travels
+    'hand-bag': ['handbag', 'hand bag'],
+    'strolley-bags': ['strolley', 'trolley', 'trolley bag'],
+    'travel-bags': ['travel bag'],
+    'back-packs': ['backpack', 'back pack'],
+    'laptop-bags': ['laptop bag'],
+
+    // Leather
+    'office-bags': ['office bag'],
+    wallets: ['wallet', 'wallets'],
+
+    // Uniforms
+    'school-uniforms': ['school uniform'],
+    corporate: ['corporate uniform'],
+
+    // Other
+    other: ['other']
+  };
+
+  const normalize = (str) =>
+    str
+      .toLowerCase()
+      .replace(/[-_]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+
 
   // Profile management state
   const [showProfileModal, setShowProfileModal] = useState(false)
@@ -406,10 +443,39 @@ const AdminDashboard = () => {
     if (productFilterStatus === 'active' && product.isActive !== true) return false
     if (productFilterStatus === 'inactive' && product.isActive !== false) return false
 
-    // Search by name filter
-    if (productSearchTerm && !product.name.toLowerCase().includes(productSearchTerm.toLowerCase())) {
-      return false
+    // ✅ CHANGED: exact word match using regex
+    // ✅ FINAL SEARCH IMPLEMENTATION (ALIAS-BASED)
+    if (productSearchTerm) {
+      const search = normalize(productSearchTerm);
+
+      let matches = false;
+
+      // 1️⃣ Exact subcategory match
+      if (product.subcategory === search) {
+        matches = true;
+      }
+
+      // 2️⃣ Alias match (tshirt → denim-shirt)
+      if (!matches) {
+        const aliases = SUBCATEGORY_ALIASES[product.subcategory] || [];
+        if (aliases.some(alias => normalize(alias) === search)) {
+          matches = true;
+        }
+      }
+
+      // 3️⃣ Exact product name match (optional)
+      if (!matches) {
+        if (normalize(product.name) === search) {
+          matches = true;
+        }
+      }
+
+      if (!matches) {
+        return false;
+      }
     }
+
+
 
     // Category filter
     if (productFilterCategory && product.category !== productFilterCategory) {
@@ -1079,6 +1145,7 @@ const AdminDashboard = () => {
 
   const handleEditProduct = async () => {
     try {
+      // 🔹 BASIC VALIDATION
       if (
         !productFormData.name ||
         !productFormData.description ||
@@ -1096,37 +1163,46 @@ const AdminDashboard = () => {
 
       const formData = new FormData();
 
-      // Text fields
+      // 🔹 TEXT FIELDS
       formData.append("name", productFormData.name);
       formData.append("description", productFormData.description);
       formData.append("category", productFormData.category);
       formData.append("subcategory", productFormData.subcategory);
 
-      formData.append("price.base", Number(productFormData.price.base));
-      formData.append("price.premium", Number(productFormData.price.premium));
-      formData.append("price.enterprise", Number(productFormData.price.enterprise));
+      // ✅ CHANGED: use bracket notation (same as ADD)
+      formData.append("price[base]", productFormData.price.base);
+      formData.append("price[premium]", productFormData.price.premium || 0);
+      formData.append("price[enterprise]", productFormData.price.enterprise || 0);
 
-      formData.append("deliveryTime.base", productFormData.deliveryTime.base);
-      formData.append("deliveryTime.premium", productFormData.deliveryTime.premium);
-      formData.append("deliveryTime.enterprise", productFormData.deliveryTime.enterprise);
+      // ✅ CHANGED: use bracket notation
+      formData.append("deliveryTime[base]", productFormData.deliveryTime.base);
+      formData.append("deliveryTime[premium]", productFormData.deliveryTime.premium);
+      formData.append("deliveryTime[enterprise]", productFormData.deliveryTime.enterprise);
 
-      // If user typed a new URL
+      // ✅ CHANGED: Preserve existing images if no new upload
+      if (editSelectedFiles && editSelectedFiles.length > 0) {
+        editSelectedFiles.forEach((file) => {
+          formData.append("images", file);
+        });
+      } else if (productFormData.images?.length > 0) {
+        formData.append(
+          "existingImages",
+          JSON.stringify(productFormData.images)
+        );
+      }
+
+      // ✅ OPTIONAL: Allow URL-based image replacement
       if (productFormData.imageUrl) {
         formData.append("imageUrl", productFormData.imageUrl);
       }
 
-      // ⭐ Use EDIT UPLOAD FILES STATE
-      if (editSelectedFiles && editSelectedFiles.length > 0) {
-        editSelectedFiles.forEach((file) => formData.append("images", file));
-      }
-
-      const response = await axios.put(
+      await axios.put(
         `/api/products/${selectedProduct._id}`,
         formData,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
-            "Content-Type": "multipart/form-data",
+            // ❌ DO NOT set Content-Type manually
           },
         }
       );
@@ -1136,7 +1212,7 @@ const AdminDashboard = () => {
       setShowEditProductModal(false);
       setSelectedProduct(null);
 
-      // Reset
+      // 🔹 RESET FORM
       setProductFormData({
         name: "",
         description: "",
@@ -1152,11 +1228,15 @@ const AdminDashboard = () => {
       setImagePreview("");
 
       fetchProducts();
+
     } catch (error) {
       console.error("Error updating product:", error);
-      toast.error(error.response?.data?.message || "Failed to update product");
+      toast.error(
+        error.response?.data?.message || "Failed to update product"
+      );
     }
   };
+
 
 
 
