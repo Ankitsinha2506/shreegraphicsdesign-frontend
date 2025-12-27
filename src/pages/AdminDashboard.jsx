@@ -1171,8 +1171,11 @@ const AdminDashboard = () => {
       formData.append("name", productFormData.name);
       formData.append("description", productFormData.description);
       formData.append("category", productFormData.category);
-      formData.append("subcategory", normalizedSubcategory); // ✅ FIXED
-      
+      formData.append(
+        "subcategory",
+        String(productFormData.subcategory).trim().toLowerCase()
+      );
+
       // ✅ CHANGED: use bracket notation (same as ADD)
       formData.append("price[base]", productFormData.price.base);
       formData.append("price[premium]", productFormData.price.premium || 0);
