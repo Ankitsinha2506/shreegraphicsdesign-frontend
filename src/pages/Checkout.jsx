@@ -8,7 +8,7 @@ import axios from 'axios'
 import toast from 'react-hot-toast'
 import { API_URL } from '../config/api'
 
-const MERCHANT_UPI_ID = "7492936645@ybl"
+const MERCHANT_UPI_ID = "nilam.mane25-2@okicici"
 const MERCHANT_NAME = "TrendyTees"
 
 const Checkout = () => {
