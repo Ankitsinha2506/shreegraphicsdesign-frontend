@@ -1079,7 +1079,7 @@ const AdminDashboard = () => {
         return;
       }
 
-      // 🔥 IMAGE IS MANDATORY FOR ADD PRODUCT
+      // 🔥 IMAGE IS MANDATORY
       if (!selectedFiles || selectedFiles.length === 0) {
         toast.error("Please upload at least one product image");
         return;
@@ -1087,22 +1087,28 @@ const AdminDashboard = () => {
 
       const formData = new FormData();
 
-      // TEXT FIELDS
+      // 🔹 TEXT FIELDS
       formData.append("name", productFormData.name);
       formData.append("description", productFormData.description);
       formData.append("category", productFormData.category);
-      formData.append("subcategory", productFormData.subcategory);
 
-      // 🔥 NESTED FIELDS (CRITICAL)
-      formData.append("price[base]", productFormData.price.base);
-      formData.append("price[premium]", productFormData.price.premium || 0);
-      formData.append("price[enterprise]", productFormData.price.enterprise || 0);
+      // 🔥 NORMALIZE SUBCATEGORY (VERY IMPORTANT)
+      formData.append(
+        "subcategory",
+        String(productFormData.subcategory).trim().toLowerCase()
+      );
 
-      formData.append("deliveryTime[base]", productFormData.deliveryTime.base);
-      formData.append("deliveryTime[premium]", productFormData.deliveryTime.premium);
-      formData.append("deliveryTime[enterprise]", productFormData.deliveryTime.enterprise);
+      // 🔥 PRICE (FLAT FIELDS — PRODUCTION SAFE)
+      formData.append("priceBase", productFormData.price.base);
+      formData.append("pricePremium", productFormData.price.premium || 0);
+      formData.append("priceEnterprise", productFormData.price.enterprise || 0);
 
-      // 🔥 FILES (THIS FIXES DEFAULT IMAGE ISSUE)
+      // 🔥 DELIVERY TIME (FLAT FIELDS — PRODUCTION SAFE)
+      formData.append("deliveryBase", productFormData.deliveryTime.base);
+      formData.append("deliveryPremium", productFormData.deliveryTime.premium);
+      formData.append("deliveryEnterprise", productFormData.deliveryTime.enterprise);
+
+      // 🔥 FILES
       selectedFiles.forEach((file) => {
         formData.append("images", file);
       });
@@ -1116,6 +1122,7 @@ const AdminDashboard = () => {
       toast.success("Product added successfully!");
       setShowAddProductModal(false);
 
+      // 🔹 RESET FORM
       setProductFormData({
         name: "",
         description: "",
@@ -1139,6 +1146,7 @@ const AdminDashboard = () => {
       );
     }
   };
+
 
 
 
@@ -1525,7 +1533,7 @@ const AdminDashboard = () => {
               <p className="text-xs text-gray-500 mt-1">Management Dashboard</p>
             </div>
           )}
-
+          const product = await Product.create(productData);
           <button
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
             className="p-2 rounded-lg hover:bg-gray-100 transition"
