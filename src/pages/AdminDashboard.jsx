@@ -1163,12 +1163,16 @@ const AdminDashboard = () => {
 
       const formData = new FormData();
 
+      // 🔥 FIX: NORMALIZE SUBCATEGORY (THIS SOLVES SHIRT ERROR)
+      const normalizedSubcategory =
+        productFormData.subcategory.toLowerCase();
+
       // 🔹 TEXT FIELDS
       formData.append("name", productFormData.name);
       formData.append("description", productFormData.description);
       formData.append("category", productFormData.category);
-      formData.append("subcategory", productFormData.subcategory);
-
+      formData.append("subcategory", normalizedSubcategory); // ✅ FIXED
+      
       // ✅ CHANGED: use bracket notation (same as ADD)
       formData.append("price[base]", productFormData.price.base);
       formData.append("price[premium]", productFormData.price.premium || 0);
