@@ -23,6 +23,14 @@ import Sunil from "../assets/images/Sunil.png";
 import Kavita from "../assets/images/Kavita.png";
 import Abouthero from "../assets/images/abouthero.jpg";
 
+
+// import Shailesh from "../../public/aboutImages/Shailesh.png";
+// import Sheela from "../../public/aboutImages/Sheela.png";
+// import Shubham from "../../public/aboutImages/Shubham.png";
+// import Sunil from "../../public/aboutImages/Sunil.png";
+// import Kavita from "../../public/aboutImages/Kavita.png";
+ 
+
 const About = () => {
   const primary = "#FF4500";
   const secondary = "#FF6B35";
