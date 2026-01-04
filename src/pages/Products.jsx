@@ -111,19 +111,118 @@ const Products = () => {
     fetchProducts()
   }, [])
 
+
+  const SUBCATEGORY_ALIASES = {
+    cap: ['cap', 'caps'],
+    shirt: ['shirt', 'shirts'],
+    'denim-shirt': ['tshirt', 't-shirt', 't shirt', 'tee', 'tee shirt'],
+    jackets: ['jacket', 'jackets'],
+    windcheaters: ['windcheater', 'wind cheater'],
+
+    'hand-bag': ['handbag', 'hand bag'],
+    'strolley-bags': ['strolley', 'trolley', 'trolley bag'],
+    'travel-bags': ['travel bag'],
+    'back-packs': ['backpack', 'back pack'],
+    'laptop-bags': ['laptop bag'],
+
+    'office-bags': ['office bag'],
+    wallets: ['wallet', 'wallets'],
+
+    'school-uniforms': ['school uniform'],
+    corporate: ['corporate uniform']
+  }
+
+  const normalize = (str = '') =>
+    str
+      .toLowerCase()
+      .replace(/[-_]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+
+
+  const resolveCanonicalSubcategory = (value = '') => {
+    const normalized = normalize(value)
+
+    for (const [canonical, aliases] of Object.entries(SUBCATEGORY_ALIASES)) {
+      if (
+        normalize(canonical) === normalized ||
+        aliases.some(alias => normalize(alias) === normalized)
+      ) {
+        return canonical
+      }
+    }
+
+    return normalized
+  }
+
   // ==================== FILTERING & SORTING ====================
   const filteredProducts = products.filter(product => {
-    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory
-    const matchesSubcategory = selectedSubcategory === 'all' || product.subcategory === selectedSubcategory
-    let matchesPrice = true
-    if (priceRange !== 'all') {
-      const [min, max] = priceRange === '2000+' ? [2000, Infinity] : priceRange.split('-').map(Number)
-      const price = product.price?.base || product.price || 0
-      matchesPrice = price >= min && (max === Infinity || price <= max)
+    /* ================= SEARCH (ALIAS + NAME) ================= */
+    let matchesSearch = true
+
+    if (searchTerm) {
+      const search = normalize(searchTerm)
+      const name = normalize(product.name)
+      const subcategory = normalize(product.subcategory)
+
+      matchesSearch = false
+
+      // 1️⃣ Exact subcategory match
+      if (subcategory === search) {
+        matchesSearch = true
+      }
+
+      // 2️⃣ Alias match (tshirt → denim-shirt)
+      if (!matchesSearch) {
+        const aliases = SUBCATEGORY_ALIASES[product.subcategory] || []
+        if (aliases.some(a => normalize(a) === search)) {
+          matchesSearch = true
+        }
+      }
+
+      // 3️⃣ Product name contains search
+      if (!matchesSearch && name.includes(search)) {
+        matchesSearch = true
+      }
     }
-    return matchesSearch && matchesCategory && matchesSubcategory && matchesPrice
+
+    /* ================= CATEGORY ================= */
+    const matchesCategory =
+      selectedCategory === 'all' ||
+      product.category === selectedCategory
+
+    /* ================= SUBCATEGORY (ALIAS AWARE) ================= */
+    let matchesSubcategory = true
+
+    if (selectedSubcategory !== 'all') {
+      const selectedKey = resolveCanonicalSubcategory(selectedSubcategory)
+      const productKey = resolveCanonicalSubcategory(product.subcategory)
+
+      matchesSubcategory = selectedKey === productKey
+    }
+
+
+    /* ================= PRICE ================= */
+    let matchesPrice = true
+
+    if (priceRange !== 'all') {
+      const price = product.price?.base || product.price || 0
+      const [min, max] =
+        priceRange === '2000+'
+          ? [2000, Infinity]
+          : priceRange.split('-').map(Number)
+
+      matchesPrice = price >= min && price <= max
+    }
+
+    return (
+      matchesSearch &&
+      matchesCategory &&
+      matchesSubcategory &&
+      matchesPrice
+    )
   })
+
 
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     const priceA = a.price?.base || a.price || 0
